@@ -10,7 +10,7 @@ interface FAQPageProps {
 
 export const FAQPage: React.FC<FAQPageProps> = ({ onOpenPilotModal }) => {
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#0F172A] pt-28 pb-16 selection:bg-amber-300 selection:text-[#0F172A]">
+    <div className="min-h-screen bg-[#FEF9F3] text-[#0A1128] pt-28 pb-16 selection:bg-amber-300 selection:text-[#0A1128]">
       
       {/* Header */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-6">
@@ -21,7 +21,7 @@ export const FAQPage: React.FC<FAQPageProps> = ({ onOpenPilotModal }) => {
           </Sticker>
         </div>
         
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F172A] max-w-4xl mx-auto leading-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0A1128] max-w-4xl mx-auto leading-tight">
           Help Center & <br />
           <span className="text-blue-600 underline decoration-amber-400 decoration-wavy decoration-2">
             Frequently Asked Questions.
@@ -55,49 +55,49 @@ export const FAQPage: React.FC<FAQPageProps> = ({ onOpenPilotModal }) => {
           <Sticker color="purple" rotate="none" size="sm" className="mb-3 inline-flex">
             Always Here To Help
           </Sticker>
-          <h3 className="text-2xl sm:text-3xl font-black text-[#0F172A]">Can’t find what you’re looking for?</h3>
+          <h3 className="text-2xl sm:text-3xl font-black text-[#0A1128]">Can’t find what you’re looking for?</h3>
           <p className="text-sm sm:text-base text-slate-600 font-medium mt-1">Our support team is active 7 days a week.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Email */}
-          <div className="p-6 rounded-2xl bg-white border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] text-center flex flex-col items-center hover:-translate-y-1 transition-all">
-            <div className="w-14 h-14 rounded-2xl bg-blue-100 border-[2px] border-[#0F172A] text-blue-700 flex items-center justify-center mb-4 shadow-[2px_2px_0px_#0F172A]">
+          <div className="p-6 rounded-2xl bg-white border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] text-center flex flex-col items-center hover:-translate-y-1 transition-all">
+            <div className="w-14 h-14 rounded-2xl bg-blue-100 border-[2px] border-[#0A1128] text-blue-700 flex items-center justify-center mb-4 shadow-[2px_2px_0px_#0A1128]">
               <Mail className="w-7 h-7 stroke-[2.2]" />
             </div>
-            <h4 className="font-black text-[#0F172A] text-lg">Email Inquiries</h4>
+            <h4 className="font-black text-[#0A1128] text-lg">Email Inquiries</h4>
             <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 mb-4">For general questions and pilot queries.</p>
             <a 
               href="mailto:support@parcelflow.app" 
-              className="mt-auto px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+              className="mt-auto px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
             >
               support@parcelflow.app
             </a>
           </div>
 
           {/* Society Pilot Desk */}
-          <div className="p-6 rounded-2xl bg-white border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] text-center flex flex-col items-center hover:-translate-y-1 transition-all">
-            <div className="w-14 h-14 rounded-2xl bg-amber-100 border-[2px] border-[#0F172A] text-amber-800 flex items-center justify-center mb-4 shadow-[2px_2px_0px_#0F172A]">
+          <div className="p-6 rounded-2xl bg-white border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] text-center flex flex-col items-center hover:-translate-y-1 transition-all">
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 border-[2px] border-[#0A1128] text-amber-800 flex items-center justify-center mb-4 shadow-[2px_2px_0px_#0A1128]">
               <MessageSquare className="w-7 h-7 stroke-[2.2]" />
             </div>
-            <h4 className="font-black text-[#0F172A] text-lg">Society Pilot Desk</h4>
+            <h4 className="font-black text-[#0A1128] text-lg">Society Pilot Desk</h4>
             <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 mb-4">For RWAs & Management Committees.</p>
             <button 
               onClick={onOpenPilotModal}
-              className="mt-auto px-4 py-2 rounded-xl bg-amber-400 text-[#0F172A] font-black text-xs border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+              className="mt-auto px-4 py-2 rounded-xl bg-amber-400 text-[#0A1128] font-black text-xs border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
             >
               Book 15-min Pilot Call
             </button>
           </div>
 
           {/* Security Desk Hotline */}
-          <div className="p-6 rounded-2xl bg-white border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] text-center flex flex-col items-center hover:-translate-y-1 transition-all">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-100 border-[2px] border-[#0F172A] text-emerald-800 flex items-center justify-center mb-4 shadow-[2px_2px_0px_#0F172A]">
+          <div className="p-6 rounded-2xl bg-white border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] text-center flex flex-col items-center hover:-translate-y-1 transition-all">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 border-[2px] border-[#0A1128] text-emerald-800 flex items-center justify-center mb-4 shadow-[2px_2px_0px_#0A1128]">
               <PhoneCall className="w-7 h-7 stroke-[2.2]" />
             </div>
-            <h4 className="font-black text-[#0F172A] text-lg">Gate Staff Support</h4>
+            <h4 className="font-black text-[#0A1128] text-lg">Gate Staff Support</h4>
             <p className="text-xs sm:text-sm text-slate-600 font-medium mt-1 mb-4">Immediate terminal & scanner guidance.</p>
-            <span className="mt-auto px-3.5 py-2 rounded-xl bg-slate-100 text-[#0F172A] font-mono font-bold text-xs border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+            <span className="mt-auto px-3.5 py-2 rounded-xl bg-slate-100 text-[#0A1128] font-mono font-bold text-xs border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
               +91 (080) 4120-FLOW
             </span>
           </div>

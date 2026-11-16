@@ -4,14 +4,14 @@ import { Sticker } from '../components/Sticker';
 
 export const TermsPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#0F172A] pt-28 pb-20 selection:bg-amber-300 selection:text-[#0F172A]">
+    <div className="min-h-screen bg-[#FEF9F3] text-[#0A1128] pt-28 pb-20 selection:bg-amber-300 selection:text-[#0A1128]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Navigation back */}
         <div className="mb-6">
           <a
             href="/"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border-[2px] border-[#0F172A] text-xs font-black text-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border-[2px] border-[#0A1128] text-xs font-black text-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
             Back to Home
@@ -30,7 +30,7 @@ export const TermsPage: React.FC = () => {
             </Sticker>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0F172A] tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0A1128] tracking-tight">
             Terms of Service
           </h1>
           <p className="mt-2 text-xs sm:text-sm font-semibold text-slate-500">
@@ -39,14 +39,14 @@ export const TermsPage: React.FC = () => {
         </div>
 
         {/* Main Document Card */}
-        <div className="rounded-3xl bg-white border-[3px] border-[#0F172A] shadow-[6px_6px_0px_#0F172A] p-7 sm:p-12 space-y-10">
+        <div className="rounded-3xl bg-white border-[3px] border-[#0A1128] shadow-[6px_6px_0px_#0A1128] p-7 sm:p-12 space-y-10">
           
           <section className="space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-100 border-[2px] border-[#0F172A] flex items-center justify-center text-blue-800 shadow-[1px_1px_0px_#0F172A]">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 border-[2px] border-[#0A1128] flex items-center justify-center text-blue-800 shadow-[1px_1px_0px_#0A1128]">
                 <FileText className="w-4 h-4 stroke-[2.5]" />
               </div>
-              <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+              <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
                 1. Acceptance of Terms
               </h2>
             </div>
@@ -56,7 +56,7 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               2. Scope of Service
             </h2>
             <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
@@ -65,27 +65,27 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               3. Society Hub Storage & Responsibility
             </h2>
             <ul className="space-y-2.5 text-sm sm:text-base text-slate-700 font-medium">
               <li className="flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#0F172A] mt-2 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#0A1128] mt-2 shrink-0" />
                 <span><strong>Temporary Storage:</strong> Packages logged into the society Parcel Hub are intended for short-term resident pickup (typically within 48 to 72 hours).</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#0F172A] mt-2 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#0A1128] mt-2 shrink-0" />
                 <span><strong>Verification Tokens:</strong> Residents are responsible for safeguarding their QR code and 4-digit pickup OTP. Sharing your token constitutes full authorization for that individual to collect your parcel.</span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-[#0F172A] mt-2 shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-[#0A1128] mt-2 shrink-0" />
                 <span><strong>Prohibited Items:</strong> Flammable substances, hazardous materials, illegal contraband, and unsealed perishable meats or unpacked ice cream are not accepted for long-term hub storage.</span>
               </li>
             </ul>
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               4. Courier Interactions
             </h2>
             <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
@@ -94,7 +94,7 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               5. Pilot Software Disclaimer
             </h2>
             <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
@@ -103,7 +103,7 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               6. Termination
             </h2>
             <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
@@ -112,7 +112,7 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               7. Governing Law & Jurisdiction
             </h2>
             <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
@@ -121,13 +121,13 @@ export const TermsPage: React.FC = () => {
           </section>
 
           <section className="space-y-3 border-t-[2px] border-slate-100 pt-8">
-            <h2 className="text-lg sm:text-xl font-black text-[#0F172A]">
+            <h2 className="text-lg sm:text-xl font-black text-[#0A1128]">
               8. Contact Us
             </h2>
             <p className="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
               For legal inquiries regarding these terms:
             </p>
-            <div className="p-4 rounded-xl bg-slate-50 border-[2px] border-[#0F172A] text-xs sm:text-sm font-mono font-bold text-blue-700 shadow-[2px_2px_0px_#0F172A]">
+            <div className="p-4 rounded-xl bg-slate-50 border-[2px] border-[#0A1128] text-xs sm:text-sm font-mono font-bold text-blue-700 shadow-[2px_2px_0px_#0A1128]">
               legal@parcelflow.app • Legal Department
             </div>
           </section>

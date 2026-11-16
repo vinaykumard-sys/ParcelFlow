@@ -8,24 +8,24 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#FAF7F2',
+        background: '#FEF9F3',
         cream: {
-          50: '#FDFBF7',
-          100: '#FAF7F2',
-          200: '#F4EFE6',
-          300: '#E8DFD1',
+          50: '#FFFDF9',
+          100: '#FEF9F3',
+          200: '#F5ECE1',
+          300: '#EAD9C6',
         },
         navy: {
-          DEFAULT: '#0F172A',
-          900: '#0F172A',
-          800: '#1E293B',
-          700: '#334155',
-          600: '#475569',
+          DEFAULT: '#0A1128',
+          900: '#0A1128',
+          800: '#141E3C',
+          700: '#223058',
+          600: '#384874',
         },
         surface: {
-          50: '#FAF7F2',
+          50: '#FEF9F3',
           100: '#FFFFFF',
-          200: '#F4EFE6',
+          200: '#F5ECE1',
           card: '#FFFFFF',
         },
         brand: {
@@ -40,7 +40,7 @@ export default {
           accent: '#60A5FA',
         },
         slate: {
-          border: '#0F172A',
+          border: '#0A1128',
           glow: 'rgba(37, 99, 235, 0.15)',
         }
       },
@@ -49,10 +49,10 @@ export default {
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       boxShadow: {
-        'cartoon-sm': '2px 2px 0px #0F172A',
-        'cartoon': '4px 4px 0px #0F172A',
-        'cartoon-lg': '6px 6px 0px #0F172A',
-        'cartoon-xl': '8px 8px 0px #0F172A',
+        'cartoon-sm': '2px 2px 0px #0A1128',
+        'cartoon': '4px 4px 0px #0A1128',
+        'cartoon-lg': '6px 6px 0px #0A1128',
+        'cartoon-xl': '8px 8px 0px #0A1128',
         'cartoon-blue': '4px 4px 0px #2563EB',
         'cartoon-orange': '4px 4px 0px #EA580C',
         'neon': '0 0 25px -5px rgba(59, 130, 246, 0.4)',

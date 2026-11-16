@@ -9,14 +9,14 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
   return (
-    <footer className="relative bg-[#FAF7F2] border-t-[3px] border-[#0F172A] text-[#0F172A] text-sm overflow-hidden pt-16 pb-12">
+    <footer className="relative bg-[#FEF9F3] border-t-[3px] border-[#0A1128] text-[#0A1128] text-sm overflow-hidden pt-16 pb-12">
       {/* Playful Stickers Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-        <div className="p-6 bg-white border-[2.5px] border-[#0F172A] rounded-3xl shadow-[5px_5px_0px_#0F172A] flex flex-wrap items-center justify-between gap-4">
+        <div className="p-6 bg-white border-[2.5px] border-[#0A1128] rounded-3xl shadow-[5px_5px_0px_#0A1128] flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl">✨</span>
             <div>
-              <h4 className="text-sm font-black text-[#0F172A]">Certified Smart Community Network</h4>
+              <h4 className="text-sm font-black text-[#0A1128]">Certified Smart Community Network</h4>
               <p className="text-xs text-slate-600 font-medium">India's highest rated residential parcel locker infrastructure</p>
             </div>
           </div>
@@ -39,21 +39,21 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b-2 border-[#0F172A]/20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b-2 border-[#0A1128]/20">
           
           {/* Col 1 & 2: Brand & Mission */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3 group">
-              <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-amber-400 border-[2.5px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A]">
-                <Package className="w-6 h-6 text-[#0F172A] stroke-[2.5]" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-[#0F172A]" />
+              <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-amber-400 border-[2.5px] border-[#0A1128] shadow-[3px_3px_0px_#0A1128]">
+                <Package className="w-6 h-6 text-[#0A1128] stroke-[2.5]" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-[#0A1128]" />
               </div>
-              <span className="text-2xl font-black tracking-tight text-[#0F172A] font-sans">
+              <span className="text-2xl font-black tracking-tight text-[#0A1128] font-sans">
                 {BRAND.name}
               </span>
             </div>
 
-            <p className="text-base font-extrabold text-[#0F172A]">
+            <p className="text-base font-extrabold text-[#0A1128]">
               {BRAND.tagline}
             </p>
             
@@ -64,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
             <div className="pt-2">
               <button
                 onClick={() => onOpenModal?.('pilot')}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-[#0F172A] border-2 border-[#0F172A] rounded-xl text-xs font-black shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-[#0A1128] border-2 border-[#0A1128] rounded-xl text-xs font-black shadow-[3px_3px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
               >
                 <span>Request Society Installation</span>
                 <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
@@ -74,7 +74,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
 
           {/* Col 3: Navigation */}
           <div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-[#0F172A] mb-4 flex items-center gap-1.5">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#0A1128] mb-4 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-600"></span>
               Explore
             </h4>
@@ -102,7 +102,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
 
           {/* Col 4: Solutions */}
           <div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-[#0F172A] mb-4 flex items-center gap-1.5">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#0A1128] mb-4 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
               Solutions
             </h4>
@@ -143,7 +143,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
 
           {/* Col 5: Contact & Socials */}
           <div className="space-y-3">
-            <h4 className="text-xs font-black uppercase tracking-wider text-[#0F172A] mb-4 flex items-center gap-1.5">
+            <h4 className="text-xs font-black uppercase tracking-wider text-[#0A1128] mb-4 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-orange-500"></span>
               Connect
             </h4>
@@ -170,7 +170,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-white border-2 border-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0F172A] flex items-center justify-center text-[#0F172A] transition-all"
+                className="w-9 h-9 rounded-xl bg-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0A1128] flex items-center justify-center text-[#0A1128] transition-all"
                 aria-label="X / Twitter"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -181,7 +181,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-white border-2 border-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0F172A] flex items-center justify-center text-[#0F172A] transition-all"
+                className="w-9 h-9 rounded-xl bg-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0A1128] flex items-center justify-center text-[#0A1128] transition-all"
                 aria-label="LinkedIn"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noreferrer"
-                className="w-9 h-9 rounded-xl bg-white border-2 border-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0F172A] flex items-center justify-center text-[#0F172A] transition-all"
+                className="w-9 h-9 rounded-xl bg-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0A1128] flex items-center justify-center text-[#0A1128] transition-all"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">

@@ -21,7 +21,7 @@ interface HomeProps {
 
 export const Home: React.FC<HomeProps> = ({ onOpenPilotModal }) => {
   return (
-    <div className="relative min-h-screen bg-[#FAF7F2] text-[#0F172A] selection:bg-amber-300 selection:text-[#0F172A]">
+    <div className="relative min-h-screen bg-[#FEF9F3] text-[#0A1128] selection:bg-amber-300 selection:text-[#0A1128]">
       {/* 1. Hero Section */}
       <Hero />
 

@@ -130,13 +130,13 @@ export const FAQ: React.FC<FAQProps> = ({
   const displayedFaqs = limit ? filteredFaqs.slice(0, limit) : filteredFaqs;
 
   return (
-    <section id="faq" className="relative py-24 bg-[#FAF7F2] text-[#0F172A] overflow-hidden">
+    <section id="faq" className="relative py-24 bg-[#FEF9F3] text-[#0A1128] overflow-hidden">
       {/* Decorative cartoon elements in background */}
       <div className="absolute top-10 left-8 opacity-25 pointer-events-none hidden md:block">
-        <div className="w-16 h-16 rounded-full border-[3px] border-[#0F172A] bg-amber-300 shadow-[3px_3px_0px_#0F172A]" />
+        <div className="w-16 h-16 rounded-full border-[3px] border-[#0A1128] bg-amber-300 shadow-[3px_3px_0px_#0A1128]" />
       </div>
       <div className="absolute bottom-12 right-10 opacity-25 pointer-events-none hidden md:block">
-        <div className="w-12 h-12 rounded-xl rotate-12 border-[3px] border-[#0F172A] bg-blue-400 shadow-[3px_3px_0px_#0F172A]" />
+        <div className="w-12 h-12 rounded-xl rotate-12 border-[3px] border-[#0A1128] bg-blue-400 shadow-[3px_3px_0px_#0A1128]" />
       </div>
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,12 +145,12 @@ export const FAQ: React.FC<FAQProps> = ({
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 mb-4">
             <Sticker color="yellow" rotate="slight-left" size="sm">
-              <MessageCircleQuestion className="w-3.5 h-3.5 inline mr-1 text-[#0F172A]" />
+              <MessageCircleQuestion className="w-3.5 h-3.5 inline mr-1 text-[#0A1128]" />
               Got Questions?
             </Sticker>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#0F172A]">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-[#0A1128]">
             Frequently Asked Questions
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-600 font-medium">
@@ -167,7 +167,7 @@ export const FAQ: React.FC<FAQProps> = ({
               placeholder="Search questions (e.g. OTP, timing, flat delegate)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white border-[2.5px] border-[#0F172A] rounded-2xl text-[#0F172A] font-medium placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-400/30 shadow-[4px_4px_0px_#0F172A] text-sm"
+              className="w-full pl-12 pr-4 py-3.5 bg-white border-[2.5px] border-[#0A1128] rounded-2xl text-[#0A1128] font-medium placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-blue-400/30 shadow-[4px_4px_0px_#0A1128] text-sm"
             />
           </div>
         )}
@@ -188,10 +188,10 @@ export const FAQ: React.FC<FAQProps> = ({
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
                   type="button"
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border-[2px] border-[#0F172A] transition-all flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold border-[2px] border-[#0A1128] transition-all flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-blue-600 text-white shadow-[3px_3px_0px_#0F172A] -translate-y-0.5'
-                      : 'bg-white hover:bg-amber-50 text-[#0F172A] shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5'
+                      ? 'bg-blue-600 text-white shadow-[3px_3px_0px_#0A1128] -translate-y-0.5'
+                      : 'bg-white hover:bg-amber-50 text-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5'
                   }`}
                 >
                   <span>{cat.emoji}</span>
@@ -205,12 +205,12 @@ export const FAQ: React.FC<FAQProps> = ({
         {/* FAQ Accordion List */}
         <div className="space-y-4">
           {displayedFaqs.length === 0 ? (
-            <div className="text-center py-12 rounded-2xl bg-white border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A]">
+            <div className="text-center py-12 rounded-2xl bg-white border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128]">
               <Package className="w-10 h-10 text-slate-400 mx-auto mb-2" />
               <p className="text-slate-700 font-semibold text-sm">No questions found matching your search.</p>
               <button
                 onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                className="mt-3 px-4 py-1.5 bg-amber-400 border-[2px] border-[#0F172A] rounded-xl text-xs font-bold shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+                className="mt-3 px-4 py-1.5 bg-amber-400 border-[2px] border-[#0A1128] rounded-xl text-xs font-bold shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
               >
                 Reset search
               </button>
@@ -221,10 +221,10 @@ export const FAQ: React.FC<FAQProps> = ({
               return (
                 <div
                   key={faq.id}
-                  className={`rounded-2xl border-[2.5px] border-[#0F172A] transition-all duration-200 overflow-hidden ${
+                  className={`rounded-2xl border-[2.5px] border-[#0A1128] transition-all duration-200 overflow-hidden ${
                     isOpen 
-                      ? 'bg-white shadow-[5px_5px_0px_#0F172A] -translate-y-0.5' 
-                      : 'bg-white/95 hover:bg-white shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5'
+                      ? 'bg-white shadow-[5px_5px_0px_#0A1128] -translate-y-0.5' 
+                      : 'bg-white/95 hover:bg-white shadow-[3px_3px_0px_#0A1128] hover:-translate-y-0.5'
                   }`}
                 >
                   <button
@@ -239,20 +239,20 @@ export const FAQ: React.FC<FAQProps> = ({
                           {faq.categoryLabel}
                         </Sticker>
                       </span>
-                      <span className="font-extrabold text-base sm:text-lg text-[#0F172A] leading-snug">
+                      <span className="font-extrabold text-base sm:text-lg text-[#0A1128] leading-snug">
                         {faq.question}
                       </span>
                     </div>
 
-                    <div className={`w-8 h-8 rounded-xl border-[2px] border-[#0F172A] flex items-center justify-center shrink-0 transition-transform duration-200 shadow-[2px_2px_0px_#0F172A] ${
+                    <div className={`w-8 h-8 rounded-xl border-[2px] border-[#0A1128] flex items-center justify-center shrink-0 transition-transform duration-200 shadow-[2px_2px_0px_#0A1128] ${
                       isOpen ? 'bg-amber-400 rotate-180' : 'bg-slate-100 hover:bg-slate-200'
                     }`}>
-                      <ChevronDown className="w-4 h-4 text-[#0F172A] stroke-[2.5]" />
+                      <ChevronDown className="w-4 h-4 text-[#0A1128] stroke-[2.5]" />
                     </div>
                   </button>
 
                   {isOpen && (
-                    <div className="px-5 sm:px-6 pb-5 pt-1 text-slate-700 text-sm sm:text-base leading-relaxed border-t-[2px] border-slate-200 space-y-3 bg-[#FFFDF9]">
+                    <div className="px-5 sm:px-6 pb-5 pt-1 text-slate-700 text-sm sm:text-base leading-relaxed border-t-[2px] border-slate-200 space-y-3 bg-[#FEF9F3]">
                       <p className="font-medium text-slate-800">{faq.answer}</p>
                       {faq.highlight && (
                         <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-100/70 border-[2px] border-amber-300 text-amber-950 text-xs sm:text-sm font-bold shadow-sm">
@@ -269,25 +269,25 @@ export const FAQ: React.FC<FAQProps> = ({
         </div>
 
         {/* Footer Support Prompt */}
-        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-white border-[2.5px] border-[#0F172A] shadow-[5px_5px_0px_#0F172A] flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-white border-[2.5px] border-[#0A1128] shadow-[5px_5px_0px_#0A1128] flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="text-left">
             <div className="flex items-center gap-2 mb-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse border border-[#0F172A]" />
-              <h4 className="text-base font-black text-[#0F172A]">Still have more questions?</h4>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse border border-[#0A1128]" />
+              <h4 className="text-base font-black text-[#0A1128]">Still have more questions?</h4>
             </div>
             <p className="text-sm font-medium text-slate-600">Our team in Bengaluru is always happy to explain how it fits your building.</p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <a
               href="/faq"
-              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0F172A] border-[2px] border-[#0F172A] text-xs font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+              className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[#0A1128] border-[2px] border-[#0A1128] text-xs font-black flex items-center gap-1.5 shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
             >
               <span>Full FAQ Hub</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </a>
             <a
               href="mailto:support@parcelflow.app"
-              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white border-[2px] border-[#0F172A] text-xs font-black shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+              className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white border-[2px] border-[#0A1128] text-xs font-black shadow-[3px_3px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
             >
               Contact Support
             </a>

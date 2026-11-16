@@ -192,18 +192,18 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
     activeTab === 'societies' ? societyFeatures : securityFeatures;
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] text-[#0F172A] pt-28 pb-16 selection:bg-amber-300 selection:text-[#0F172A]">
+    <div className="min-h-screen bg-[#FEF9F3] text-[#0A1128] pt-28 pb-16 selection:bg-amber-300 selection:text-[#0A1128]">
       
       {/* Header */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-14">
         <div className="inline-flex items-center gap-2 mb-4">
           <Sticker color="yellow" rotate="slight-left" size="sm">
-            <Sparkles className="w-3.5 h-3.5 inline mr-1 text-[#0F172A]" />
+            <Sparkles className="w-3.5 h-3.5 inline mr-1 text-[#0A1128]" />
             Feature Architecture
           </Sticker>
         </div>
         
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F172A] max-w-4xl mx-auto leading-tight">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0A1128] max-w-4xl mx-auto leading-tight">
           Engineered for everyone in <br />
           <span className="text-blue-600 underline decoration-amber-400 decoration-wavy decoration-2">
             the apartment parcel chain.
@@ -219,10 +219,10 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
           <button
             onClick={() => setActiveTab('residents')}
             type="button"
-            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-black border-[2.5px] border-[#0F172A] transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-black border-[2.5px] border-[#0A1128] transition-all cursor-pointer ${
               activeTab === 'residents'
-                ? 'bg-amber-400 text-[#0F172A] shadow-[4px_4px_0px_#0F172A] -translate-y-0.5'
-                : 'bg-white text-[#0F172A] hover:bg-amber-50 shadow-[2px_2px_0px_#0F172A]'
+                ? 'bg-amber-400 text-[#0A1128] shadow-[4px_4px_0px_#0A1128] -translate-y-0.5'
+                : 'bg-white text-[#0A1128] hover:bg-amber-50 shadow-[2px_2px_0px_#0A1128]'
             }`}
           >
             <Smartphone className="w-4 h-4 stroke-[2.5]" />
@@ -232,10 +232,10 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
           <button
             onClick={() => setActiveTab('societies')}
             type="button"
-            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-black border-[2.5px] border-[#0F172A] transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-black border-[2.5px] border-[#0A1128] transition-all cursor-pointer ${
               activeTab === 'societies'
-                ? 'bg-blue-600 text-white shadow-[4px_4px_0px_#0F172A] -translate-y-0.5'
-                : 'bg-white text-[#0F172A] hover:bg-blue-50 shadow-[2px_2px_0px_#0F172A]'
+                ? 'bg-blue-600 text-white shadow-[4px_4px_0px_#0A1128] -translate-y-0.5'
+                : 'bg-white text-[#0A1128] hover:bg-blue-50 shadow-[2px_2px_0px_#0A1128]'
             }`}
           >
             <Building2 className="w-4 h-4 stroke-[2.5]" />
@@ -245,10 +245,10 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
           <button
             onClick={() => setActiveTab('security')}
             type="button"
-            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-black border-[2.5px] border-[#0F172A] transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl text-sm font-black border-[2.5px] border-[#0A1128] transition-all cursor-pointer ${
               activeTab === 'security'
-                ? 'bg-emerald-500 text-[#0F172A] shadow-[4px_4px_0px_#0F172A] -translate-y-0.5'
-                : 'bg-white text-[#0F172A] hover:bg-emerald-50 shadow-[2px_2px_0px_#0F172A]'
+                ? 'bg-emerald-500 text-[#0A1128] shadow-[4px_4px_0px_#0A1128] -translate-y-0.5'
+                : 'bg-white text-[#0A1128] hover:bg-emerald-50 shadow-[2px_2px_0px_#0A1128]'
             }`}
           >
             <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
@@ -259,13 +259,13 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
 
       {/* Role Banner Callout */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
-        <div className="p-6 sm:p-7 rounded-3xl bg-white border-[3px] border-[#0F172A] shadow-[5px_5px_0px_#0F172A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="p-6 sm:p-7 rounded-3xl bg-white border-[3px] border-[#0A1128] shadow-[5px_5px_0px_#0A1128] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <Sticker color={roleMeta[activeTab].stickerColor} rotate="none" size="md">
               {roleMeta[activeTab].stickerLabel}
             </Sticker>
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#0F172A]">
+              <h2 className="text-xl sm:text-2xl font-black text-[#0A1128]">
                 {roleMeta[activeTab].title}
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 font-medium">
@@ -276,7 +276,7 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
           {onOpenPilotModal && activeTab === 'societies' && (
             <button
               onClick={onOpenPilotModal}
-              className="px-4.5 py-2.5 rounded-xl bg-blue-600 text-white font-black text-xs border-[2px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 transition-all shrink-0 cursor-pointer"
+              className="px-4.5 py-2.5 rounded-xl bg-blue-600 text-white font-black text-xs border-[2px] border-[#0A1128] shadow-[3px_3px_0px_#0A1128] hover:-translate-y-0.5 transition-all shrink-0 cursor-pointer"
             >
               Request 48-Hr Pilot →
             </button>
@@ -292,19 +292,19 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
             return (
               <div
                 key={idx}
-                className="p-6 sm:p-7 rounded-3xl bg-white border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:shadow-[6px_6px_0px_#0F172A] hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
+                className="p-6 sm:p-7 rounded-3xl bg-white border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] hover:shadow-[6px_6px_0px_#0A1128] hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-2xl border-[2px] border-[#0F172A] flex items-center justify-center shadow-[2px_2px_0px_#0F172A] ${feat.color}`}>
+                    <div className={`w-12 h-12 rounded-2xl border-[2px] border-[#0A1128] flex items-center justify-center shadow-[2px_2px_0px_#0A1128] ${feat.color}`}>
                       <Icon className="w-6 h-6 stroke-[2.2]" />
                     </div>
-                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-100 border-[1.5px] border-[#0F172A] text-slate-700 shadow-[1px_1px_0px_#0F172A]">
+                    <span className="text-[11px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-100 border-[1.5px] border-[#0A1128] text-slate-700 shadow-[1px_1px_0px_#0A1128]">
                       {feat.badge}
                     </span>
                   </div>
 
-                  <h3 className="text-lg font-black text-[#0F172A] mb-2 leading-snug">
+                  <h3 className="text-lg font-black text-[#0A1128] mb-2 leading-snug">
                     {feat.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
@@ -323,7 +323,7 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
           <Sticker color="mint" rotate="slight-left" size="sm" className="mb-3 inline-flex">
             Head-to-Head Comparison
           </Sticker>
-          <h2 className="text-3xl sm:text-4xl font-black text-[#0F172A]">
+          <h2 className="text-3xl sm:text-4xl font-black text-[#0A1128]">
             Traditional Gate Chaos vs ParcelFlow
           </h2>
           <p className="text-slate-600 font-medium text-sm sm:text-base mt-2">
@@ -331,63 +331,63 @@ export const FeaturesPage: React.FC<FeaturesPageProps> = ({ onOpenPilotModal }) 
           </p>
         </div>
 
-        <div className="rounded-3xl bg-white border-[3px] border-[#0F172A] overflow-hidden shadow-[6px_6px_0px_#0F172A]">
+        <div className="rounded-3xl bg-white border-[3px] border-[#0A1128] overflow-hidden shadow-[6px_6px_0px_#0A1128]">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm border-collapse">
-              <thead className="bg-[#FAF7F2] text-xs font-black uppercase tracking-wider text-[#0F172A] border-b-[2.5px] border-[#0F172A]">
+              <thead className="bg-[#FEF9F3] text-xs font-black uppercase tracking-wider text-[#0A1128] border-b-[2.5px] border-[#0A1128]">
                 <tr>
                   <th className="py-4 px-6">Operational Area</th>
-                  <th className="py-4 px-6 text-rose-700 bg-rose-50/70 border-l-[2px] border-[#0F172A]">
+                  <th className="py-4 px-6 text-rose-700 bg-rose-50/70 border-l-[2px] border-[#0A1128]">
                     ❌ Traditional Gate Mess
                   </th>
-                  <th className="py-4 px-6 text-emerald-800 bg-emerald-50/70 border-l-[2px] border-[#0F172A]">
+                  <th className="py-4 px-6 text-emerald-800 bg-emerald-50/70 border-l-[2px] border-[#0A1128]">
                     ✅ With ParcelFlow
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y-[2px] divide-[#0F172A] text-slate-700 font-medium">
+              <tbody className="divide-y-[2px] divide-[#0A1128] text-slate-700 font-medium">
                 <tr>
-                  <td className="py-4 px-6 font-black text-[#0F172A]">Delivery Timing</td>
-                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0F172A] text-slate-600">
+                  <td className="py-4 px-6 font-black text-[#0A1128]">Delivery Timing</td>
+                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0A1128] text-slate-600">
                     Random midday calls during office meetings or client pitches
                   </td>
-                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0F172A] text-emerald-950 font-bold">
+                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0A1128] text-emerald-950 font-bold">
                     Choose your own evening pickup slot when you are actually home
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-black text-[#0F172A]">Gate & Lobby Space</td>
-                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0F172A] text-slate-600">
+                  <td className="py-4 px-6 font-black text-[#0A1128]">Gate & Lobby Space</td>
+                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0A1128] text-slate-600">
                     Piles of cardboard boxes dumped near security desks and lobby sofas
                   </td>
-                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0F172A] text-emerald-950 font-bold">
+                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0A1128] text-emerald-950 font-bold">
                     Designated, organized parcel storage bays with CCTV surveillance
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-black text-[#0F172A]">Collection Verification</td>
-                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0F172A] text-slate-600">
+                  <td className="py-4 px-6 font-black text-[#0A1128]">Collection Verification</td>
+                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0A1128] text-slate-600">
                     Unverified verbal flat claiming or smudged paper registers
                   </td>
-                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0F172A] text-emerald-950 font-bold">
+                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0A1128] text-emerald-950 font-bold">
                     Dynamic QR / 4-digit backup OTP verified on scanner in 15 seconds
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-black text-[#0F172A]">Tower Security</td>
-                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0F172A] text-slate-600">
+                  <td className="py-4 px-6 font-black text-[#0A1128]">Tower Security</td>
+                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0A1128] text-slate-600">
                     Dozens of unknown delivery riders roaming elevator lobbies and hallways
                   </td>
-                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0F172A] text-emerald-950 font-bold">
+                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0A1128] text-emerald-950 font-bold">
                     Controlled gate hub handover; zero delivery foot traffic inside towers
                   </td>
                 </tr>
                 <tr>
-                  <td className="py-4 px-6 font-black text-[#0F172A]">Lost Package Defense</td>
-                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0F172A] text-slate-600">
+                  <td className="py-4 px-6 font-black text-[#0A1128]">Lost Package Defense</td>
+                  <td className="py-4 px-6 bg-rose-50/30 border-l-[2px] border-[#0A1128] text-slate-600">
                     Arguments and finger-pointing over misplaced or claimed boxes
                   </td>
-                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0F172A] text-emerald-950 font-bold">
+                  <td className="py-4 px-6 bg-emerald-50/30 border-l-[2px] border-[#0A1128] text-emerald-950 font-bold">
                     100% immutable digital audit trail with staff timestamp and photos
                   </td>
                 </tr>

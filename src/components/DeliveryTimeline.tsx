@@ -105,7 +105,7 @@ export const DeliveryTimeline: React.FC = () => {
   const activeCoord = activeStage.svgCoord;
 
   return (
-    <section id="delivery-timeline" className="relative py-20 sm:py-28 bg-[#FFFDF9] text-[#0F172A] overflow-hidden border-y-2 border-[#0F172A]/10">
+    <section id="delivery-timeline" className="relative py-20 sm:py-28 bg-[#FEF9F3] text-[#0A1128] overflow-hidden border-y-2 border-[#0A1128]/10">
       {/* Background Cartoon Doodles */}
       <div className="absolute top-1/2 left-8 w-20 h-20 rounded-full bg-amber-100/60 border-2 border-dashed border-amber-300 pointer-events-none -translate-y-1/2" />
       <div className="absolute bottom-10 right-12 w-28 h-28 rounded-3xl bg-blue-100/60 border-2 border-dashed border-blue-300 pointer-events-none rotate-12" />
@@ -113,11 +113,11 @@ export const DeliveryTimeline: React.FC = () => {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border-2 border-[#0F172A] text-xs font-black uppercase tracking-wider mb-4 shadow-cartoon-sm rotate-1">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border-2 border-[#0A1128] text-xs font-black uppercase tracking-wider mb-4 shadow-cartoon-sm rotate-1">
             <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] animate-pulse" />
             Interactive Journey Route 🗺️
           </div>
-          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F172A]">
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0A1128]">
             From Courier to Your Hands
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-600 font-medium">
@@ -126,14 +126,14 @@ export const DeliveryTimeline: React.FC = () => {
         </div>
 
         {/* Playback Controls & Status Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white p-4 rounded-3xl border-2 border-[#0F172A] shadow-cartoon">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white p-4 rounded-3xl border-2 border-[#0A1128] shadow-cartoon">
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setIsPlaying(!isPlaying)}
-              className={`px-4 py-2 rounded-2xl text-xs font-black border-2 border-[#0F172A] flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-2xl text-xs font-black border-2 border-[#0A1128] flex items-center gap-2 transition-all ${
                 isPlaying
-                  ? 'bg-[#FBBF24] text-[#0F172A] shadow-cartoon-sm'
+                  ? 'bg-[#FBBF24] text-[#0A1128] shadow-cartoon-sm'
                   : 'bg-[#2563EB] text-white shadow-cartoon-sm hover:bg-[#1D4ED8]'
               }`}
             >
@@ -154,7 +154,7 @@ export const DeliveryTimeline: React.FC = () => {
                 setActiveIndex(0);
                 setIsPlaying(false);
               }}
-              className="px-3 py-2 rounded-2xl text-xs font-black bg-[#F4EFE6] hover:bg-white text-[#0F172A] border-2 border-[#0F172A] transition-colors shadow-cartoon-sm"
+              className="px-3 py-2 rounded-2xl text-xs font-black bg-[#F4EFE6] hover:bg-white text-[#0A1128] border-2 border-[#0A1128] transition-colors shadow-cartoon-sm"
               title="Reset to Courier"
             >
               ↺ Reset
@@ -163,7 +163,7 @@ export const DeliveryTimeline: React.FC = () => {
 
           <div className="flex items-center gap-2 font-mono text-xs">
             <span className="text-slate-500 font-bold">Stage {activeIndex + 1} of {STAGES.length}:</span>
-            <span className="font-black text-[#0F172A] px-3 py-1 rounded-xl bg-amber-100 border-2 border-[#0F172A] shadow-cartoon-sm">
+            <span className="font-black text-[#0A1128] px-3 py-1 rounded-xl bg-amber-100 border-2 border-[#0A1128] shadow-cartoon-sm">
               {activeStage.emoji} {activeStage.shortLabel}
             </span>
           </div>
@@ -175,7 +175,7 @@ export const DeliveryTimeline: React.FC = () => {
                 setActiveIndex((prev) => (prev > 0 ? prev - 1 : STAGES.length - 1));
                 setIsPlaying(false);
               }}
-              className="w-9 h-9 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#0F172A] flex items-center justify-center font-black text-sm text-[#0F172A] shadow-cartoon-sm transition-all"
+              className="w-9 h-9 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#0A1128] flex items-center justify-center font-black text-sm text-[#0A1128] shadow-cartoon-sm transition-all"
               aria-label="Previous stage"
             >
               ‹
@@ -186,7 +186,7 @@ export const DeliveryTimeline: React.FC = () => {
                 setActiveIndex((prev) => (prev < STAGES.length - 1 ? prev + 1 : 0));
                 setIsPlaying(false);
               }}
-              className="w-9 h-9 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#0F172A] flex items-center justify-center font-black text-sm text-[#0F172A] shadow-cartoon-sm transition-all"
+              className="w-9 h-9 rounded-xl bg-white hover:bg-slate-50 border-2 border-[#0A1128] flex items-center justify-center font-black text-sm text-[#0A1128] shadow-cartoon-sm transition-all"
               aria-label="Next stage"
             >
               ›
@@ -197,10 +197,10 @@ export const DeliveryTimeline: React.FC = () => {
         {/* ========================================================= */}
         {/* CURVED ANIMATED SVG ROUTE CANVAS                          */}
         {/* ========================================================= */}
-        <div className="relative bg-[#FAF7F2] rounded-3xl border-2 border-[#0F172A] p-6 sm:p-10 shadow-cartoon-lg mb-8 overflow-hidden select-none">
+        <div className="relative bg-[#FEF9F3] rounded-3xl border-2 border-[#0A1128] p-6 sm:p-10 shadow-cartoon-lg mb-8 overflow-hidden select-none">
           
           {/* Subtle background route grid/dots */}
-          <div className="absolute inset-0 bg-[radial-gradient(#0F172A_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
+          <div className="absolute inset-0 bg-[radial-gradient(#0A1128_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none" />
 
           {/* Desktop Curved Route SVG View */}
           <div className="relative w-full h-44 sm:h-52 hidden md:block">
@@ -208,7 +208,7 @@ export const DeliveryTimeline: React.FC = () => {
               {/* Shadow Track Line */}
               <path
                 d="M 100 84 C 250 24, 350 144, 500 84 C 650 24, 750 144, 900 84"
-                stroke="#0F172A"
+                stroke="#0A1128"
                 strokeWidth="10"
                 strokeLinecap="round"
                 fill="none"
@@ -226,7 +226,7 @@ export const DeliveryTimeline: React.FC = () => {
               {/* Animated dashed centerline */}
               <path
                 d="M 100 80 C 250 20, 350 140, 500 80 C 650 20, 750 140, 900 80"
-                stroke="#0F172A"
+                stroke="#0A1128"
                 strokeWidth="2.5"
                 strokeDasharray="8 8"
                 strokeLinecap="round"
@@ -265,7 +265,7 @@ export const DeliveryTimeline: React.FC = () => {
                       cy="0"
                       r={isSelected ? 26 : 22}
                       fill={isSelected ? '#2563EB' : isDone ? '#10B981' : '#FFFFFF'}
-                      stroke="#0F172A"
+                      stroke="#0A1128"
                       strokeWidth="2.5"
                       className="transition-all duration-300"
                     />
@@ -288,7 +288,7 @@ export const DeliveryTimeline: React.FC = () => {
                       width="24"
                       height="16"
                       rx="8"
-                      fill="#0F172A"
+                      fill="#0A1128"
                     />
                     <text
                       x="0"
@@ -316,24 +316,24 @@ export const DeliveryTimeline: React.FC = () => {
                 {/* Floating Little Package Mascot */}
                 <g transform="translate(-24, -62)">
                   {/* Floating Wings or Bounce aura */}
-                  <ellipse cx="24" cy="46" rx="14" ry="4" fill="#0F172A" opacity="0.3" />
+                  <ellipse cx="24" cy="46" rx="14" ry="4" fill="#0A1128" opacity="0.3" />
                   
                   {/* Package Box Body */}
-                  <rect x="6" y="10" width="36" height="30" rx="5" fill="#F59E0B" stroke="#0F172A" strokeWidth="2.5" />
+                  <rect x="6" y="10" width="36" height="30" rx="5" fill="#F59E0B" stroke="#0A1128" strokeWidth="2.5" />
                   {/* Tape */}
-                  <rect x="20" y="10" width="8" height="30" fill="#FDE68A" stroke="#0F172A" strokeWidth="1.5" />
+                  <rect x="20" y="10" width="8" height="30" fill="#FDE68A" stroke="#0A1128" strokeWidth="1.5" />
                   {/* Cute Googly Eyes on the Box */}
-                  <circle cx="16" cy="22" r="3.5" fill="white" stroke="#0F172A" strokeWidth="1.5" />
-                  <circle cx="17.5" cy="22" r="1.5" fill="#0F172A" />
-                  <circle cx="32" cy="22" r="3.5" fill="white" stroke="#0F172A" strokeWidth="1.5" />
-                  <circle cx="33.5" cy="22" r="1.5" fill="#0F172A" />
+                  <circle cx="16" cy="22" r="3.5" fill="white" stroke="#0A1128" strokeWidth="1.5" />
+                  <circle cx="17.5" cy="22" r="1.5" fill="#0A1128" />
+                  <circle cx="32" cy="22" r="3.5" fill="white" stroke="#0A1128" strokeWidth="1.5" />
+                  <circle cx="33.5" cy="22" r="1.5" fill="#0A1128" />
                   {/* Happy Smile */}
-                  <path d="M22 28 Q24 31 26 28" stroke="#0F172A" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                  <path d="M22 28 Q24 31 26 28" stroke="#0A1128" strokeWidth="1.5" fill="none" strokeLinecap="round" />
                   
                   {/* Speech Bubble "Moving!" */}
                   <g transform="translate(38, -4)">
-                    <rect x="0" y="0" width="46" height="18" rx="6" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
-                    <text x="23" y="12" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#0F172A">
+                    <rect x="0" y="0" width="46" height="18" rx="6" fill="#FFFFFF" stroke="#0A1128" strokeWidth="1.5" />
+                    <text x="23" y="12" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#0A1128">
                       Moving!
                     </text>
                   </g>
@@ -356,8 +356,8 @@ export const DeliveryTimeline: React.FC = () => {
                   }}
                   className={`p-2 rounded-xl text-xs font-black transition-all ${
                     isSelected
-                      ? 'bg-white border-2 border-[#0F172A] shadow-cartoon-sm text-[#2563EB] -translate-y-1'
-                      : 'text-slate-600 hover:text-[#0F172A]'
+                      ? 'bg-white border-2 border-[#0A1128] shadow-cartoon-sm text-[#2563EB] -translate-y-1'
+                      : 'text-slate-600 hover:text-[#0A1128]'
                   }`}
                 >
                   <div>{st.shortLabel}</div>
@@ -382,8 +382,8 @@ export const DeliveryTimeline: React.FC = () => {
                     }}
                     className={`flex-shrink-0 px-3 py-2 rounded-xl border-2 text-xs font-black flex items-center gap-1.5 ${
                       isSelected
-                        ? 'bg-[#2563EB] text-white border-[#0F172A] shadow-cartoon-sm'
-                        : 'bg-white text-slate-700 border-[#0F172A]/30'
+                        ? 'bg-[#2563EB] text-white border-[#0A1128] shadow-cartoon-sm'
+                        : 'bg-white text-slate-700 border-[#0A1128]/30'
                     }`}
                   >
                     <span>{st.emoji}</span>
@@ -398,24 +398,24 @@ export const DeliveryTimeline: React.FC = () => {
         {/* ========================================================= */}
         {/* ACTIVE STAGE DETAILED CARTOON DISPLAY CARD                */}
         {/* ========================================================= */}
-        <div className="rounded-3xl bg-white border-[2.5px] border-[#0F172A] p-6 sm:p-10 shadow-cartoon-xl">
+        <div className="rounded-3xl bg-white border-[2.5px] border-[#0A1128] p-6 sm:p-10 shadow-cartoon-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Column: Stage Info & Details */}
             <div className="lg:col-span-7 space-y-4">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="px-3.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-900 border-2 border-[#0F172A] shadow-cartoon-sm">
+                <span className="px-3.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-900 border-2 border-[#0A1128] shadow-cartoon-sm">
                   {activeStage.badge}
                 </span>
-                <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#F4EFE6] text-[#0F172A] border-2 border-[#0F172A]">
+                <span className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-[#F4EFE6] text-[#0A1128] border-2 border-[#0A1128]">
                   🕒 {activeStage.time}
                 </span>
-                <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border-2 border-[#0F172A]">
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border-2 border-[#0A1128]">
                   ✓ Recorded in Ledger
                 </span>
               </div>
 
-              <h3 className="text-2xl sm:text-3xl font-black text-[#0F172A]">
+              <h3 className="text-2xl sm:text-3xl font-black text-[#0A1128]">
                 {activeStage.name}
               </h3>
 
@@ -425,23 +425,23 @@ export const DeliveryTimeline: React.FC = () => {
 
               {/* Actor & Location Pills */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                <div className="p-3 rounded-2xl bg-[#F8FAFC] border-2 border-[#0F172A]">
+                <div className="p-3 rounded-2xl bg-[#F8FAFC] border-2 border-[#0A1128]">
                   <div className="text-[10px] font-black uppercase text-slate-500">Location Point</div>
-                  <div className="text-xs font-black text-[#0F172A] mt-0.5 flex items-center gap-1.5">
+                  <div className="text-xs font-black text-[#0A1128] mt-0.5 flex items-center gap-1.5">
                     <span>📍</span> {activeStage.location}
                   </div>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-[#F8FAFC] border-2 border-[#0F172A]">
+                <div className="p-3 rounded-2xl bg-[#F8FAFC] border-2 border-[#0A1128]">
                   <div className="text-[10px] font-black uppercase text-slate-500">Verified Actor / Handler</div>
-                  <div className="text-xs font-black text-[#0F172A] mt-0.5 flex items-center gap-1.5">
+                  <div className="text-xs font-black text-[#0A1128] mt-0.5 flex items-center gap-1.5">
                     <span>👤</span> {activeStage.actor}
                   </div>
                 </div>
               </div>
 
               {/* Security Audit Detail */}
-              <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-[#0F172A] text-xs text-amber-900 font-bold flex items-start gap-2.5">
+              <div className="p-3.5 rounded-2xl bg-amber-50 border-2 border-[#0A1128] text-xs text-amber-900 font-bold flex items-start gap-2.5">
                 <span className="text-base shrink-0">🛡️</span>
                 <span><strong>Security Stamp:</strong> {activeStage.auditDetail}</span>
               </div>
@@ -449,15 +449,15 @@ export const DeliveryTimeline: React.FC = () => {
 
             {/* Right Column: Cartoon Stage Visual Graphic */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-sm h-64 rounded-3xl bg-[#FAF7F2] border-2 border-[#0F172A] p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-cartoon">
+              <div className="relative w-full max-w-sm h-64 rounded-3xl bg-[#FEF9F3] border-2 border-[#0A1128] p-6 flex flex-col items-center justify-center text-center overflow-hidden shadow-cartoon">
                 
                 {/* Stage 0: Courier Van */}
                 {activeIndex === 0 && (
                   <div className="space-y-3">
-                    <div className="w-20 h-20 rounded-2xl bg-blue-100 border-2 border-[#0F172A] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
+                    <div className="w-20 h-20 rounded-2xl bg-blue-100 border-2 border-[#0A1128] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
                       🚚
                     </div>
-                    <div className="text-base font-black text-[#0F172A]">Courier at Society Gate</div>
+                    <div className="text-base font-black text-[#0A1128]">Courier at Society Gate</div>
                     <div className="text-xs text-slate-500 font-bold">Consolidated drop-off at entrance hub</div>
                   </div>
                 )}
@@ -465,10 +465,10 @@ export const DeliveryTimeline: React.FC = () => {
                 {/* Stage 1: Hub Intake */}
                 {activeIndex === 1 && (
                   <div className="space-y-3">
-                    <div className="w-20 h-20 rounded-2xl bg-amber-100 border-2 border-[#0F172A] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
+                    <div className="w-20 h-20 rounded-2xl bg-amber-100 border-2 border-[#0A1128] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
                       📦
                     </div>
-                    <div className="text-base font-black text-[#0F172A]">Hub Shelf Bay B-08</div>
+                    <div className="text-base font-black text-[#0A1128]">Hub Shelf Bay B-08</div>
                     <div className="text-xs text-slate-500 font-bold">Optically scanned, tagged & safely stored</div>
                   </div>
                 )}
@@ -476,10 +476,10 @@ export const DeliveryTimeline: React.FC = () => {
                 {/* Stage 2: Scheduling Time */}
                 {activeIndex === 2 && (
                   <div className="space-y-3">
-                    <div className="w-20 h-20 rounded-2xl bg-purple-100 border-2 border-[#0F172A] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
+                    <div className="w-20 h-20 rounded-2xl bg-purple-100 border-2 border-[#0A1128] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
                       📱
                     </div>
-                    <div className="text-base font-black text-[#0F172A]">Slot Selected: 8:00 PM</div>
+                    <div className="text-base font-black text-[#0A1128]">Slot Selected: 8:00 PM</div>
                     <div className="text-xs text-slate-500 font-bold">Resident scheduled handover on phone</div>
                   </div>
                 )}
@@ -487,10 +487,10 @@ export const DeliveryTimeline: React.FC = () => {
                 {/* Stage 3: Verified Handover */}
                 {activeIndex === 3 && (
                   <div className="space-y-3">
-                    <div className="w-20 h-20 rounded-2xl bg-emerald-100 border-2 border-[#0F172A] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
+                    <div className="w-20 h-20 rounded-2xl bg-emerald-100 border-2 border-[#0A1128] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
                       🔐
                     </div>
-                    <div className="text-base font-black text-[#0F172A]">OTP 7492 Confirmed</div>
+                    <div className="text-base font-black text-[#0A1128]">OTP 7492 Confirmed</div>
                     <div className="text-xs text-slate-500 font-bold">10-second zero-wait handover verified</div>
                   </div>
                 )}
@@ -498,15 +498,15 @@ export const DeliveryTimeline: React.FC = () => {
                 {/* Stage 4: Home Delivery */}
                 {activeIndex === 4 && (
                   <div className="space-y-3">
-                    <div className="w-20 h-20 rounded-2xl bg-yellow-100 border-2 border-[#0F172A] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
+                    <div className="w-20 h-20 rounded-2xl bg-yellow-100 border-2 border-[#0A1128] flex items-center justify-center text-4xl mx-auto shadow-cartoon-sm">
                       🏠
                     </div>
-                    <div className="text-base font-black text-[#0F172A]">Safely in Your Hands!</div>
+                    <div className="text-base font-black text-[#0A1128]">Safely in Your Hands!</div>
                     <div className="text-xs text-slate-500 font-bold">Zero anxiety. Happy unboxing at home.</div>
                   </div>
                 )}
 
-                <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0F172A] text-[11px] font-black text-slate-700 shadow-cartoon-sm">
+                <div className="mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-[#0A1128] text-[11px] font-black text-slate-700 shadow-cartoon-sm">
                   <span className="w-2 h-2 rounded-full bg-[#10B981] animate-ping" />
                   Live Society Stage Active
                 </div>

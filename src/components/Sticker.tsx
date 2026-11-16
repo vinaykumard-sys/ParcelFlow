@@ -16,21 +16,21 @@ export interface StickerProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const colorStyles: Record<StickerColor, string> = {
-  blue: 'bg-blue-500 text-white border-[#0F172A]',
-  orange: 'bg-orange-500 text-white border-[#0F172A]',
-  yellow: 'bg-amber-400 text-[#0F172A] border-[#0F172A]',
-  mint: 'bg-emerald-400 text-[#0F172A] border-[#0F172A]',
-  white: 'bg-white text-[#0F172A] border-[#0F172A]',
-  purple: 'bg-indigo-500 text-white border-[#0F172A]',
-  pink: 'bg-pink-400 text-[#0F172A] border-[#0F172A]',
-  red: 'bg-rose-500 text-white border-[#0F172A]',
+  blue: 'bg-blue-500 text-white border-[#0A1128]',
+  orange: 'bg-orange-500 text-white border-[#0A1128]',
+  yellow: 'bg-amber-400 text-[#0A1128] border-[#0A1128]',
+  mint: 'bg-emerald-400 text-[#0A1128] border-[#0A1128]',
+  white: 'bg-white text-[#0A1128] border-[#0A1128]',
+  purple: 'bg-indigo-500 text-white border-[#0A1128]',
+  pink: 'bg-pink-400 text-[#0A1128] border-[#0A1128]',
+  red: 'bg-rose-500 text-white border-[#0A1128]',
 };
 
 const shadowStyles = {
   none: '',
-  sm: 'shadow-[2px_2px_0px_#0F172A]',
-  md: 'shadow-[3px_3px_0px_#0F172A]',
-  lg: 'shadow-[5px_5px_0px_#0F172A]',
+  sm: 'shadow-[2px_2px_0px_#0A1128]',
+  md: 'shadow-[3px_3px_0px_#0A1128]',
+  lg: 'shadow-[5px_5px_0px_#0A1128]',
 };
 
 const sizeStyles: Record<StickerSize, string> = {
@@ -82,7 +82,7 @@ export const Sticker: React.FC<StickerProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center select-none border-2 sm:border-[2.5px] border-[#0F172A] transition-all duration-150 ${colorStyles[color]} ${shadowStyles[shadow]} ${sizeStyles[size]} ${rotationClass} ${
+      className={`inline-flex items-center select-none border-2 sm:border-[2.5px] border-[#0A1128] transition-all duration-150 ${colorStyles[color]} ${shadowStyles[shadow]} ${sizeStyles[size]} ${rotationClass} ${
         interactive ? 'hover:-translate-y-0.5 hover:scale-[1.02] cursor-default' : ''
       } ${className}`}
       style={{ ...inlineRotateStyle, ...style }}

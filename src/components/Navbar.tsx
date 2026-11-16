@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Smartphone, Shield, Menu, X, ChevronDown, Sparkles, UserCheck } from 'lucide-react';
+import { User, Download, Menu, X, ChevronDown, Smartphone, Shield, Sparkles } from 'lucide-react';
 import { NAV_LINKS, BRAND } from '../utils/constants';
 
 interface NavbarProps {
@@ -13,7 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 15);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
@@ -23,67 +23,108 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
         isScrolled
-          ? 'bg-[#FAF7F2]/95 backdrop-blur-md border-b-[2.5px] border-[#0F172A] shadow-[0_4px_0px_#0F172A] py-2.5'
-          : 'bg-[#FAF7F2] border-b-2 border-[#0F172A]/10 py-4'
+          ? 'bg-[#FEF9F3]/95 backdrop-blur-md border-b-2 border-[#0A1128]/20 shadow-[0_3px_0px_#0A1128] py-2.5'
+          : 'bg-[#FEF9F3] border-b border-[#0A1128]/10 py-3.5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           
-          {/* Playful Brand Logo */}
-          <a href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-            {/* Cartoon Package Cube */}
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-amber-400 border-[2.5px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A] group-hover:rotate-6 group-hover:-translate-y-0.5 transition-all duration-200">
-              {/* Tape Detail */}
-              <div className="absolute top-0 bottom-0 w-2.5 bg-orange-400/50 border-x border-[#0F172A]/40" />
-              <Package className="w-6 h-6 text-[#0F172A] relative z-10 stroke-[2.5]" />
-              {/* Little playful sparkle sticker */}
-              <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-blue-500 rounded-full border-[1.5px] border-[#0F172A] flex items-center justify-center text-[8px] text-white font-black">
-                ★
-              </span>
-            </div>
+          {/* Left: ParcelFlow Brand Logo featuring 3D Isometric Blue Cube with Speed Trails */}
+          <a href="/" className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-xl">
+            {/* 3D Isometric Cube with Speed Trails (or Image with high-res fallback) */}
+            <div className="relative flex items-center">
+              {/* Speed trail dashes behind the cube */}
+              <div className="hidden sm:flex flex-col gap-1 mr-1 text-blue-500 opacity-80 group-hover:opacity-100 group-hover:-translate-x-0.5 transition-all">
+                <span className="w-3 h-0.5 bg-blue-500 rounded-full"></span>
+                <span className="w-4 h-0.5 bg-cyan-400 rounded-full"></span>
+                <span className="w-2 h-0.5 bg-blue-600 rounded-full"></span>
+              </div>
 
-            <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0F172A] flex items-center gap-1 font-sans">
-                {BRAND.name}
-                <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 border border-[#0F172A] animate-pulse"></span>
-              </span>
-              <span className="text-[10px] uppercase font-black tracking-wider text-blue-600 -mt-1">
-                Smart Parcel Lockers
-              </span>
+              {/* 3D Isometric Blue Cube */}
+              <div className="relative w-9 h-9 sm:w-10 sm:h-10 transition-transform duration-200 group-hover:scale-105 group-hover:rotate-3 flex items-center justify-center">
+                <svg
+                  viewBox="0 0 48 48"
+                  className="w-full h-full drop-shadow-[2px_2px_0px_rgba(10,17,40,0.8)]"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Isometric Cube Top Face */}
+                  <polygon
+                    points="24,4 42,14 24,24 6,14"
+                    fill="#38BDF8"
+                    stroke="#0A1128"
+                    strokeWidth="2.5"
+                    strokeLinejoin="round"
+                  />
+                  {/* Isometric Cube Left Face */}
+                  <polygon
+                    points="6,14 24,24 24,44 6,34"
+                    fill="#2563EB"
+                    stroke="#0A1128"
+                    strokeWidth="2.5"
+                    strokeLinejoin="round"
+                  />
+                  {/* Isometric Cube Right Face */}
+                  <polygon
+                    points="24,24 42,14 42,34 24,44"
+                    fill="#1D4ED8"
+                    stroke="#0A1128"
+                    strokeWidth="2.5"
+                    strokeLinejoin="round"
+                  />
+                  {/* Speed streak accents on cube */}
+                  <line x1="12" y1="11" x2="20" y2="15" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="28" y1="10" x2="36" y2="14" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+                  <line x1="12" y1="20" x2="12" y2="30" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+
+              <div className="flex flex-col ml-2">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A1128] font-sans flex items-center gap-1 leading-none">
+                  {BRAND.name}
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 border border-[#0A1128] animate-pulse"></span>
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-blue-600 mt-0.5">
+                  Smart Gate Lockers
+                </span>
+              </div>
             </div>
           </a>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 px-3 py-1.5 rounded-2xl bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A]">
+          {/* Center: Clean Nav Links in font-semibold text-slate-800 hover:text-blue-600 */}
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="px-3.5 py-1.5 text-xs font-bold text-[#0F172A] hover:bg-amber-300 hover:rounded-xl transition-all duration-150"
+                className="text-sm font-semibold text-slate-800 hover:text-blue-600 transition-colors py-1 relative group"
               >
                 {link.name}
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 rounded-full transition-all duration-200 group-hover:w-full" />
               </a>
             ))}
           </nav>
 
-          {/* Desktop Right CTA Section */}
-          <div className="hidden sm:flex items-center gap-2.5">
-            {/* Portal Login Button with Dropdown */}
+          {/* Right Buttons: Portal Login (Pill Outline) & Download App (Royal Blue Pill) */}
+          <div className="hidden sm:flex items-center gap-3">
+            
+            {/* Portal Login (Pill Outline Button with User Icon) */}
             <div className="relative">
               <button
                 onClick={() => setLoginDropdownOpen(!loginDropdownOpen)}
-                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-black text-[#0F172A] bg-white hover:bg-amber-100 border-[2px] border-[#0F172A] rounded-xl shadow-[2.5px_2.5px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+                className="flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-bold text-slate-900 bg-white hover:bg-slate-50 border-2 border-[#0A1128] rounded-full shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all"
                 aria-expanded={loginDropdownOpen}
               >
-                <UserCheck className="w-3.5 h-3.5 text-blue-600 stroke-[2.5]" />
+                <User className="w-4 h-4 text-blue-600 stroke-[2.5]" />
                 <span>Portal Login</span>
-                <ChevronDown className="w-3 h-3 text-[#0F172A] stroke-[2.5]" />
+                <ChevronDown className="w-3.5 h-3.5 text-slate-700 stroke-[2.5]" />
               </button>
 
+              {/* Portal Dropdown Menu */}
               {loginDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-60 rounded-2xl bg-white border-[2.5px] border-[#0F172A] shadow-[5px_5px_0px_#0F172A] p-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  className="absolute right-0 mt-2 w-64 rounded-2xl bg-white border-2 border-[#0A1128] shadow-[4px_4px_0px_#0A1128] p-2 z-50 animate-in fade-in zoom-in-95 duration-150"
                   onMouseLeave={() => setLoginDropdownOpen(false)}
                 >
                   <button
@@ -91,14 +132,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
                       setLoginDropdownOpen(false);
                       onOpenModal('resident_login');
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-amber-100 border border-transparent hover:border-[#0F172A] transition-all group"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-amber-100 border border-transparent hover:border-[#0A1128] transition-all group"
                   >
-                    <div className="p-2 rounded-lg bg-blue-100 border border-[#0F172A] text-blue-600 group-hover:bg-blue-200">
+                    <div className="p-2 rounded-lg bg-blue-100 border border-[#0A1128] text-blue-600 group-hover:bg-blue-200">
                       <Smartphone className="w-4 h-4 stroke-[2.5]" />
                     </div>
                     <div>
-                      <div className="text-xs font-black text-[#0F172A]">Resident Portal</div>
-                      <div className="text-[11px] font-medium text-slate-500">Track OTP & active lockers</div>
+                      <div className="text-xs font-black text-[#0A1128]">Resident Portal</div>
+                      <div className="text-[11px] font-medium text-slate-500">Track OTP & active pickup slots</div>
                     </div>
                   </button>
 
@@ -107,50 +148,50 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
                       setLoginDropdownOpen(false);
                       onOpenModal('society_login');
                     }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-emerald-100 border border-transparent hover:border-[#0F172A] transition-all group mt-1"
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-emerald-100 border border-transparent hover:border-[#0A1128] transition-all group mt-1"
                   >
-                    <div className="p-2 rounded-lg bg-emerald-100 border border-[#0F172A] text-emerald-600 group-hover:bg-emerald-200">
+                    <div className="p-2 rounded-lg bg-emerald-100 border border-[#0A1128] text-emerald-600 group-hover:bg-emerald-200">
                       <Shield className="w-4 h-4 stroke-[2.5]" />
                     </div>
                     <div>
-                      <div className="text-xs font-black text-[#0F172A]">Society / RWA Admin</div>
-                      <div className="text-[11px] font-medium text-slate-500">Security & parcel ledger</div>
+                      <div className="text-xs font-black text-[#0A1128]">Society / RWA Admin</div>
+                      <div className="text-[11px] font-medium text-slate-500">Gate security & parcel ledger</div>
                     </div>
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Download App CTA (Bright Blue with dark outline & hover lift) */}
+            {/* Download App (Royal Blue Pill Button with Download Icon) */}
             <button
               onClick={() => onOpenModal('download_app')}
-              className="flex items-center gap-2 px-4 py-2 text-xs font-black text-white bg-blue-600 hover:bg-blue-500 border-[2.5px] border-[#0F172A] rounded-xl shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0F172A] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0F172A] transition-all"
+              className="flex items-center gap-2 px-5 py-2 text-xs sm:text-sm font-bold text-white bg-[#1D4ED8] hover:bg-blue-600 border-2 border-[#0A1128] rounded-full shadow-[2.5px_2.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all"
             >
-              <Smartphone className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Download className="w-4 h-4 stroke-[2.5]" />
               <span>Download App</span>
             </button>
 
-            {/* Request Society Pilot Badge Button */}
+            {/* Free Society Pilot Button */}
             <button
               onClick={() => onOpenModal('pilot')}
-              className="hidden xl:flex items-center gap-1.5 px-3.5 py-2 text-xs font-black text-[#0F172A] bg-emerald-400 hover:bg-emerald-300 border-[2.5px] border-[#0F172A] rounded-xl shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0F172A] transition-all"
+              className="hidden xl:flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-[#0A1128] bg-amber-300 hover:bg-amber-200 border-2 border-[#0A1128] rounded-full shadow-[2px_2px_0px_#0A1128] hover:-translate-y-0.5 transition-all"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#0F172A] stroke-[2.5]" />
-              <span>Free Society Pilot</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#0A1128]" />
+              <span>Society Pilot</span>
             </button>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Hamburger Button */}
           <div className="flex sm:hidden items-center gap-2">
             <button
               onClick={() => onOpenModal('download_app')}
-              className="px-3 py-1.5 text-xs font-black text-white bg-blue-600 border-2 border-[#0F172A] shadow-[2px_2px_0px_#0F172A] rounded-lg"
+              className="px-3.5 py-1.5 text-xs font-bold text-white bg-[#1D4ED8] border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] rounded-full"
             >
-              App
+              Get App
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-white border-2 border-[#0F172A] shadow-[2px_2px_0px_#0F172A] text-[#0F172A]"
+              className="p-2 rounded-xl bg-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] text-[#0A1128]"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5 stroke-[2.5]" /> : <Menu className="w-5 h-5 stroke-[2.5]" />}
@@ -162,56 +203,56 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="sm:hidden bg-[#FAF7F2] border-b-[3px] border-[#0F172A] px-4 pt-3 pb-6 mt-2 space-y-3 shadow-[0_6px_0px_#0F172A] animate-in slide-in-from-top duration-200">
-          <div className="flex flex-col space-y-1.5 bg-white p-3 rounded-2xl border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A]">
+        <div className="sm:hidden bg-[#FEF9F3] border-b-[3px] border-[#0A1128] px-4 pt-3 pb-6 mt-2 space-y-3 shadow-[0_6px_0px_#0A1128] animate-in slide-in-from-top duration-200">
+          <div className="flex flex-col space-y-1 bg-white p-3 rounded-2xl border-2 border-[#0A1128] shadow-[3px_3px_0px_#0A1128]">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-xs font-bold text-[#0F172A] hover:bg-amber-300 rounded-lg transition-colors"
+                className="px-3 py-2 text-sm font-semibold text-slate-800 hover:bg-amber-100 hover:text-blue-600 rounded-lg transition-colors"
               >
                 {link.name}
               </a>
             ))}
           </div>
 
-          <div className="pt-2 flex flex-col gap-2">
+          <div className="pt-2 flex flex-col gap-2.5">
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenModal('resident_login');
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] text-[#0F172A] rounded-xl"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold bg-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] text-[#0A1128] rounded-full"
             >
-              <Smartphone className="w-4 h-4 text-blue-600 stroke-[2.5]" /> Resident Login
+              <User className="w-4 h-4 text-blue-600 stroke-[2.5]" /> Resident Login
             </button>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenModal('society_login');
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black bg-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] text-[#0F172A] rounded-xl"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold bg-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] text-[#0A1128] rounded-full"
             >
-              <Shield className="w-4 h-4 text-emerald-600 stroke-[2.5]" /> Society / RWA Login
+              <Shield className="w-4 h-4 text-emerald-600 stroke-[2.5]" /> Society / RWA Admin
             </button>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenModal('download_app');
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black bg-blue-600 text-white border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] rounded-xl"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold bg-[#1D4ED8] text-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] rounded-full"
             >
-              <Smartphone className="w-4 h-4 stroke-[2.5]" /> Download App (iOS & Android)
+              <Download className="w-4 h-4 stroke-[2.5]" /> Download App (Android & iOS)
             </button>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
                 onOpenModal('pilot');
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black bg-amber-400 text-[#0F172A] border-2 border-[#0F172A] shadow-[3px_3px_0px_#0F172A] rounded-xl"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-bold bg-amber-300 text-[#0A1128] border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] rounded-full"
             >
-              <Sparkles className="w-4 h-4 text-[#0F172A] stroke-[2.5]" /> Request Free Society Pilot
+              <Sparkles className="w-4 h-4 text-[#0A1128]" /> Request Free Society Pilot
             </button>
           </div>
         </div>

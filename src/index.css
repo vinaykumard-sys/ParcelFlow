@@ -5,9 +5,9 @@
 @layer base {
   :root {
     color-scheme: light;
-    --pf-bg-cream: #FAF7F2;
-    --pf-bg-warm: #FDFBF7;
-    --pf-navy: #0F172A;
+    --pf-bg-cream: #FEF9F3;
+    --pf-bg-warm: #FFFDF9;
+    --pf-navy: #0A1128;
     --pf-blue: #2563EB;
     --pf-blue-light: #3B82F6;
     --pf-orange: #F97316;
@@ -21,8 +21,8 @@
   }
 
   body {
-    background-color: #FAF7F2;
-    color: #0F172A;
+    background-color: #FEF9F3;
+    color: #0A1128;
     overflow-x: hidden;
   }
 
@@ -31,13 +31,13 @@
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #FAF7F2;
-    border-left: 2px solid #0F172A;
+    background: #FEF9F3;
+    border-left: 2px solid #0A1128;
   }
   ::-webkit-scrollbar-thumb {
-    background: #0F172A;
+    background: #0A1128;
     border-radius: 9999px;
-    border: 2px solid #FAF7F2;
+    border: 2px solid #FEF9F3;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: #2563EB;
@@ -45,42 +45,42 @@
 
   ::selection {
     background: #FBBF24;
-    color: #0F172A;
+    color: #0A1128;
   }
 }
 
 @layer utilities {
   /* Playful Cartoon & Neo-Brutalist Utility Classes */
   .border-cartoon {
-    border: 2.5px solid #0F172A;
+    border: 2.5px solid #0A1128;
   }
 
   .border-cartoon-3 {
-    border: 3px solid #0F172A;
+    border: 3px solid #0A1128;
   }
 
   .border-cartoon-2 {
-    border: 2px solid #0F172A;
+    border: 2px solid #0A1128;
   }
 
   .shadow-cartoon-sm {
-    box-shadow: 2px 2px 0px #0F172A;
+    box-shadow: 2px 2px 0px #0A1128;
   }
 
   .shadow-cartoon {
-    box-shadow: 4px 4px 0px #0F172A;
+    box-shadow: 4px 4px 0px #0A1128;
   }
 
   .shadow-cartoon-md {
-    box-shadow: 5px 5px 0px #0F172A;
+    box-shadow: 5px 5px 0px #0A1128;
   }
 
   .shadow-cartoon-lg {
-    box-shadow: 6px 6px 0px #0F172A;
+    box-shadow: 6px 6px 0px #0A1128;
   }
 
   .shadow-cartoon-xl {
-    box-shadow: 8px 8px 0px #0F172A;
+    box-shadow: 8px 8px 0px #0A1128;
   }
 
   .shadow-cartoon-blue {
@@ -122,24 +122,24 @@
   }
   .btn-cartoon-lift:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px #0F172A;
+    box-shadow: 6px 6px 0px #0A1128;
   }
   .btn-cartoon-lift:active {
     transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px #0F172A;
+    box-shadow: 2px 2px 0px #0A1128;
   }
 
   /* Card Cartoon Box */
   .card-cartoon {
     background-color: #FFFFFF;
-    border: 2.5px solid #0F172A;
-    box-shadow: 4px 4px 0px #0F172A;
+    border: 2.5px solid #0A1128;
+    box-shadow: 4px 4px 0px #0A1128;
     border-radius: 1.25rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .card-cartoon:hover {
     transform: translateY(-2px);
-    box-shadow: 6px 6px 0px #0F172A;
+    box-shadow: 6px 6px 0px #0A1128;
   }
 
   /* Playful Halftone & Dot Grid Pattern */
@@ -149,16 +149,16 @@
   }
 
   .bg-grid-paper {
-    background-image: linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    background-image: linear-gradient(to right, rgba(10, 17, 40, 0.05) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(10, 17, 40, 0.05) 1px, transparent 1px);
     background-size: 28px 28px;
   }
 
   /* Legacy aliases for smooth backward compatibility */
   .glass-card {
     background: #FFFFFF;
-    border: 2.5px solid #0F172A;
-    box-shadow: 4px 4px 0px #0F172A;
+    border: 2.5px solid #0A1128;
+    box-shadow: 4px 4px 0px #0A1128;
     border-radius: 1.25rem;
   }
 
@@ -167,11 +167,11 @@
   }
   .glass-card-hover:hover {
     transform: translateY(-3px);
-    box-shadow: 6px 6px 0px #0F172A;
+    box-shadow: 6px 6px 0px #0A1128;
   }
 
   .text-gradient {
-    color: #0F172A;
+    color: #0A1128;
   }
 
   .text-gradient-blue {
