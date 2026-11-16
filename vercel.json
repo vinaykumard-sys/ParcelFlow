@@ -22,7 +22,11 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!downloads|assets|.*\\..*).*)",
+      "source": "/admin/?(.*)",
+      "destination": "/admin/index.html"
+    },
+    {
+      "source": "/((?!admin|downloads|assets|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]

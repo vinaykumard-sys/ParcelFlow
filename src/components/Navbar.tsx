@@ -94,11 +94,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
                     </div>
                   </button>
 
-                  <button
-                    onClick={() => {
-                      setLoginDropdownOpen(false);
-                      onOpenModal('society_login');
-                    }}
+                  <a
+                    href="/admin"
+                    onClick={() => setLoginDropdownOpen(false)}
                     className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-xl hover:bg-emerald-100 border border-transparent hover:border-[#0A1128] transition-all group mt-1"
                   >
                     <div className="p-2 rounded-lg bg-emerald-100 border border-[#0A1128] text-emerald-600 group-hover:bg-emerald-200">
@@ -108,7 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
                       <div className="text-xs font-black text-[#0A1128]">Society / RWA Admin</div>
                       <div className="text-[11px] font-medium text-slate-500">Gate security & parcel ledger</div>
                     </div>
-                  </button>
+                  </a>
                 </div>
               )}
             </div>
