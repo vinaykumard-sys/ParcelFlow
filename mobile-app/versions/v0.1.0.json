@@ -1,0 +1,24 @@
+{
+  "version": "0.1.0",
+  "build_number": 1,
+  "release_date": "2026-11-16",
+  "min_supported_version": "0.1.0",
+  "download_url": "/downloads/android/ParcelFlow.apk",
+  "apk_filename": "ParcelFlow-v0.1.0.apk",
+  "sha256": "8f3b207e155bc8b98e1694f27e69fceacbf3b54cbcf1c81da53fa4a3be0ce08d",
+  "file_size_bytes": 18456000,
+  "changelog": [
+    "Initial launch of ParcelFlow unified cross-platform application for Android & iOS",
+    "Unified Role-Based Access: Resident, Staff, and Admin portals within a single binary",
+    "Resident Portal: 14 high-polish screens including pickup slot booking, dynamic secure OTP countdown, QR code generation, and authorized collector management",
+    "Staff Portal: 16 high-efficiency screens including camera barcode/AWB scanner, storage rack assignment (Racks A & B), queue manager, and instant OTP verification",
+    "Admin Portal: 14 management screens matching official design reference including real-time KPI metrics, resident & staff directory, slot configuration, and reports",
+    "Supabase real-time sync with robust offline caching and fallback handling",
+    "ParcelFlow signature retro-cartoon design system with chunky borders, tactile depth, and responsive typography"
+  ],
+  "supported_roles": [
+    "RESIDENT",
+    "STAFF",
+    "ADMIN"
+  ]
+}

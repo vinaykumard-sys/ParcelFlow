@@ -1,0 +1,96 @@
+import React from 'react';
+
+export type StickerColor = 'blue' | 'orange' | 'yellow' | 'mint' | 'white' | 'purple' | 'pink' | 'red';
+export type StickerRotation = 'left' | 'right' | 'slight-left' | 'slight-right' | 'wild' | 'none' | number;
+export type StickerSize = 'xs' | 'sm' | 'md' | 'lg';
+
+export interface StickerProps extends React.HTMLAttributes<HTMLDivElement> {
+  children?: React.ReactNode;
+  icon?: React.ReactNode;
+  color?: StickerColor;
+  rotate?: StickerRotation;
+  size?: StickerSize;
+  className?: string;
+  shadow?: 'sm' | 'md' | 'lg' | 'none';
+  interactive?: boolean;
+}
+
+const colorStyles: Record<StickerColor, string> = {
+  blue: 'bg-blue-600 text-white border-[#0A1128]',
+  orange: 'bg-orange-500 text-white border-[#0A1128]',
+  yellow: 'bg-amber-400 text-[#0A1128] border-[#0A1128]',
+  mint: 'bg-emerald-400 text-[#0A1128] border-[#0A1128]',
+  white: 'bg-white text-[#0A1128] border-[#0A1128]',
+  purple: 'bg-indigo-600 text-white border-[#0A1128]',
+  pink: 'bg-pink-400 text-[#0A1128] border-[#0A1128]',
+  red: 'bg-rose-500 text-white border-[#0A1128]',
+};
+
+const shadowStyles = {
+  none: '',
+  sm: 'shadow-[2px_2px_0px_#0A1128]',
+  md: 'shadow-[3px_3px_0px_#0A1128]',
+  lg: 'shadow-[5px_5px_0px_#0A1128]',
+};
+
+const sizeStyles: Record<StickerSize, string> = {
+  xs: 'text-[10px] px-2 py-0.5 gap-1 font-bold rounded-md',
+  sm: 'text-xs px-2.5 py-1 gap-1.5 font-bold rounded-lg',
+  md: 'text-sm px-3.5 py-1.5 gap-2 font-black rounded-xl',
+  lg: 'text-base px-5 py-2.5 gap-2.5 font-black rounded-2xl',
+};
+
+export const Sticker: React.FC<StickerProps> = ({
+  children,
+  icon,
+  color = 'yellow',
+  rotate = 'none',
+  size = 'md',
+  className = '',
+  shadow = 'md',
+  interactive = true,
+  style,
+  ...props
+}) => {
+  let rotationClass = '';
+  let inlineRotateStyle = {};
+
+  if (typeof rotate === 'number') {
+    inlineRotateStyle = { transform: `rotate(${rotate}deg)` };
+  } else {
+    switch (rotate) {
+      case 'left':
+        rotationClass = '-rotate-2';
+        break;
+      case 'right':
+        rotationClass = 'rotate-2';
+        break;
+      case 'slight-left':
+        rotationClass = '-rotate-1';
+        break;
+      case 'slight-right':
+        rotationClass = 'rotate-1';
+        break;
+      case 'wild':
+        rotationClass = '-rotate-3.5';
+        break;
+      case 'none':
+      default:
+        rotationClass = 'rotate-0';
+        break;
+    }
+  }
+
+  return (
+    <div
+      className={`inline-flex items-center select-none border-2 border-[#0A1128] transition-all duration-150 ${colorStyles[color]} ${shadowStyles[shadow]} ${sizeStyles[size]} ${rotationClass} ${
+        interactive ? 'hover:-translate-y-0.5 hover:scale-[1.02] cursor-default' : ''
+      } ${className}`}
+      style={{ ...inlineRotateStyle, ...style }}
+      {...props}
+    >
+      {icon && <span className="inline-flex shrink-0">{icon}</span>}
+      {children && <span>{children}</span>}
+    </div>
+  );
+};

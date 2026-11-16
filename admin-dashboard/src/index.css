@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    --pf-bg-cream: #FEF9F3;
+    --pf-bg-warm: #FFFDF9;
+    --pf-navy: #0A1128;
+    --pf-blue: #2563EB;
+    --pf-blue-light: #3B82F6;
+    --pf-orange: #F97316;
+    --pf-yellow: #FBBF24;
+    --pf-mint: #10B981;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Plus Jakarta Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  body {
+    background-color: #FEF9F3;
+    color: #0A1128;
+    overflow-x: hidden;
+  }
+
+  /* Playful clean scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #FEF9F3;
+    border-left: 2px solid #0A1128;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #0A1128;
+    border-radius: 9999px;
+    border: 2px solid #FEF9F3;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2563EB;
+  }
+
+  ::selection {
+    background: #FBBF24;
+    color: #0A1128;
+  }
+}
+
+@layer utilities {
+  /* Playful Cartoon & Neo-Brutalist Utility Classes */
+  .border-cartoon {
+    border: 2.5px solid #0A1128;
+  }
+
+  .border-cartoon-3 {
+    border: 3px solid #0A1128;
+  }
+
+  .border-cartoon-2 {
+    border: 2px solid #0A1128;
+  }
+
+  .shadow-cartoon-sm {
+    box-shadow: 2px 2px 0px #0A1128;
+  }
+
+  .shadow-cartoon {
+    box-shadow: 4px 4px 0px #0A1128;
+  }
+
+  .shadow-cartoon-md {
+    box-shadow: 5px 5px 0px #0A1128;
+  }
+
+  .shadow-cartoon-lg {
+    box-shadow: 6px 6px 0px #0A1128;
+  }
+
+  .shadow-cartoon-xl {
+    box-shadow: 8px 8px 0px #0A1128;
+  }
+
+  .shadow-cartoon-blue {
+    box-shadow: 4px 4px 0px #2563EB;
+  }
+
+  .shadow-cartoon-orange {
+    box-shadow: 4px 4px 0px #EA580C;
+  }
+
+  .shadow-cartoon-yellow {
+    box-shadow: 4px 4px 0px #D97706;
+  }
+
+  .shadow-cartoon-mint {
+    box-shadow: 4px 4px 0px #059669;
+  }
+
+  /* Sticker Rotations */
+  .rotate-sticker-left {
+    transform: rotate(-2.5deg);
+  }
+
+  .rotate-sticker-right {
+    transform: rotate(2.5deg);
+  }
+
+  .rotate-sticker-subtle-left {
+    transform: rotate(-1.5deg);
+  }
+
+  .rotate-sticker-subtle-right {
+    transform: rotate(1.5deg);
+  }
+
+  /* Interactive cartoon button press */
+  .btn-cartoon {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .btn-cartoon:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #0A1128;
+  }
+
+  .btn-cartoon:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #0A1128;
+  }
+}
