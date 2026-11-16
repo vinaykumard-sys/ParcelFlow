@@ -31,65 +31,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
         <div className="flex items-center justify-between">
           
           {/* Left: ParcelFlow Brand Logo featuring 3D Isometric Blue Cube with Speed Trails */}
-          <a href="/" className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-xl">
-            {/* 3D Isometric Cube with Speed Trails (or Image with high-res fallback) */}
-            <div className="relative flex items-center">
-              {/* Speed trail dashes behind the cube */}
-              <div className="hidden sm:flex flex-col gap-1 mr-1 text-blue-500 opacity-80 group-hover:opacity-100 group-hover:-translate-x-0.5 transition-all">
-                <span className="w-3 h-0.5 bg-blue-500 rounded-full"></span>
-                <span className="w-4 h-0.5 bg-cyan-400 rounded-full"></span>
-                <span className="w-2 h-0.5 bg-blue-600 rounded-full"></span>
-              </div>
-
-              {/* 3D Isometric Blue Cube */}
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 transition-transform duration-200 group-hover:scale-105 group-hover:rotate-3 flex items-center justify-center">
-                <svg
-                  viewBox="0 0 48 48"
-                  className="w-full h-full drop-shadow-[2px_2px_0px_rgba(10,17,40,0.8)]"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  {/* Isometric Cube Top Face */}
-                  <polygon
-                    points="24,4 42,14 24,24 6,14"
-                    fill="#38BDF8"
-                    stroke="#0A1128"
-                    strokeWidth="2.5"
-                    strokeLinejoin="round"
-                  />
-                  {/* Isometric Cube Left Face */}
-                  <polygon
-                    points="6,14 24,24 24,44 6,34"
-                    fill="#2563EB"
-                    stroke="#0A1128"
-                    strokeWidth="2.5"
-                    strokeLinejoin="round"
-                  />
-                  {/* Isometric Cube Right Face */}
-                  <polygon
-                    points="24,24 42,14 42,34 24,44"
-                    fill="#1D4ED8"
-                    stroke="#0A1128"
-                    strokeWidth="2.5"
-                    strokeLinejoin="round"
-                  />
-                  {/* Speed streak accents on cube */}
-                  <line x1="12" y1="11" x2="20" y2="15" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" />
-                  <line x1="28" y1="10" x2="36" y2="14" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
-                  <line x1="12" y1="20" x2="12" y2="30" stroke="#60A5FA" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </div>
-
-              <div className="flex flex-col ml-2">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0A1128] font-sans flex items-center gap-1 leading-none">
-                  {BRAND.name}
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 border border-[#0A1128] animate-pulse"></span>
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-blue-600 mt-0.5">
-                  Smart Gate Lockers
-                </span>
-              </div>
-            </div>
+          <a href="/" className="flex items-center gap-2 group focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-xl">
+            <img
+              src="/parcelflow-brand-logo.png"
+              alt="ParcelFlow Logo"
+              className="h-8 sm:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+              onError={(e) => {
+                // If image fails, hide image and show fallback
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           </a>
 
           {/* Center: Clean Nav Links in font-semibold text-slate-800 hover:text-blue-600 */}
