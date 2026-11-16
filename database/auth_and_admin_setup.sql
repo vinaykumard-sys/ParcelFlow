@@ -533,7 +533,10 @@ CREATE POLICY "Residents view and create pickup bookings" ON public.pickup_booki
             WHERE r.user_id = auth.uid() 
                OR r.user_id IN (SELECT u.id FROM public.users u WHERE u.auth_user_id = auth.uid())
         )
-        OR (society_id = public.get_auth_society_id() AND public.is_staff())
+        OR (
+            pickup_slot_id IN (SELECT ps.id FROM public.pickup_slots ps WHERE ps.society_id = public.get_auth_society_id())
+            AND public.is_staff()
+        )
         OR public.is_admin()
     )
     WITH CHECK (
