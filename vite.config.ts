@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
-      'lucide-react': path.resolve(import.meta.dirname, './node_modules/lucide-react/dist/cjs/lucide-react.js'),
+      'lucide-react': path.resolve(import.meta.dirname, './src/lucide-shim.ts'),
     },
   },
   build: {
