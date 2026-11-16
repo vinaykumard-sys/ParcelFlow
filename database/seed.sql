@@ -123,7 +123,7 @@ VALUES
     ('b9999999-9999-9999-9999-999999999999', 'pooja.s@parcelflow.in', '+91 98451 11009', 'Pooja Singh', 'STAFF', 'https://images.unsplash.com/photo-1548142813-c348350df52b?w=150', true),
     ('baaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'vijay.m@parcelflow.in', '+91 98451 11010', 'Vijay Murthy', 'STAFF', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150', true),
     ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'arun.b@parcelflow.in', '+91 98451 11011', 'Arun Barua', 'STAFF', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', true),
-    ('bcccccccc-cccc-cccc-cccc-cccccccccccc', 'sunil.g@parcelflow.in', '+91 98451 11012', 'Sunil Gowda', 'STAFF', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', true),
+    ('bccccccc-cccc-cccc-cccc-cccccccccccc', 'sunil.g@parcelflow.in', '+91 98451 11012', 'Sunil Gowda', 'STAFF', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', true),
 
     -- Residents (Arjun Kumar, Priya Sharma, Rahul Verma, Sneha Iyer)
     ('d1111111-1111-1111-1111-111111111111', 'arjun.kumar@gmail.com', '+91 98860 12345', 'Arjun Kumar', 'RESIDENT', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', true),
@@ -148,7 +148,7 @@ VALUES
     ('c9999999-9999-9999-9999-999999999999', 'b9999999-9999-9999-9999-999999999999', 'a1111111-1111-1111-1111-111111111111', 'STAFF-MNT-09', 'Facility Coordinator', 'Morning (07:00 - 15:00)', true),
     ('caaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'baaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'a1111111-1111-1111-1111-111111111111', 'STAFF-SEC-10', 'Entry Barrier Monitor', 'Morning (07:00 - 15:00)', true),
     ('cbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'a1111111-1111-1111-1111-111111111111', 'STAFF-HUB-11', 'Dispatch Associate', 'Evening (15:00 - 23:00)', true),
-    ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'bcccccccc-cccc-cccc-cccc-cccccccccccc', 'a1111111-1111-1111-1111-111111111111', 'STAFF-SEC-12', 'Relief Guard', 'Flexible', true)
+    ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'bccccccc-cccc-cccc-cccc-cccccccccccc', 'a1111111-1111-1111-1111-111111111111', 'STAFF-SEC-12', 'Relief Guard', 'Flexible', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
