@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const src = 'signed_out/unaligned-aligned-signed.apk';
+const src = 'uber_out/jar_packed-aligned-signed.apk';
 const dests = [
   'public/downloads/android/ParcelFlow.apk',
   'public/downloads/ParcelFlow.apk',
@@ -16,30 +16,9 @@ for (const dest of dests) {
   console.log(`Copied to ${dest} (Size: ${fs.statSync(dest).size} bytes)`);
 }
 
-// Clean up temporary files
-const toRemove = [
-  'unaligned.apk',
-  'aligned.apk',
-  'ParcelFlow-final.apk',
-  'ParcelFlow-dual-signed.apk',
-  'test_manifest_order.apk',
-  'test-v2-signed.apk',
-  'key.pem',
-  'key_pkcs8.pem',
-  'cert.pem'
-];
+// Clean up temporary build artifacts
+if (fs.existsSync('jar_packed.apk')) fs.unlinkSync('jar_packed.apk');
+if (fs.existsSync('uber_out')) fs.rmSync('uber_out', { recursive: true, force: true });
+if (fs.existsSync('apk_temp')) fs.rmSync('apk_temp', { recursive: true, force: true });
 
-for (const f of toRemove) {
-  if (fs.existsSync(f)) {
-    fs.unlinkSync(f);
-    console.log('Removed temporary file:', f);
-  }
-}
-
-if (fs.existsSync('signed_out')) {
-  fs.rmSync('signed_out', { recursive: true, force: true });
-}
-if (fs.existsSync('apk_temp')) {
-  fs.rmSync('apk_temp', { recursive: true, force: true });
-}
-console.log('All files distributed and cleanups finished!');
+console.log('Final APK distributed to all routes!');
