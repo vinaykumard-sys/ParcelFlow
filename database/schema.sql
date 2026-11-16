@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS public.societies (
 DROP TRIGGER IF EXISTS trg_societies_updated_at ON public.societies;
 DROP TRIGGER IF EXISTS trg_societies_updated_at ON public.societies;
 DROP TRIGGER IF EXISTS trg_societies_updated_at ON public.societies;
+DROP TRIGGER IF EXISTS trg_societies_updated_at ON public.societies;
 CREATE TRIGGER trg_societies_updated_at BEFORE UPDATE ON public.societies
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -113,6 +114,7 @@ CREATE INDEX IF NOT EXISTS idx_apartments_tower_unit ON public.apartments(tower,
 DROP TRIGGER IF EXISTS trg_apartments_updated_at ON public.apartments;
 DROP TRIGGER IF EXISTS trg_apartments_updated_at ON public.apartments;
 DROP TRIGGER IF EXISTS trg_apartments_updated_at ON public.apartments;
+DROP TRIGGER IF EXISTS trg_apartments_updated_at ON public.apartments;
 CREATE TRIGGER trg_apartments_updated_at BEFORE UPDATE ON public.apartments
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -133,6 +135,7 @@ CREATE TABLE IF NOT EXISTS public.users (
 CREATE INDEX IF NOT EXISTS idx_users_role ON public.users(role);
 CREATE INDEX IF NOT EXISTS idx_users_phone ON public.users(phone);
 
+DROP TRIGGER IF EXISTS trg_users_updated_at ON public.users;
 DROP TRIGGER IF EXISTS trg_users_updated_at ON public.users;
 DROP TRIGGER IF EXISTS trg_users_updated_at ON public.users;
 DROP TRIGGER IF EXISTS trg_users_updated_at ON public.users;
@@ -166,6 +169,7 @@ CREATE INDEX IF NOT EXISTS idx_residents_user ON public.residents(user_id);
 DROP TRIGGER IF EXISTS trg_residents_updated_at ON public.residents;
 DROP TRIGGER IF EXISTS trg_residents_updated_at ON public.residents;
 DROP TRIGGER IF EXISTS trg_residents_updated_at ON public.residents;
+DROP TRIGGER IF EXISTS trg_residents_updated_at ON public.residents;
 CREATE TRIGGER trg_residents_updated_at BEFORE UPDATE ON public.residents
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -185,6 +189,7 @@ CREATE TABLE IF NOT EXISTS public.staff (
 CREATE INDEX IF NOT EXISTS idx_staff_society ON public.staff(society_id);
 CREATE INDEX IF NOT EXISTS idx_staff_badge ON public.staff(badge_number);
 
+DROP TRIGGER IF EXISTS trg_staff_updated_at ON public.staff;
 DROP TRIGGER IF EXISTS trg_staff_updated_at ON public.staff;
 DROP TRIGGER IF EXISTS trg_staff_updated_at ON public.staff;
 DROP TRIGGER IF EXISTS trg_staff_updated_at ON public.staff;
@@ -211,6 +216,7 @@ CREATE TABLE IF NOT EXISTS public.storage_locations (
 CREATE INDEX IF NOT EXISTS idx_storage_society ON public.storage_locations(society_id);
 CREATE INDEX IF NOT EXISTS idx_storage_occupancy ON public.storage_locations(society_id, is_occupied);
 
+DROP TRIGGER IF EXISTS trg_storage_locations_updated_at ON public.storage_locations;
 DROP TRIGGER IF EXISTS trg_storage_locations_updated_at ON public.storage_locations;
 DROP TRIGGER IF EXISTS trg_storage_locations_updated_at ON public.storage_locations;
 DROP TRIGGER IF EXISTS trg_storage_locations_updated_at ON public.storage_locations;
@@ -266,6 +272,7 @@ CREATE INDEX IF NOT EXISTS idx_parcels_resident ON public.parcels(resident_id);
 CREATE INDEX IF NOT EXISTS idx_parcels_apartment ON public.parcels(apartment_id);
 CREATE INDEX IF NOT EXISTS idx_parcels_tracking_number ON public.parcels(tracking_number);
 
+DROP TRIGGER IF EXISTS trg_parcels_updated_at ON public.parcels;
 DROP TRIGGER IF EXISTS trg_parcels_updated_at ON public.parcels;
 DROP TRIGGER IF EXISTS trg_parcels_updated_at ON public.parcels;
 DROP TRIGGER IF EXISTS trg_parcels_updated_at ON public.parcels;
@@ -333,6 +340,7 @@ $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
+DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 CREATE TRIGGER trg_log_parcel_status AFTER INSERT OR UPDATE ON public.parcels
     FOR EACH ROW EXECUTE FUNCTION log_parcel_status_change();
 
@@ -353,6 +361,7 @@ CREATE TABLE IF NOT EXISTS public.pickup_slots (
 
 CREATE INDEX IF NOT EXISTS idx_pickup_slots_lookup ON public.pickup_slots(society_id, slot_date, status);
 
+DROP TRIGGER IF EXISTS trg_pickup_slots_updated_at ON public.pickup_slots;
 DROP TRIGGER IF EXISTS trg_pickup_slots_updated_at ON public.pickup_slots;
 DROP TRIGGER IF EXISTS trg_pickup_slots_updated_at ON public.pickup_slots;
 DROP TRIGGER IF EXISTS trg_pickup_slots_updated_at ON public.pickup_slots;
@@ -384,6 +393,7 @@ CREATE INDEX IF NOT EXISTS idx_pickup_bookings_parcel ON public.pickup_bookings(
 DROP TRIGGER IF EXISTS trg_pickup_bookings_updated_at ON public.pickup_bookings;
 DROP TRIGGER IF EXISTS trg_pickup_bookings_updated_at ON public.pickup_bookings;
 DROP TRIGGER IF EXISTS trg_pickup_bookings_updated_at ON public.pickup_bookings;
+DROP TRIGGER IF EXISTS trg_pickup_bookings_updated_at ON public.pickup_bookings;
 CREATE TRIGGER trg_pickup_bookings_updated_at BEFORE UPDATE ON public.pickup_bookings
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -407,6 +417,7 @@ CREATE INDEX IF NOT EXISTS idx_handover_tokens_code ON public.handover_tokens(to
 CREATE INDEX IF NOT EXISTS idx_handover_tokens_otp ON public.handover_tokens(otp_code);
 CREATE INDEX IF NOT EXISTS idx_handover_tokens_parcel ON public.handover_tokens(parcel_id);
 
+DROP TRIGGER IF EXISTS trg_handover_tokens_updated_at ON public.handover_tokens;
 DROP TRIGGER IF EXISTS trg_handover_tokens_updated_at ON public.handover_tokens;
 DROP TRIGGER IF EXISTS trg_handover_tokens_updated_at ON public.handover_tokens;
 DROP TRIGGER IF EXISTS trg_handover_tokens_updated_at ON public.handover_tokens;
@@ -467,6 +478,7 @@ CREATE INDEX IF NOT EXISTS idx_authorized_collectors_resident ON public.authoriz
 DROP TRIGGER IF EXISTS trg_authorized_collectors_updated_at ON public.authorized_collectors;
 DROP TRIGGER IF EXISTS trg_authorized_collectors_updated_at ON public.authorized_collectors;
 DROP TRIGGER IF EXISTS trg_authorized_collectors_updated_at ON public.authorized_collectors;
+DROP TRIGGER IF EXISTS trg_authorized_collectors_updated_at ON public.authorized_collectors;
 CREATE TRIGGER trg_authorized_collectors_updated_at BEFORE UPDATE ON public.authorized_collectors
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -508,6 +520,7 @@ CREATE TABLE IF NOT EXISTS public.issues (
 
 CREATE INDEX IF NOT EXISTS idx_issues_society_status ON public.issues(society_id, status);
 
+DROP TRIGGER IF EXISTS trg_issues_updated_at ON public.issues;
 DROP TRIGGER IF EXISTS trg_issues_updated_at ON public.issues;
 DROP TRIGGER IF EXISTS trg_issues_updated_at ON public.issues;
 DROP TRIGGER IF EXISTS trg_issues_updated_at ON public.issues;
@@ -583,15 +596,18 @@ ALTER TABLE public.waitlist ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Public can view app versions" ON public.app_versions;
 DROP POLICY IF EXISTS "Public can view app versions" ON public.app_versions;
 DROP POLICY IF EXISTS "Public can view app versions" ON public.app_versions;
+DROP POLICY IF EXISTS "Public can view app versions" ON public.app_versions;
 CREATE POLICY "Public can view app versions" ON public.app_versions
     FOR SELECT TO PUBLIC USING (true);
 
 DROP POLICY IF EXISTS "Public can submit pilot requests" ON public.pilot_requests;
 DROP POLICY IF EXISTS "Public can submit pilot requests" ON public.pilot_requests;
 DROP POLICY IF EXISTS "Public can submit pilot requests" ON public.pilot_requests;
+DROP POLICY IF EXISTS "Public can submit pilot requests" ON public.pilot_requests;
 CREATE POLICY "Public can submit pilot requests" ON public.pilot_requests
     FOR INSERT TO PUBLIC WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Public can join waitlist" ON public.waitlist;
 DROP POLICY IF EXISTS "Public can join waitlist" ON public.waitlist;
 DROP POLICY IF EXISTS "Public can join waitlist" ON public.waitlist;
 DROP POLICY IF EXISTS "Public can join waitlist" ON public.waitlist;
@@ -604,9 +620,11 @@ CREATE POLICY "Public can join waitlist" ON public.waitlist
 DROP POLICY IF EXISTS "Anyone authenticated can view active societies" ON public.societies;
 DROP POLICY IF EXISTS "Anyone authenticated can view active societies" ON public.societies;
 DROP POLICY IF EXISTS "Anyone authenticated can view active societies" ON public.societies;
+DROP POLICY IF EXISTS "Anyone authenticated can view active societies" ON public.societies;
 CREATE POLICY "Anyone authenticated can view active societies" ON public.societies
     FOR SELECT TO authenticated USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admin full access on societies" ON public.societies;
 DROP POLICY IF EXISTS "Admin full access on societies" ON public.societies;
 DROP POLICY IF EXISTS "Admin full access on societies" ON public.societies;
 DROP POLICY IF EXISTS "Admin full access on societies" ON public.societies;
@@ -616,9 +634,11 @@ CREATE POLICY "Admin full access on societies" ON public.societies
 DROP POLICY IF EXISTS "Users can view apartments in their society" ON public.apartments;
 DROP POLICY IF EXISTS "Users can view apartments in their society" ON public.apartments;
 DROP POLICY IF EXISTS "Users can view apartments in their society" ON public.apartments;
+DROP POLICY IF EXISTS "Users can view apartments in their society" ON public.apartments;
 CREATE POLICY "Users can view apartments in their society" ON public.apartments
     FOR SELECT TO authenticated USING (society_id = get_current_user_society_id());
 
+DROP POLICY IF EXISTS "Admin full access on apartments" ON public.apartments;
 DROP POLICY IF EXISTS "Admin full access on apartments" ON public.apartments;
 DROP POLICY IF EXISTS "Admin full access on apartments" ON public.apartments;
 DROP POLICY IF EXISTS "Admin full access on apartments" ON public.apartments;
@@ -631,9 +651,11 @@ CREATE POLICY "Admin full access on apartments" ON public.apartments
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
 DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.users;
 CREATE POLICY "Users can view their own profile" ON public.users
     FOR SELECT TO authenticated USING (id = auth.uid() OR auth_user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Staff and Admin can view users in their society" ON public.users;
 DROP POLICY IF EXISTS "Staff and Admin can view users in their society" ON public.users;
 DROP POLICY IF EXISTS "Staff and Admin can view users in their society" ON public.users;
 DROP POLICY IF EXISTS "Staff and Admin can view users in their society" ON public.users;
@@ -643,9 +665,11 @@ CREATE POLICY "Staff and Admin can view users in their society" ON public.users
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
 DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.users;
 CREATE POLICY "Users can update their own profile" ON public.users
     FOR UPDATE TO authenticated USING (id = auth.uid() OR auth_user_id = auth.uid());
 
+DROP POLICY IF EXISTS "Admin full access on users" ON public.users;
 DROP POLICY IF EXISTS "Admin full access on users" ON public.users;
 DROP POLICY IF EXISTS "Admin full access on users" ON public.users;
 DROP POLICY IF EXISTS "Admin full access on users" ON public.users;
@@ -658,12 +682,14 @@ CREATE POLICY "Admin full access on users" ON public.users
 DROP POLICY IF EXISTS "Residents can view own record" ON public.residents;
 DROP POLICY IF EXISTS "Residents can view own record" ON public.residents;
 DROP POLICY IF EXISTS "Residents can view own record" ON public.residents;
+DROP POLICY IF EXISTS "Residents can view own record" ON public.residents;
 CREATE POLICY "Residents can view own record" ON public.residents
     FOR SELECT TO authenticated USING (
         user_id = auth.uid() OR 
         user_id IN (SELECT id FROM public.users WHERE auth_user_id = auth.uid())
     );
 
+DROP POLICY IF EXISTS "Staff can view residents in their society" ON public.residents;
 DROP POLICY IF EXISTS "Staff can view residents in their society" ON public.residents;
 DROP POLICY IF EXISTS "Staff can view residents in their society" ON public.residents;
 DROP POLICY IF EXISTS "Staff can view residents in their society" ON public.residents;
@@ -675,9 +701,11 @@ CREATE POLICY "Staff can view residents in their society" ON public.residents
 DROP POLICY IF EXISTS "Staff can view staff in their society" ON public.staff;
 DROP POLICY IF EXISTS "Staff can view staff in their society" ON public.staff;
 DROP POLICY IF EXISTS "Staff can view staff in their society" ON public.staff;
+DROP POLICY IF EXISTS "Staff can view staff in their society" ON public.staff;
 CREATE POLICY "Staff can view staff in their society" ON public.staff
     FOR SELECT TO authenticated USING (society_id = get_current_user_society_id());
 
+DROP POLICY IF EXISTS "Admin manage staff" ON public.staff;
 DROP POLICY IF EXISTS "Admin manage staff" ON public.staff;
 DROP POLICY IF EXISTS "Admin manage staff" ON public.staff;
 DROP POLICY IF EXISTS "Admin manage staff" ON public.staff;
@@ -690,11 +718,13 @@ CREATE POLICY "Admin manage staff" ON public.staff
 DROP POLICY IF EXISTS "Staff and Admin manage storage locations" ON public.storage_locations;
 DROP POLICY IF EXISTS "Staff and Admin manage storage locations" ON public.storage_locations;
 DROP POLICY IF EXISTS "Staff and Admin manage storage locations" ON public.storage_locations;
+DROP POLICY IF EXISTS "Staff and Admin manage storage locations" ON public.storage_locations;
 CREATE POLICY "Staff and Admin manage storage locations" ON public.storage_locations
     FOR ALL TO authenticated USING (
         society_id = get_current_user_society_id() AND get_current_user_role() IN ('STAFF', 'ADMIN')
     );
 
+DROP POLICY IF EXISTS "Residents view storage locations" ON public.storage_locations;
 DROP POLICY IF EXISTS "Residents view storage locations" ON public.storage_locations;
 DROP POLICY IF EXISTS "Residents view storage locations" ON public.storage_locations;
 DROP POLICY IF EXISTS "Residents view storage locations" ON public.storage_locations;
@@ -704,6 +734,7 @@ CREATE POLICY "Residents view storage locations" ON public.storage_locations
 -- ----------------------------------------------------------------------------
 -- POLICIES: parcels
 -- ----------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Residents view own parcels" ON public.parcels;
 DROP POLICY IF EXISTS "Residents view own parcels" ON public.parcels;
 DROP POLICY IF EXISTS "Residents view own parcels" ON public.parcels;
 DROP POLICY IF EXISTS "Residents view own parcels" ON public.parcels;
@@ -725,6 +756,7 @@ CREATE POLICY "Residents view own parcels" ON public.parcels
 DROP POLICY IF EXISTS "Staff and Admin manage society parcels" ON public.parcels;
 DROP POLICY IF EXISTS "Staff and Admin manage society parcels" ON public.parcels;
 DROP POLICY IF EXISTS "Staff and Admin manage society parcels" ON public.parcels;
+DROP POLICY IF EXISTS "Staff and Admin manage society parcels" ON public.parcels;
 CREATE POLICY "Staff and Admin manage society parcels" ON public.parcels
     FOR ALL TO authenticated USING (
         society_id = get_current_user_society_id() AND get_current_user_role() IN ('STAFF', 'ADMIN')
@@ -733,6 +765,7 @@ CREATE POLICY "Staff and Admin manage society parcels" ON public.parcels
 -- ----------------------------------------------------------------------------
 -- POLICIES: parcel_events
 -- ----------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Residents view parcel events for their parcels" ON public.parcel_events;
 DROP POLICY IF EXISTS "Residents view parcel events for their parcels" ON public.parcel_events;
 DROP POLICY IF EXISTS "Residents view parcel events for their parcels" ON public.parcel_events;
 DROP POLICY IF EXISTS "Residents view parcel events for their parcels" ON public.parcel_events;
@@ -749,6 +782,7 @@ CREATE POLICY "Residents view parcel events for their parcels" ON public.parcel_
 DROP POLICY IF EXISTS "Staff and Admin view and add parcel events" ON public.parcel_events;
 DROP POLICY IF EXISTS "Staff and Admin view and add parcel events" ON public.parcel_events;
 DROP POLICY IF EXISTS "Staff and Admin view and add parcel events" ON public.parcel_events;
+DROP POLICY IF EXISTS "Staff and Admin view and add parcel events" ON public.parcel_events;
 CREATE POLICY "Staff and Admin view and add parcel events" ON public.parcel_events
     FOR ALL TO authenticated USING (get_current_user_role() IN ('STAFF', 'ADMIN'));
 
@@ -758,9 +792,11 @@ CREATE POLICY "Staff and Admin view and add parcel events" ON public.parcel_even
 DROP POLICY IF EXISTS "Anyone in society can view pickup slots" ON public.pickup_slots;
 DROP POLICY IF EXISTS "Anyone in society can view pickup slots" ON public.pickup_slots;
 DROP POLICY IF EXISTS "Anyone in society can view pickup slots" ON public.pickup_slots;
+DROP POLICY IF EXISTS "Anyone in society can view pickup slots" ON public.pickup_slots;
 CREATE POLICY "Anyone in society can view pickup slots" ON public.pickup_slots
     FOR SELECT TO authenticated USING (society_id = get_current_user_society_id());
 
+DROP POLICY IF EXISTS "Staff and Admin manage pickup slots" ON public.pickup_slots;
 DROP POLICY IF EXISTS "Staff and Admin manage pickup slots" ON public.pickup_slots;
 DROP POLICY IF EXISTS "Staff and Admin manage pickup slots" ON public.pickup_slots;
 DROP POLICY IF EXISTS "Staff and Admin manage pickup slots" ON public.pickup_slots;
@@ -769,6 +805,7 @@ CREATE POLICY "Staff and Admin manage pickup slots" ON public.pickup_slots
         society_id = get_current_user_society_id() AND get_current_user_role() IN ('STAFF', 'ADMIN')
     );
 
+DROP POLICY IF EXISTS "Residents manage own bookings" ON public.pickup_bookings;
 DROP POLICY IF EXISTS "Residents manage own bookings" ON public.pickup_bookings;
 DROP POLICY IF EXISTS "Residents manage own bookings" ON public.pickup_bookings;
 DROP POLICY IF EXISTS "Residents manage own bookings" ON public.pickup_bookings;
@@ -784,12 +821,14 @@ CREATE POLICY "Residents manage own bookings" ON public.pickup_bookings
 DROP POLICY IF EXISTS "Staff view and manage society bookings" ON public.pickup_bookings;
 DROP POLICY IF EXISTS "Staff view and manage society bookings" ON public.pickup_bookings;
 DROP POLICY IF EXISTS "Staff view and manage society bookings" ON public.pickup_bookings;
+DROP POLICY IF EXISTS "Staff view and manage society bookings" ON public.pickup_bookings;
 CREATE POLICY "Staff view and manage society bookings" ON public.pickup_bookings
     FOR ALL TO authenticated USING (get_current_user_role() IN ('STAFF', 'ADMIN'));
 
 -- ----------------------------------------------------------------------------
 -- POLICIES: handover_tokens
 -- ----------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Residents view own handover tokens" ON public.handover_tokens;
 DROP POLICY IF EXISTS "Residents view own handover tokens" ON public.handover_tokens;
 DROP POLICY IF EXISTS "Residents view own handover tokens" ON public.handover_tokens;
 DROP POLICY IF EXISTS "Residents view own handover tokens" ON public.handover_tokens;
@@ -805,6 +844,7 @@ CREATE POLICY "Residents view own handover tokens" ON public.handover_tokens
 DROP POLICY IF EXISTS "Staff verify handover tokens" ON public.handover_tokens;
 DROP POLICY IF EXISTS "Staff verify handover tokens" ON public.handover_tokens;
 DROP POLICY IF EXISTS "Staff verify handover tokens" ON public.handover_tokens;
+DROP POLICY IF EXISTS "Staff verify handover tokens" ON public.handover_tokens;
 CREATE POLICY "Staff verify handover tokens" ON public.handover_tokens
     FOR ALL TO authenticated USING (get_current_user_role() IN ('STAFF', 'ADMIN'));
 
@@ -814,12 +854,14 @@ CREATE POLICY "Staff verify handover tokens" ON public.handover_tokens
 DROP POLICY IF EXISTS "Users view own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Users view own notifications" ON public.notifications;
 DROP POLICY IF EXISTS "Users view own notifications" ON public.notifications;
+DROP POLICY IF EXISTS "Users view own notifications" ON public.notifications;
 CREATE POLICY "Users view own notifications" ON public.notifications
     FOR SELECT TO authenticated USING (
         user_id = auth.uid() OR
         user_id IN (SELECT id FROM public.users WHERE auth_user_id = auth.uid())
     );
 
+DROP POLICY IF EXISTS "Users update own notification read state" ON public.notifications;
 DROP POLICY IF EXISTS "Users update own notification read state" ON public.notifications;
 DROP POLICY IF EXISTS "Users update own notification read state" ON public.notifications;
 DROP POLICY IF EXISTS "Users update own notification read state" ON public.notifications;
@@ -835,6 +877,7 @@ CREATE POLICY "Users update own notification read state" ON public.notifications
 DROP POLICY IF EXISTS "Residents manage their authorized collectors" ON public.authorized_collectors;
 DROP POLICY IF EXISTS "Residents manage their authorized collectors" ON public.authorized_collectors;
 DROP POLICY IF EXISTS "Residents manage their authorized collectors" ON public.authorized_collectors;
+DROP POLICY IF EXISTS "Residents manage their authorized collectors" ON public.authorized_collectors;
 CREATE POLICY "Residents manage their authorized collectors" ON public.authorized_collectors
     FOR ALL TO authenticated USING (
         resident_id IN (
@@ -847,6 +890,7 @@ CREATE POLICY "Residents manage their authorized collectors" ON public.authorize
 DROP POLICY IF EXISTS "Staff view authorized collectors" ON public.authorized_collectors;
 DROP POLICY IF EXISTS "Staff view authorized collectors" ON public.authorized_collectors;
 DROP POLICY IF EXISTS "Staff view authorized collectors" ON public.authorized_collectors;
+DROP POLICY IF EXISTS "Staff view authorized collectors" ON public.authorized_collectors;
 CREATE POLICY "Staff view authorized collectors" ON public.authorized_collectors
     FOR SELECT TO authenticated USING (get_current_user_role() IN ('STAFF', 'ADMIN'));
 
@@ -856,12 +900,14 @@ CREATE POLICY "Staff view authorized collectors" ON public.authorized_collectors
 DROP POLICY IF EXISTS "Residents view and create own issues" ON public.issues;
 DROP POLICY IF EXISTS "Residents view and create own issues" ON public.issues;
 DROP POLICY IF EXISTS "Residents view and create own issues" ON public.issues;
+DROP POLICY IF EXISTS "Residents view and create own issues" ON public.issues;
 CREATE POLICY "Residents view and create own issues" ON public.issues
     FOR ALL TO authenticated USING (
         reported_by_user_id = auth.uid() OR
         reported_by_user_id IN (SELECT id FROM public.users WHERE auth_user_id = auth.uid())
     );
 
+DROP POLICY IF EXISTS "Staff and Admin manage society issues" ON public.issues;
 DROP POLICY IF EXISTS "Staff and Admin manage society issues" ON public.issues;
 DROP POLICY IF EXISTS "Staff and Admin manage society issues" ON public.issues;
 DROP POLICY IF EXISTS "Staff and Admin manage society issues" ON public.issues;
@@ -876,9 +922,11 @@ CREATE POLICY "Staff and Admin manage society issues" ON public.issues
 DROP POLICY IF EXISTS "Admin view society audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "Admin view society audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "Admin view society audit logs" ON public.audit_logs;
+DROP POLICY IF EXISTS "Admin view society audit logs" ON public.audit_logs;
 CREATE POLICY "Admin view society audit logs" ON public.audit_logs
     FOR SELECT TO authenticated USING (get_current_user_role() = 'ADMIN');
 
+DROP POLICY IF EXISTS "System and Staff can insert audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "System and Staff can insert audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "System and Staff can insert audit logs" ON public.audit_logs;
 DROP POLICY IF EXISTS "System and Staff can insert audit logs" ON public.audit_logs;

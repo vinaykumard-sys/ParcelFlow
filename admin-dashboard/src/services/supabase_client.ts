@@ -126,7 +126,7 @@ export const FALLBACK_SOCIETIES: Society[] = [
 
 export const FALLBACK_PARCELS: EnrichedParcel[] = [
   {
-    id: 'p1111111-1111-1111-1111-111111111111',
+    id: '71111111-1111-1111-1111-111111111111',
     tracking_number: 'PF-8921-IN',
     carrier_name: 'Amazon',
     courier_tracking_id: 'AMZN-IN-88912903',
@@ -135,7 +135,7 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
     society_id: 'a1111111-1111-1111-1111-111111111111',
     apartment_id: 'f1010001-0000-0000-0000-000000000001',
     resident_id: 'e1111111-1111-1111-1111-111111111111',
-    storage_location_id: 's0000002-0000-0000-0000-000000000008',
+    storage_location_id: '10000002-0000-0000-0000-000000000008',
     status: 'SCHEDULED',
     description: 'Wireless Bluetooth Noise-Cancelling Headphones',
     category: 'ELECTRONICS',
@@ -185,20 +185,20 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
       },
     },
     storage_location: {
-      id: 's0000002-0000-0000-0000-000000000008',
+      id: '10000002-0000-0000-0000-000000000008',
       society_id: 'a1111111-1111-1111-1111-111111111111',
       zone: 'Hub Alpha',
       rack: 'Rack B',
       shelf: 'Shelf B-08',
       compartment_type: 'MEDIUM',
       is_occupied: true,
-      current_parcel_id: 'p1111111-1111-1111-1111-111111111111',
+      current_parcel_id: '71111111-1111-1111-1111-111111111111',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
     active_token: {
-      id: 't1111111-1111-1111-1111-111111111111',
-      parcel_id: 'p1111111-1111-1111-1111-111111111111',
+      id: 'f1111111-1111-1111-1111-111111111111',
+      parcel_id: '71111111-1111-1111-1111-111111111111',
       resident_id: 'e1111111-1111-1111-1111-111111111111',
       token_code: 'PF-TOKEN-7492',
       otp_code: '7492',
@@ -212,7 +212,7 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
     },
   },
   {
-    id: 'p2222222-2222-2222-2222-222222222222',
+    id: '72222222-2222-2222-2222-222222222222',
     tracking_number: 'PF-8922-IN',
     carrier_name: 'Myntra',
     courier_tracking_id: 'MYN-BLR-401923',
@@ -221,7 +221,7 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
     society_id: 'a1111111-1111-1111-1111-111111111111',
     apartment_id: 'f1010001-0000-0000-0000-000000000004',
     resident_id: 'e2222222-2222-2222-2222-222222222222',
-    storage_location_id: 's0000001-0000-0000-0000-000000000003',
+    storage_location_id: '10000001-0000-0000-0000-000000000003',
     status: 'READY_FOR_PICKUP',
     description: 'Athletic Running Shoes & Apparel',
     category: 'CLOTHING',
@@ -271,20 +271,20 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
       },
     },
     storage_location: {
-      id: 's0000001-0000-0000-0000-000000000003',
+      id: '10000001-0000-0000-0000-000000000003',
       society_id: 'a1111111-1111-1111-1111-111111111111',
       zone: 'Hub Alpha',
       rack: 'Rack A',
       shelf: 'Shelf A-03',
       compartment_type: 'MEDIUM',
       is_occupied: true,
-      current_parcel_id: 'p2222222-2222-2222-2222-222222222222',
+      current_parcel_id: '72222222-2222-2222-2222-222222222222',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
     active_token: {
-      id: 't2222222-2222-2222-2222-222222222222',
-      parcel_id: 'p2222222-2222-2222-2222-222222222222',
+      id: 'f2222222-2222-2222-2222-222222222222',
+      parcel_id: '72222222-2222-2222-2222-222222222222',
       resident_id: 'e2222222-2222-2222-2222-222222222222',
       token_code: 'PF-TOKEN-3194',
       otp_code: '3194',
@@ -298,7 +298,7 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
     },
   },
   {
-    id: 'p3333333-3333-3333-3333-333333333333',
+    id: '73333333-3333-3333-3333-333333333333',
     tracking_number: 'PF-8923-IN',
     carrier_name: 'Blue Dart',
     courier_tracking_id: 'BD-EXP-772109',
@@ -307,7 +307,7 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
     society_id: 'a1111111-1111-1111-1111-111111111111',
     apartment_id: 'f1010001-0000-0000-0000-000000000006',
     resident_id: 'e3333333-3333-3333-3333-333333333333',
-    storage_location_id: 's0000002-0000-0000-0000-000000000012',
+    storage_location_id: '10000002-0000-0000-0000-000000000012',
     status: 'STORED',
     description: 'Financial Documents & Bank Cheque Books',
     category: 'DOCUMENT',
@@ -357,14 +357,14 @@ export const FALLBACK_PARCELS: EnrichedParcel[] = [
       },
     },
     storage_location: {
-      id: 's0000002-0000-0000-0000-000000000012',
+      id: '10000002-0000-0000-0000-000000000012',
       society_id: 'a1111111-1111-1111-1111-111111111111',
       zone: 'Hub Alpha',
       rack: 'Rack B',
       shelf: 'Shelf B-12',
       compartment_type: 'LARGE',
       is_occupied: true,
-      current_parcel_id: 'p3333333-3333-3333-3333-333333333333',
+      current_parcel_id: '73333333-3333-3333-3333-333333333333',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     },
@@ -692,7 +692,7 @@ export const ParcelFlowAPI = {
 
       if (error || !data) {
         return {
-          id: 'v0000001-0000-0000-0000-000000000001',
+          id: '00000001-0000-0000-0000-000000000001',
           platform,
           version_number: '0.1.0',
           build_number: 1001,
@@ -707,7 +707,7 @@ export const ParcelFlowAPI = {
       return data as AppVersion;
     } catch {
       return {
-        id: 'v0000001-0000-0000-0000-000000000001',
+        id: '00000001-0000-0000-0000-000000000001',
         platform,
         version_number: '0.1.0',
         build_number: 1001,

@@ -200,22 +200,22 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.storage_locations (id, society_id, zone, rack, shelf, compartment_type, is_occupied)
 VALUES
     -- Rack A (Shelves A-01 through A-10)
-    ('s0000001-0000-0000-0000-000000000001', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-01', 'SMALL', false),
-    ('s0000001-0000-0000-0000-000000000002', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-02', 'MEDIUM', false),
-    ('s0000001-0000-0000-0000-000000000003', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-03', 'MEDIUM', true), -- Occupied by PF-8922-IN
-    ('s0000001-0000-0000-0000-000000000004', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-04', 'LARGE', false),
-    ('s0000001-0000-0000-0000-000000000005', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-05', 'SMALL', false),
-    ('s0000001-0000-0000-0000-000000000006', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-06', 'MEDIUM', false),
-    ('s0000001-0000-0000-0000-000000000007', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-07', 'SECURE_LOCKER', false),
-    ('s0000001-0000-0000-0000-000000000008', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-08', 'COLD_STORAGE', false),
+    ('10000001-0000-0000-0000-000000000001', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-01', 'SMALL', false),
+    ('10000001-0000-0000-0000-000000000002', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-02', 'MEDIUM', false),
+    ('10000001-0000-0000-0000-000000000003', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-03', 'MEDIUM', true), -- Occupied by PF-8922-IN
+    ('10000001-0000-0000-0000-000000000004', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-04', 'LARGE', false),
+    ('10000001-0000-0000-0000-000000000005', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-05', 'SMALL', false),
+    ('10000001-0000-0000-0000-000000000006', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-06', 'MEDIUM', false),
+    ('10000001-0000-0000-0000-000000000007', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-07', 'SECURE_LOCKER', false),
+    ('10000001-0000-0000-0000-000000000008', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack A', 'Shelf A-08', 'COLD_STORAGE', false),
 
     -- Rack B (Shelves B-01 through B-12)
-    ('s0000002-0000-0000-0000-000000000001', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-01', 'SMALL', false),
-    ('s0000002-0000-0000-0000-000000000002', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-02', 'MEDIUM', false),
-    ('s0000002-0000-0000-0000-000000000003', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-03', 'LARGE', false),
-    ('s0000002-0000-0000-0000-000000000004', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-04', 'MEDIUM', false),
-    ('s0000002-0000-0000-0000-000000000008', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-08', 'MEDIUM', true), -- Occupied by PF-8921-IN
-    ('s0000002-0000-0000-0000-000000000012', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-12', 'LARGE', true)   -- Occupied by PF-8923-IN
+    ('10000002-0000-0000-0000-000000000001', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-01', 'SMALL', false),
+    ('10000002-0000-0000-0000-000000000002', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-02', 'MEDIUM', false),
+    ('10000002-0000-0000-0000-000000000003', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-03', 'LARGE', false),
+    ('10000002-0000-0000-0000-000000000004', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-04', 'MEDIUM', false),
+    ('10000002-0000-0000-0000-000000000008', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-08', 'MEDIUM', true), -- Occupied by PF-8921-IN
+    ('10000002-0000-0000-0000-000000000012', 'a1111111-1111-1111-1111-111111111111', 'Hub Alpha', 'Rack B', 'Shelf B-12', 'LARGE', true)   -- Occupied by PF-8923-IN
 ON CONFLICT (id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
@@ -223,11 +223,11 @@ ON CONFLICT (id) DO NOTHING;
 -- ----------------------------------------------------------------------------
 INSERT INTO public.pickup_slots (id, society_id, slot_date, start_time, end_time, max_capacity, current_bookings_count, status)
 VALUES
-    ('sl000001-0000-0000-0000-000000000001', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '18:00:00', '18:30:00', 25, 4, 'AVAILABLE'),
-    ('sl000001-0000-0000-0000-000000000002', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '18:30:00', '19:00:00', 25, 8, 'AVAILABLE'),
-    ('sl000001-0000-0000-0000-000000000003', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '19:00:00', '19:30:00', 30, 12, 'AVAILABLE'),
-    ('sl000001-0000-0000-0000-000000000004', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '20:00:00', '20:30:00', 30, 18, 'AVAILABLE'),
-    ('sl000001-0000-0000-0000-000000000005', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '21:00:00', '21:30:00', 20, 6, 'AVAILABLE')
+    ('51000001-0000-0000-0000-000000000001', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '18:00:00', '18:30:00', 25, 4, 'AVAILABLE'),
+    ('51000001-0000-0000-0000-000000000002', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '18:30:00', '19:00:00', 25, 8, 'AVAILABLE'),
+    ('51000001-0000-0000-0000-000000000003', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '19:00:00', '19:30:00', 30, 12, 'AVAILABLE'),
+    ('51000001-0000-0000-0000-000000000004', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '20:00:00', '20:30:00', 30, 18, 'AVAILABLE'),
+    ('51000001-0000-0000-0000-000000000005', 'a1111111-1111-1111-1111-111111111111', CURRENT_DATE, '21:00:00', '21:30:00', 20, 6, 'AVAILABLE')
 ON CONFLICT (id) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
@@ -241,7 +241,7 @@ INSERT INTO public.parcels (
 VALUES
     -- Parcel 1: PF-8921-IN (Arjun Kumar, Scheduled 8:00 - 8:30 PM, Shelf B-08)
     (
-        'p1111111-1111-1111-1111-111111111111',
+        '71111111-1111-1111-1111-111111111111',
         'PF-8921-IN',
         'Amazon',
         'AMZN-IN-88912903',
@@ -250,7 +250,7 @@ VALUES
         'a1111111-1111-1111-1111-111111111111',
         'f1010001-0000-0000-0000-000000000001',
         'e1111111-1111-1111-1111-111111111111',
-        's0000002-0000-0000-0000-000000000008', -- Shelf B-08
+        '10000002-0000-0000-0000-000000000008', -- Shelf B-08
         'SCHEDULED',
         'Wireless Bluetooth Noise-Cancelling Headphones',
         'ELECTRONICS',
@@ -263,7 +263,7 @@ VALUES
     ),
     -- Parcel 2: PF-8922-IN (Priya Sharma, Ready for Pickup, Shelf A-03)
     (
-        'p2222222-2222-2222-2222-222222222222',
+        '72222222-2222-2222-2222-222222222222',
         'PF-8922-IN',
         'Myntra',
         'MYN-BLR-401923',
@@ -272,7 +272,7 @@ VALUES
         'a1111111-1111-1111-1111-111111111111',
         'f1010001-0000-0000-0000-000000000004',
         'e2222222-2222-2222-2222-222222222222',
-        's0000001-0000-0000-0000-000000000003', -- Shelf A-03
+        '10000001-0000-0000-0000-000000000003', -- Shelf A-03
         'READY_FOR_PICKUP',
         'Athletic Running Shoes & Apparel',
         'CLOTHING',
@@ -285,7 +285,7 @@ VALUES
     ),
     -- Parcel 3: PF-8923-IN (Rahul Verma, Stored, Shelf B-12)
     (
-        'p3333333-3333-3333-3333-333333333333',
+        '73333333-3333-3333-3333-333333333333',
         'PF-8923-IN',
         'Blue Dart',
         'BD-EXP-772109',
@@ -294,7 +294,7 @@ VALUES
         'a1111111-1111-1111-1111-111111111111',
         'f1010001-0000-0000-0000-000000000006',
         'e3333333-3333-3333-3333-333333333333',
-        's0000002-0000-0000-0000-000000000012', -- Shelf B-12
+        '10000002-0000-0000-0000-000000000012', -- Shelf B-12
         'STORED',
         'Financial Documents & Bank Cheque Books',
         'DOCUMENT',
@@ -307,7 +307,7 @@ VALUES
     ),
     -- Parcel 4: PF-8924-IN (Sneha Iyer, Completed Handover)
     (
-        'p4444444-4444-4444-4444-444444444444',
+        '74444444-4444-4444-4444-444444444444',
         'PF-8924-IN',
         'Flipkart',
         'FK-IN-10928374',
@@ -330,9 +330,9 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- Link occupied storage locations to their active parcels
-UPDATE public.storage_locations SET current_parcel_id = 'p1111111-1111-1111-1111-111111111111' WHERE id = 's0000002-0000-0000-0000-000000000008';
-UPDATE public.storage_locations SET current_parcel_id = 'p2222222-2222-2222-2222-222222222222' WHERE id = 's0000001-0000-0000-0000-000000000003';
-UPDATE public.storage_locations SET current_parcel_id = 'p3333333-3333-3333-3333-333333333333' WHERE id = 's0000002-0000-0000-0000-000000000012';
+UPDATE public.storage_locations SET current_parcel_id = '71111111-1111-1111-1111-111111111111' WHERE id = '10000002-0000-0000-0000-000000000008';
+UPDATE public.storage_locations SET current_parcel_id = '72222222-2222-2222-2222-222222222222' WHERE id = '10000001-0000-0000-0000-000000000003';
+UPDATE public.storage_locations SET current_parcel_id = '73333333-3333-3333-3333-333333333333' WHERE id = '10000002-0000-0000-0000-000000000012';
 
 -- ----------------------------------------------------------------------------
 -- 9. PICKUP BOOKINGS
@@ -341,8 +341,8 @@ INSERT INTO public.pickup_bookings (id, parcel_id, pickup_slot_id, resident_id, 
 VALUES
     (
         'b0000001-0000-0000-0000-000000000001',
-        'p1111111-1111-1111-1111-111111111111',
-        'sl000001-0000-0000-0000-000000000004', -- 20:00 - 20:30
+        '71111111-1111-1111-1111-111111111111',
+        '51000001-0000-0000-0000-000000000004', -- 20:00 - 20:30
         'e1111111-1111-1111-1111-111111111111',
         'CONFIRMED',
         '8:00 PM – 8:30 PM',
@@ -356,8 +356,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.handover_tokens (id, parcel_id, resident_id, token_code, otp_code, qr_code_data, status, expires_at)
 VALUES
     (
-        't1111111-1111-1111-1111-111111111111',
-        'p1111111-1111-1111-1111-111111111111',
+        'f1111111-1111-1111-1111-111111111111',
+        '71111111-1111-1111-1111-111111111111',
         'e1111111-1111-1111-1111-111111111111',
         'PF-TOKEN-7492',
         '7492',
@@ -366,8 +366,8 @@ VALUES
         NOW() + INTERVAL '24 hours'
     ),
     (
-        't2222222-2222-2222-2222-222222222222',
-        'p2222222-2222-2222-2222-222222222222',
+        'f2222222-2222-2222-2222-222222222222',
+        '72222222-2222-2222-2222-222222222222',
         'e2222222-2222-2222-2222-222222222222',
         'PF-TOKEN-3194',
         '3194',
@@ -383,8 +383,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.parcel_events (id, parcel_id, from_status, to_status, description, actor_name, actor_role, metadata, event_time)
 VALUES
     (
-        'ev000001-0000-0000-0000-000000000001',
-        'p1111111-1111-1111-1111-111111111111',
+        'e0000001-0000-0000-0000-000000000001',
+        '71111111-1111-1111-1111-111111111111',
         NULL,
         'RECEIVED',
         'Courier Mohan Lal checked in package at Society Hub Gate',
@@ -394,8 +394,8 @@ VALUES
         NOW() - INTERVAL '3 hours'
     ),
     (
-        'ev000001-0000-0000-0000-000000000002',
-        'p1111111-1111-1111-1111-111111111111',
+        'e0000001-0000-0000-0000-000000000002',
+        '71111111-1111-1111-1111-111111111111',
         'RECEIVED',
         'STORED',
         'Placed in Storage Rack B, Shelf B-08 by supervisor',
@@ -405,8 +405,8 @@ VALUES
         NOW() - INTERVAL '2 hours 45 minutes'
     ),
     (
-        'ev000001-0000-0000-0000-000000000003',
-        'p1111111-1111-1111-1111-111111111111',
+        'e0000001-0000-0000-0000-000000000003',
+        '71111111-1111-1111-1111-111111111111',
         'STORED',
         'NOTIFIED',
         'Notification sent to resident Arjun Kumar via WhatsApp & In-App',
@@ -416,8 +416,8 @@ VALUES
         NOW() - INTERVAL '2 hours 44 minutes'
     ),
     (
-        'ev000001-0000-0000-0000-000000000004',
-        'p1111111-1111-1111-1111-111111111111',
+        'e0000001-0000-0000-0000-000000000004',
+        '71111111-1111-1111-1111-111111111111',
         'NOTIFIED',
         'SCHEDULED',
         'Resident scheduled pickup window for 8:00 PM – 8:30 PM',
@@ -434,10 +434,10 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.notifications (id, user_id, society_id, parcel_id, type, title, body, channel, status)
 VALUES
     (
-        'n1111111-1111-1111-1111-111111111111',
+        '91111111-1111-1111-1111-111111111111',
         'd1111111-1111-1111-1111-111111111111', -- Arjun
         'a1111111-1111-1111-1111-111111111111',
-        'p1111111-1111-1111-1111-111111111111',
+        '71111111-1111-1111-1111-111111111111',
         'SLOT_SCHEDULED',
         'Pickup Scheduled for 8:00 PM',
         'Your Amazon parcel is scheduled for pickup at Shelf B-08. Show OTP 7492 at the counter.',
@@ -445,10 +445,10 @@ VALUES
         'SENT'
     ),
     (
-        'n2222222-2222-2222-2222-222222222222',
+        '92222222-2222-2222-2222-222222222222',
         'd2222222-2222-2222-2222-222222222222', -- Priya
         'a1111111-1111-1111-1111-111111111111',
-        'p2222222-2222-2222-2222-222222222222',
+        '72222222-2222-2222-2222-222222222222',
         'READY_FOR_PICKUP',
         'Your Myntra package has arrived!',
         'Checked into Shelf A-03. Please select a convenient pickup time in the app.',
@@ -479,21 +479,21 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.audit_logs (id, society_id, user_id, action, entity_type, entity_id, payload)
 VALUES
     (
-        'al000001-0000-0000-0000-000000000001',
+        'a1000001-0000-0000-0000-000000000001',
         'a1111111-1111-1111-1111-111111111111',
         'b2222222-2222-2222-2222-222222222222',
         'PARCEL_SCAN_IN',
         'parcels',
-        'p1111111-1111-1111-1111-111111111111',
+        '71111111-1111-1111-1111-111111111111',
         '{"carrier": "Amazon", "tracking_number": "PF-8921-IN", "gate": 1}'::jsonb
     ),
     (
-        'al000001-0000-0000-0000-000000000002',
+        'a1000001-0000-0000-0000-000000000002',
         'a1111111-1111-1111-1111-111111111111',
         'b1111111-1111-1111-1111-111111111111',
         'STORAGE_ASSIGNED',
         'storage_locations',
-        's0000002-0000-0000-0000-000000000008',
+        '10000002-0000-0000-0000-000000000008',
         '{"rack": "Rack B", "shelf": "Shelf B-08"}'::jsonb
     )
 ON CONFLICT (id) DO NOTHING;
@@ -504,8 +504,8 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.issues (id, parcel_id, society_id, reported_by_user_id, title, description, category, priority, status)
 VALUES
     (
-        'is000001-0000-0000-0000-000000000001',
-        'p3333333-3333-3333-3333-333333333333',
+        '15000001-0000-0000-0000-000000000001',
+        '73333333-3333-3333-3333-333333333333',
         'a1111111-1111-1111-1111-111111111111',
         'd3333333-3333-3333-3333-333333333333',
         'Outer cardboard seal slightly torn upon arrival',
@@ -522,7 +522,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.app_versions (id, platform, version_number, build_number, release_notes, min_supported_version, is_mandatory_update, download_url, released_at)
 VALUES
     (
-        'v0000001-0000-0000-0000-000000000001',
+        '00000001-0000-0000-0000-000000000001',
         'ANDROID',
         '0.1.0',
         1001,
@@ -533,7 +533,7 @@ VALUES
         NOW()
     ),
     (
-        'v0000001-0000-0000-0000-000000000002',
+        '00000001-0000-0000-0000-000000000002',
         'IOS',
         '0.1.0',
         1001,
@@ -544,7 +544,7 @@ VALUES
         NOW()
     ),
     (
-        'v0000001-0000-0000-0000-000000000003',
+        '00000001-0000-0000-0000-000000000003',
         'WEB',
         '0.1.0',
         1001,
