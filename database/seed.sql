@@ -11,8 +11,7 @@
 -- App Versions: 0.1.0 for Android, iOS, Web
 -- ============================================================================
 
--- Disable triggers during seed execution for clean batch loading
-SET session_replication_role = 'replica';
+-- Triggers and foreign keys are preserved in valid dependency order
 
 -- ----------------------------------------------------------------------------
 -- 1. SOCIETIES
@@ -557,5 +556,4 @@ VALUES
     )
 ON CONFLICT (id) DO NOTHING;
 
--- Re-enable triggers
-SET session_replication_role = 'origin';
+-- End of seed data

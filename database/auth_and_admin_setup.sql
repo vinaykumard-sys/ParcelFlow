@@ -260,15 +260,12 @@ BEGIN
                 NOW(),
                 NOW()
             )
-            ON CONFLICT (auth_user_id) DO UPDATE SET
+            ON CONFLICT (id) DO UPDATE SET
+                auth_user_id = EXCLUDED.auth_user_id,
                 email = EXCLUDED.email,
                 full_name = EXCLUDED.full_name,
                 role = UPPER(v_role),
                 avatar_url = COALESCE(EXCLUDED.avatar_url, public.users.avatar_url),
-                updated_at = NOW()
-            ON CONFLICT (email) DO UPDATE SET
-                auth_user_id = EXCLUDED.auth_user_id,
-                role = UPPER(v_role),
                 updated_at = NOW();
         EXCEPTION WHEN OTHERS THEN
             -- Ignore duplicate conflicts in users table during sync
