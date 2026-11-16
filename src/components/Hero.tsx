@@ -9,7 +9,6 @@ import {
   BellRing, 
   Package, 
   ShieldCheck, 
-  QrCode,
   Sparkles,
   Info,
   Calendar,
@@ -195,7 +194,7 @@ export const Hero: React.FC = () => {
                     <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full border border-emerald-400">Verified</span>
                   </div>
                   <div className="text-[11px] font-medium text-slate-600">
-                    No waiting at gate. Collect with encrypted OTP/QR.
+                    Secure handover using OTP/QR verification through the ParcelFlow app.
                   </div>
                 </div>
               </div>
@@ -299,8 +298,8 @@ export const Hero: React.FC = () => {
                       onClick={() => setShowPassModal(true)}
                       className="text-xs font-black text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-1.5 transition-colors self-start sm:self-auto"
                     >
-                      <QrCode className="w-3.5 h-3.5" />
-                      <span>View Pass</span>
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
+                      <span>Handover Info</span>
                     </button>
                   )}
                 </div>
@@ -356,9 +355,9 @@ export const Hero: React.FC = () => {
 
                 {/* Footer Sub-Bar: Custom Time + Digital Security Guarantee */}
                 <div className="mt-3 pt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-2 text-slate-600 font-semibold">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>Locker Bay #14 Reserved • OTP: <strong className="text-[#0A1128] font-mono">7492</strong></span>
+                  <div className="flex items-center gap-2 text-slate-700 font-semibold">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>Secure handover using OTP/QR verification through the ParcelFlow app.</span>
                   </div>
 
                   <button
@@ -398,10 +397,10 @@ export const Hero: React.FC = () => {
         </div>
       </div>
 
-      {/* ================= DIGITAL HANDOVER PASS MODAL ================= */}
+      {/* ================= DIGITAL HANDOVER INFO MODAL ================= */}
       {showPassModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="relative w-full max-w-sm rounded-3xl bg-white border-[3px] border-[#0A1128] shadow-[8px_8px_0px_#0A1128] p-6 text-center">
+          <div className="relative w-full max-w-md rounded-3xl bg-white border-[3px] border-[#0A1128] shadow-[8px_8px_0px_#0A1128] p-6 text-center">
             <button
               onClick={() => setShowPassModal(false)}
               className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-slate-100 text-slate-600 transition-colors"
@@ -410,43 +409,55 @@ export const Hero: React.FC = () => {
             </button>
 
             <div className="w-12 h-12 mx-auto rounded-2xl bg-blue-100 border-2 border-[#0A1128] text-blue-700 flex items-center justify-center mb-3 shadow-[2px_2px_0px_#0A1128]">
-              <Package className="w-6 h-6" />
+              <ShieldCheck className="w-6 h-6" />
             </div>
 
             <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black border border-emerald-400 mb-2">
-              Ready for Pickup
+              Slot Selected: {selectedSlot}
             </span>
 
-            <h3 className="text-xl font-black text-[#0A1128]">Society Hub Pickup Pass</h3>
-            <p className="text-xs text-slate-600 mt-1">
-              Show this QR or enter OTP at the Emerald Towers Gate 1 Hub
+            <h3 className="text-xl font-black text-[#0A1128]">Secure Society Handover</h3>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              Secure handover using OTP/QR verification through the ParcelFlow app.
             </p>
 
-            {/* QR Mockup */}
-            <div className="my-5 p-4 rounded-2xl bg-[#FEF9F3] border-2 border-[#0A1128] inline-block shadow-[3px_3px_0px_#0A1128]">
-              <div className="w-40 h-40 bg-white p-2 rounded-xl border border-slate-300 flex flex-col items-center justify-center">
-                <QrCode className="w-32 h-32 text-[#0A1128]" />
+            {/* Explanation Card */}
+            <div className="my-5 p-4 rounded-2xl bg-[#FEF9F3] border-2 border-[#0A1128] text-left shadow-[3px_3px_0px_#0A1128] space-y-3">
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-[#1D4ED8] text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">1</span>
+                <p className="text-xs text-slate-700 font-semibold">
+                  <strong>Slot Scheduling:</strong> You have selected your preferred collection window ({selectedSlot}). Your parcel is held in safe custody at the society hub.
+                </p>
               </div>
-              <div className="mt-2 text-xs font-mono font-black text-slate-800 tracking-wider">
-                PASS: PF-EMR-8492
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">2</span>
+                <p className="text-xs text-slate-700 font-semibold">
+                  <strong>Mobile App Generation:</strong> For security against courier fraud and corridor theft, cryptographic dynamic QR codes and single-use OTPs are generated inside the official ParcelFlow mobile app upon physical arrival.
+                </p>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">3</span>
+                <p className="text-xs text-slate-700 font-semibold">
+                  <strong>15-Second Release:</strong> Hub staff scans your app’s dynamic QR or confirms your OTP on their terminal. Chain of custody is logged instantly.
+                </p>
               </div>
             </div>
 
-            {/* OTP Code Box */}
-            <div className="bg-amber-100 border-2 border-[#0A1128] rounded-2xl p-3 mb-4 shadow-[2px_2px_0px_#0A1128]">
-              <div className="text-[11px] font-bold text-amber-900 uppercase tracking-wider">One-Time Handover PIN</div>
-              <div className="text-2xl font-black font-mono text-[#0A1128] tracking-widest mt-0.5">
-                7 4 9 2
-              </div>
-              <div className="text-[10px] text-amber-800 mt-1">Valid window: <strong className="font-bold">{selectedSlot}</strong></div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href="/download"
+                className="flex-1 py-3 px-4 rounded-full bg-[#1D4ED8] hover:bg-blue-600 text-white font-extrabold text-sm border-2 border-[#0A1128] shadow-[3px_3px_0px_#0A1128] flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Mobile App</span>
+              </a>
+              <button
+                onClick={() => setShowPassModal(false)}
+                className="py-3 px-5 rounded-full bg-slate-100 hover:bg-slate-200 text-[#0A1128] font-bold text-sm border-2 border-[#0A1128]"
+              >
+                Close
+              </button>
             </div>
-
-            <button
-              onClick={() => setShowPassModal(false)}
-              className="w-full py-3 rounded-full bg-[#1D4ED8] hover:bg-blue-600 text-white font-extrabold text-sm border-2 border-[#0A1128] shadow-[3px_3px_0px_#0A1128]"
-            >
-              Done / Close Pass
-            </button>
           </div>
         </div>
       )}

@@ -14,7 +14,11 @@ import {
   Check,
   Package,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Users,
+  UserCheck,
+  Sliders,
+  ExternalLink
 } from 'lucide-react';
 import { Sticker } from '../components/Sticker';
 
@@ -48,8 +52,8 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const triggerDownload = () => {
     setDownloadStarted(true);
     const link = document.createElement('a');
-    link.href = '/downloads/ParcelFlow.apk';
-    link.setAttribute('download', 'ParcelFlow-v0.1.0-pilot.apk');
+    link.href = '/downloads/android/ParcelFlow.apk';
+    link.setAttribute('download', 'ParcelFlow.apk');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -69,7 +73,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
           <div className="inline-flex items-center gap-2 mb-4">
             <Sticker color="blue" rotate="slight-left" size="sm">
               <Smartphone className="w-3.5 h-3.5 inline mr-1 text-white" />
-              Official Mobile Release
+              Unified Mobile Release
             </Sticker>
           </div>
 
@@ -77,14 +81,14 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
             Get <span className="text-blue-600 underline decoration-amber-400 decoration-wavy decoration-2">ParcelFlow</span>
           </h1>
           <p className="mt-4 text-base sm:text-lg text-slate-700 font-medium">
-            Download the official Android pilot APK or scan the QR code. Take total control over when your society parcels reach your hands.
+            Download the official Android APK. One unified application powering verified residents, society hub staff, and RWA management.
           </p>
 
           {/* Pilot Info Sticker Card */}
           <div className="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-100 border-[2.5px] border-[#0A1128] text-[#0A1128] text-xs sm:text-sm shadow-[3px_3px_0px_#0A1128] text-left">
             <span className="text-lg">📢</span>
             <span>
-              <strong>Pilot Community Release:</strong> Rolling out across partner apartment societies in Bengaluru. Is your society registered?
+              <strong>Pilot Community Release:</strong> Preferred MVP architecture active in partner apartment societies. Single APK with automated role-based navigation.
             </span>
             {onOpenPilotModal && (
               <button
@@ -110,12 +114,12 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
                   <Smartphone className="w-7 h-7 text-white stroke-[2.2]" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-[#0A1128]">ParcelFlow for Android</h3>
-                  <div className="flex items-center gap-2 mt-1">
+                  <h3 className="text-2xl font-black text-[#0A1128]">One Unified Android APK</h3>
+                  <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className="text-xs font-mono font-black text-[#0A1128] bg-amber-300 px-2 py-0.5 rounded-lg border-[1.5px] border-[#0A1128] shadow-[1px_1px_0px_#0A1128]">
-                      v0.1.0-pilot
+                      Version 0.1.0
                     </span>
-                    <span className="text-xs font-bold text-slate-500">Official Pilot Build</span>
+                    <span className="text-xs font-bold text-slate-500">Updated: November 16, 2026</span>
                   </div>
                 </div>
               </div>
@@ -137,28 +141,62 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
               <div className="p-3 rounded-xl bg-emerald-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">Architecture</div>
-                <div className="text-sm font-black text-[#0A1128] mt-0.5">arm64-v8a</div>
+                <div className="text-sm font-black text-[#0A1128] mt-0.5">arm64 / Universal</div>
               </div>
               <div className="p-3 rounded-xl bg-purple-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">Release Date</div>
-                <div className="text-sm font-black text-[#0A1128] mt-0.5">Nov 2026</div>
+                <div className="text-sm font-black text-[#0A1128] mt-0.5">Nov 16, 2026</div>
               </div>
             </div>
 
-            {/* Feature highlights */}
-            <div className="space-y-3 mb-8 bg-[#FEF9F3] p-4.5 rounded-2xl border-[2px] border-[#0A1128] shadow-[3px_3px_0px_#0A1128]">
-              <div className="text-xs font-black uppercase text-slate-500 tracking-wider mb-2">Key Features Included:</div>
-              <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 stroke-[2.5]" />
-                <span>One-tap evening pickup scheduling with flexible slots (6:00 PM – 9:30 PM).</span>
+            {/* Preferred MVP Architecture: Role-Based Explanation */}
+            <div className="mb-7 bg-[#FEF9F3] p-5 rounded-2xl border-[2px] border-[#0A1128] shadow-[3px_3px_0px_#0A1128] space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black uppercase text-blue-900 tracking-wider">
+                  Preferred MVP Architecture: Unified Role-Based App
+                </span>
+                <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full border border-blue-300">
+                  Single APK
+                </span>
               </div>
-              <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 stroke-[2.5]" />
-                <span>Single-use dynamic QR codes and backup 4-digit OTPs for instant gate collection.</span>
+              <p className="text-xs sm:text-sm text-slate-700 font-medium leading-relaxed">
+                Instead of requiring users to download separate disconnected applications, ParcelFlow packages all functionality into <strong>one unified Android APK</strong>. After logging in with your verified phone number, your assigned role automatically determines your interface:
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                <div className="p-2.5 rounded-xl bg-white border border-[#0A1128] shadow-sm">
+                  <div className="text-xs font-black text-[#0A1128] flex items-center gap-1.5 mb-1">
+                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    <span>Resident</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-medium leading-tight">
+                    Delivery tracking, slot scheduling, and dynamic OTP/QR pass generation.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white border border-[#0A1128] shadow-sm">
+                  <div className="text-xs font-black text-[#0A1128] flex items-center gap-1.5 mb-1">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span>Hub Staff</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-medium leading-tight">
+                    Barcode intake scanner, shelf bin assignment, and handover verification.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white border border-[#0A1128] shadow-sm">
+                  <div className="text-xs font-black text-[#0A1128] flex items-center gap-1.5 mb-1">
+                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                    <span>Society Admin</span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-medium leading-tight">
+                    RWA oversight, staff management, resident directory, and slot capacity.
+                  </p>
+                </div>
               </div>
-              <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 font-semibold">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 stroke-[2.5]" />
-                <span>Proxy delegation: forward your collection pass to roommates or family via WhatsApp.</span>
+
+              <div className="mt-2 pt-2 border-t border-slate-200 text-[11px] font-semibold text-slate-600">
+                🔒 <strong>Security Protocol:</strong> Secure handover using OTP/QR verification through the ParcelFlow app.
               </div>
             </div>
 
@@ -170,7 +208,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
                 className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-base border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
                 <Download className="w-5 h-5 stroke-[2.5]" />
-                <span>{downloadStarted ? 'Downloading ParcelFlow.apk...' : 'Download APK (18.4 MB)'}</span>
+                <span>{downloadStarted ? 'Downloading ParcelFlow.apk...' : 'Download APK (Version 0.1.0)'}</span>
               </button>
 
               {onOpenPilotModal && (
@@ -185,8 +223,20 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               )}
             </div>
 
+            {/* Direct Link Fallback */}
+            <div className="mt-3 text-center sm:text-left">
+              <a 
+                href="/downloads/android/ParcelFlow.apk" 
+                download="ParcelFlow.apk"
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 underline underline-offset-2 inline-flex items-center gap-1"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Direct Download Link: /downloads/android/ParcelFlow.apk</span>
+              </a>
+            </div>
+
             {/* Checksum & verification */}
-            <div className="mt-8 pt-5 border-t-[2px] border-slate-200 text-xs">
+            <div className="mt-7 pt-5 border-t-[2px] border-slate-200 text-xs">
               <div className="flex items-center justify-between gap-2 mb-1.5">
                 <span className="font-extrabold text-slate-700 flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
@@ -217,7 +267,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
 
               <p className="text-xs text-slate-600 font-medium mb-3">
-                Point your mobile camera at this code to open direct APK download link on your phone.
+                Point your mobile camera at this code to open direct download link to <strong>/downloads/android/ParcelFlow.apk</strong> on your device.
               </p>
               
               <div className="inline-block bg-white p-3.5 rounded-2xl border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] my-1">
@@ -260,7 +310,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
 
               <div className="mt-3 inline-block">
                 <Sticker color="yellow" rotate="none" size="sm">
-                  ⚡ Instant Mobile Link
+                  ⚡ Direct Android APK Link
                 </Sticker>
               </div>
             </div>
@@ -321,7 +371,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               Simple 3-Step Setup
             </Sticker>
             <h3 className="text-2xl sm:text-3xl font-black text-[#0A1128]">
-              How to Install the Android APK
+              How to Install the Unified Android APK
             </h3>
             <p className="text-slate-600 font-medium text-sm mt-1">
               Takes less than 60 seconds to get your society account connected.
@@ -333,9 +383,9 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               <div className="w-10 h-10 rounded-xl bg-blue-500 text-white font-black flex items-center justify-center text-base mb-4 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 01
               </div>
-              <h4 className="text-base font-black text-[#0A1128] mb-1.5">Download the File</h4>
+              <h4 className="text-base font-black text-[#0A1128] mb-1.5">Download the APK</h4>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                Tap <strong>Download APK</strong> above on your Android phone. If your browser prompts you with a download confirmation, tap <em>Keep</em>.
+                Tap <strong>Download APK</strong> above or direct link <code>/downloads/android/ParcelFlow.apk</code>. If your browser prompts confirmation, tap <em>Keep</em>.
               </p>
             </div>
 
@@ -353,9 +403,9 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               <div className="w-10 h-10 rounded-xl bg-emerald-400 text-[#0A1128] font-black flex items-center justify-center text-base mb-4 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 03
               </div>
-              <h4 className="text-base font-black text-[#0A1128] mb-1.5">Link Your Apartment</h4>
+              <h4 className="text-base font-black text-[#0A1128] mb-1.5">Login by Phone Number</h4>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                Open ParcelFlow, enter your mobile number, and select your apartment tower to start receiving parcel notifications.
+                Authenticate with your mobile number. Your assigned role (Resident, Staff, or Admin) instantly loads the corresponding interface.
               </p>
             </div>
           </div>

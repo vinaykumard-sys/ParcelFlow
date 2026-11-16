@@ -6,7 +6,6 @@ import {
   Clock, 
   Package, 
   Search, 
-  Sparkles, 
   TrendingUp, 
   QrCode, 
   Boxes,
@@ -20,16 +19,7 @@ interface SocietySectionProps {
 
 export const SocietySection: React.FC<SocietySectionProps> = ({ onOpenPilotModal }) => {
   const [activeRack, setActiveRack] = useState<'A' | 'B' | 'C'>('A');
-  const [scannedCount, setScannedCount] = useState<number>(87);
-  const [isScanning, setIsScanning] = useState<boolean>(false);
-
-  const handleSimulateScan = () => {
-    setIsScanning(true);
-    setTimeout(() => {
-      setScannedCount(prev => prev + 1);
-      setIsScanning(false);
-    }, 600);
-  };
+  const scannedCount = 87;
 
   const racksData = {
     A: {
@@ -250,16 +240,11 @@ export const SocietySection: React.FC<SocietySectionProps> = ({ onOpenPilotModal
                   <p className="text-xs font-semibold text-slate-600">Select a rack to see organized parcel inventory</p>
                 </div>
 
-                {/* Simulate Quick Scan Button */}
-                <button
-                  type="button"
-                  onClick={handleSimulateScan}
-                  disabled={isScanning}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-[#0A1128] text-xs font-black border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] active:translate-y-0.5 transition-all flex items-center gap-1.5 self-start sm:self-auto"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-[#0A1128]" />
-                  <span>{isScanning ? 'Scanning...' : '+ Inbound Scan'}</span>
-                </button>
+                {/* Live Hub Sync Badge */}
+                <div className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-950 text-xs font-black border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] flex items-center gap-1.5 self-start sm:self-auto">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Real-time Gate Sync</span>
+                </div>
               </div>
 
               {/* Rack Selector Tabs */}

@@ -1,0 +1,7 @@
+PKParcelFlow Android Pilot Build v0.1.0-pilot (Release)
+Society Gate Integration & Resident Handover App
+Package: app.parcelflow.resident
+MinSdkVersion: 26 (Android 8.0 Oreo)
+TargetSdkVersion: 34 (Android 14)
+Security Protocol: Encrypted QR & OTP Verification
+ParcelFlow Technologies Pvt. Ltd. Bengaluru, India

@@ -20,7 +20,6 @@ const TIME_OPTIONS: TimeOption[] = [
 export const AppPreview: React.FC = () => {
   const [pickupState, setPickupState] = useState<PickupState>('scheduled');
   const [selectedTimeId, setSelectedTimeId] = useState<string>('t3');
-  const [isCopied, setIsCopied] = useState<boolean>(false);
 
   const phoneRef = useRef<HTMLDivElement>(null);
   const stickerScheduledRef = useRef<HTMLDivElement>(null);
@@ -30,11 +29,6 @@ export const AppPreview: React.FC = () => {
   const stickerSpeedRef = useRef<HTMLDivElement>(null);
 
   const selectedTime = TIME_OPTIONS.find((t) => t.id === selectedTimeId) || TIME_OPTIONS[2];
-
-  const handleCopyOtp = () => {
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
 
   // Subtle floating GSAP animations
   useEffect(() => {
@@ -126,7 +120,7 @@ export const AppPreview: React.FC = () => {
             Meet <span className="text-[#2563EB]">ParcelFlow.</span>
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-600 font-medium leading-relaxed">
-            Take complete command of your society deliveries. Schedule pickups in 2 taps, receive zero spam calls, and enjoy seamless OTP handovers.
+            Take complete command of your society deliveries. Schedule pickups in 2 taps, receive zero spam calls, and experience secure handover using OTP/QR verification through the ParcelFlow app.
           </p>
         </div>
 
@@ -290,27 +284,21 @@ export const AppPreview: React.FC = () => {
                         <span className="text-[10px] font-black text-emerald-800">Ready at Hub</span>
                       </div>
 
-                      {/* OTP Box */}
-                      <div className="p-2 rounded-xl bg-white border-2 border-[#0A1128] flex items-center justify-between shadow-cartoon-sm">
-                        <div>
-                          <div className="text-[9px] font-black text-slate-500 uppercase">Handover OTP</div>
-                          <div className="text-lg font-mono font-black text-[#2563EB] tracking-widest">
-                            7 4 9 2
-                          </div>
+                      {/* App Handover Token Info */}
+                      <div className="p-2.5 rounded-xl bg-white border-2 border-[#0A1128] shadow-cartoon-sm">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-[10px] font-black text-slate-700 uppercase tracking-wide">In-App Verification</span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={handleCopyOtp}
-                          className="px-2.5 py-1 rounded-lg bg-[#FEF9F3] hover:bg-[#F4EFE6] border border-[#0A1128] text-[10px] font-black text-[#0A1128] transition-colors"
-                        >
-                          {isCopied ? 'Copied ✓' : 'Copy'}
-                        </button>
+                        <div className="text-[11px] font-semibold text-slate-600 leading-snug">
+                          Secure handover using OTP/QR verification through the ParcelFlow app.
+                        </div>
                       </div>
 
                       {/* Change time slot button */}
                       <div className="mt-2.5 pt-2 border-t border-emerald-900/20 flex items-center justify-between">
                         <span className="text-[10px] text-emerald-900 font-bold">
-                          Flash QR or OTP at counter
+                          Flash in-app pass at counter
                         </span>
                         <button
                           type="button"

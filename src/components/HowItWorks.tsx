@@ -52,7 +52,6 @@ const stepsData: Step[] = [
 export const HowItWorks: React.FC = () => {
   const [activeStep, setActiveStep] = useState<number>(0);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('8:00 PM – 8:30 PM');
-  const [isQrScanned, setIsQrScanned] = useState<boolean>(false);
   const [notificationDismissed, setNotificationDismissed] = useState<boolean>(false);
 
   const timeSlots = [
@@ -501,20 +500,15 @@ export const HowItWorks: React.FC = () => {
               Collect securely
             </h3>
             <p className="text-slate-600 text-sm font-medium leading-relaxed mb-6">
-              Head to the hub on your way home. Flash your dynamic QR code or share your 4-digit OTP. Staff hands over your parcel in under 15 seconds.
+              Head to the hub on your way home. Secure handover using OTP/QR verification through the ParcelFlow app. Staff hands over your parcel in under 15 seconds.
             </p>
 
-            {/* Cartoon Scene: Smiling resident scanning QR with green checkmark */}
+            {/* Cartoon Scene: Resident verifying handover pass with green checkmark */}
             <div className="relative w-full h-64 rounded-2xl bg-[#DCFCE7] border-2 border-[#0A1128] overflow-hidden flex items-center justify-around p-4 select-none">
               
-              {/* Interactive QR Code Box */}
+              {/* Illustrated In-App QR Code Box */}
               <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsQrScanned(!isQrScanned);
-                }}
-                className="relative p-2.5 rounded-2xl bg-white border-2 border-[#0A1128] shadow-cartoon hover:scale-105 transition-all duration-200 flex flex-col items-center cursor-pointer"
-                title="Click to simulate QR scan"
+                className="relative p-2.5 rounded-2xl bg-white border-2 border-[#0A1128] shadow-cartoon flex flex-col items-center"
               >
                 {/* Custom SVG QR Code with cartoon accents */}
                 <svg className="w-24 h-24 sm:w-28 sm:h-28" viewBox="0 0 100 100" fill="none">
@@ -555,21 +549,21 @@ export const HowItWorks: React.FC = () => {
                   <rect x="42" y="82" width="16" height="8" fill="#0A1128" />
                 </svg>
 
-                {/* Laser scan line */}
-                <div className="absolute inset-x-2 top-2 h-1 bg-[#10B981] rounded animate-bounce shadow-sm" />
-                
-                <span className="text-[10px] font-black text-slate-500 mt-1">Tap to scan</span>
+                <span className="text-[10px] font-black text-slate-700 mt-1">In-App QR Pass</span>
               </div>
 
-              {/* Handover & OTP Badges (Right side) */}
+              {/* Handover & In-App Security Badges (Right side) */}
               <div className="flex flex-col gap-2.5">
                 {/* OTP Box */}
                 <div className="p-3 rounded-2xl bg-white border-2 border-[#0A1128] shadow-cartoon-sm text-center">
                   <div className="text-[9px] font-black uppercase tracking-wider text-slate-500">
-                    Handover OTP
+                    Handover Verification
                   </div>
-                  <div className="text-xl sm:text-2xl font-mono font-black text-[#2563EB] tracking-widest mt-0.5">
-                    7 4 9 2
+                  <div className="text-sm font-black text-[#2563EB] mt-0.5">
+                    Dynamic OTP in App
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                    Single-use token
                   </div>
                 </div>
 
