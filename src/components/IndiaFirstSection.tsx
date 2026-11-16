@@ -5,7 +5,8 @@ import {
   Truck, 
   ShieldCheck, 
   Sparkles,
-  Warehouse
+  Warehouse,
+  CheckCircle2
 } from 'lucide-react';
 
 export const IndiaFirstSection: React.FC = () => {
@@ -14,6 +15,7 @@ export const IndiaFirstSection: React.FC = () => {
   const cityData = {
     bengaluru: {
       name: 'Bengaluru Tech Corridor',
+      emoji: '🌳',
       exampleSociety: 'Greenwood Regency (1,420 Flats)',
       dailyParcels: '280+ parcels/day',
       topCouriers: 'Amazon, Flipkart, Blinkit, Myntra, BlueDart',
@@ -21,13 +23,15 @@ export const IndiaFirstSection: React.FC = () => {
     },
     mumbai: {
       name: 'Mumbai High-Rise Clusters',
+      emoji: '🌊',
       exampleSociety: 'Lodha Horizon Towers (850 Flats)',
       dailyParcels: '210+ parcels/day',
       topCouriers: 'Amazon Prime, Zepto, Swiggy Instamart, Delhivery',
-      gateSaving: 'Zero delivery delivery bikes circling narrow parking ramps'
+      gateSaving: 'Zero delivery bikes circling narrow parking ramps'
     },
     gurugram: {
       name: 'Gurugram Golf Course Ext.',
+      emoji: '🏙️',
       exampleSociety: 'DLF Crest Parklands (1,150 Flats)',
       dailyParcels: '310+ parcels/day',
       topCouriers: 'Amazon, Myntra, BlueDart, DTDC, Zara',
@@ -35,6 +39,7 @@ export const IndiaFirstSection: React.FC = () => {
     },
     hyderabad: {
       name: 'Hyderabad Financial District',
+      emoji: '💎',
       exampleSociety: 'My Home Bhooja (1,800 Flats)',
       dailyParcels: '360+ parcels/day',
       topCouriers: 'Amazon, Flipkart, Shadowfax, Delhivery',
@@ -45,180 +50,128 @@ export const IndiaFirstSection: React.FC = () => {
   const selectedData = cityData[activeCity];
 
   return (
-    <section className="relative py-24 sm:py-32 bg-slate-900/80 text-white overflow-hidden border-t border-slate-800">
-      {/* Background Lighting Elements */}
-      <div className="absolute top-1/3 right-1/4 w-[600px] h-[400px] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[500px] h-[350px] bg-indigo-600/10 blur-[130px] rounded-full pointer-events-none" />
-
+    <section className="relative py-20 sm:py-28 bg-[#FAF7F2] text-slate-900 overflow-hidden border-b-2 border-slate-900">
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wider uppercase mb-5 backdrop-blur-sm">
-            <Building className="w-3.5 h-3.5" />
-            <span>Built For Indian Apartment Realities</span>
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-300 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-slate-900 text-xs sm:text-sm font-black uppercase tracking-wider mb-4 -rotate-1 hover:rotate-0 transition-transform">
+            <Warehouse className="w-4 h-4 text-slate-900" />
+            <span>Built For Indian Realities</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-6 leading-tight">
-            Designed specifically for <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-emerald-400 via-blue-300 to-indigo-400 bg-clip-text text-transparent">
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Designed specifically for <br />
+            <span className="relative inline-block text-blue-600">
               high-density apartment living.
+              <svg className="absolute -bottom-2 left-0 w-full h-3 text-amber-400" viewBox="0 0 100 12" preserveAspectRatio="none" fill="none">
+                <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+              </svg>
             </span>
           </h2>
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
-            Western locker models fail in Indian gated societies where 200 to 500+ packages arrive every single day from 10 different couriers. ParcelFlow is custom-engineered for our societies.
+
+          <p className="mt-5 text-base sm:text-lg text-slate-700 font-medium max-w-2xl mx-auto leading-relaxed">
+            From 1,500+ flat high-rises in Bengaluru to gated townships in Gurugram, Indian communities receive hundreds of packages daily from 15+ carriers.
           </p>
         </div>
 
-        {/* 4 Large Highlight Reality Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
-          <div className="rounded-2xl bg-slate-950/80 border border-slate-800 p-6 backdrop-blur-md">
-            <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Society Scale</div>
-            <div className="text-3xl sm:text-4xl font-black text-white font-mono">500 – 2.5K+</div>
-            <div className="text-xs text-slate-400 mt-2">Flats per gated society complex</div>
-          </div>
-
-          <div className="rounded-2xl bg-slate-950/80 border border-slate-800 p-6 backdrop-blur-md">
-            <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Daily E-Commerce Volume</div>
-            <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">200 – 400+</div>
-            <div className="text-xs text-slate-400 mt-2">Parcels arriving daily at society gate</div>
-          </div>
-
-          <div className="rounded-2xl bg-slate-950/80 border border-slate-800 p-6 backdrop-blur-md">
-            <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Delivery Partner Mix</div>
-            <div className="text-3xl sm:text-4xl font-black text-blue-400 font-mono">15+ Carriers</div>
-            <div className="text-xs text-slate-400 mt-2">Amazon, Flipkart, Myntra, BlueDart, Delhivery</div>
-          </div>
-
-          <div className="rounded-2xl bg-slate-950/80 border border-slate-800 p-6 backdrop-blur-md">
-            <div className="text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Gate Check-in Time</div>
-            <div className="text-3xl sm:text-4xl font-black text-indigo-300 font-mono">&lt; 10s / Parcel</div>
-            <div className="text-xs text-slate-400 mt-2">Ultra-fast optical OCR barcode ingestion</div>
-          </div>
+        {/* City Selector Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
+          {(Object.keys(cityData) as Array<keyof typeof cityData>).map((cityKey) => (
+            <button
+              key={cityKey}
+              type="button"
+              onClick={() => setActiveCity(cityKey)}
+              className={`px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-black border-2 border-slate-900 transition-all flex items-center gap-2 ${
+                activeCity === cityKey
+                  ? 'bg-amber-300 text-slate-900 shadow-[3px_3px_0px_#0F172A] -translate-y-1'
+                  : 'bg-white text-slate-700 hover:bg-slate-50 shadow-[1px_1px_0px_#0F172A]'
+              }`}
+            >
+              <span>{cityData[cityKey].emoji}</span>
+              <span>{cityData[cityKey].name}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Society Reality Blueprint & City Selector */}
-        <div className="rounded-3xl bg-slate-950/90 border border-slate-800 p-6 sm:p-10 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-          {/* City Selector Buttons */}
-          <div className="flex items-center justify-between flex-wrap gap-4 pb-6 border-b border-slate-800">
-            <div>
-              <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-emerald-400" />
-                <span>Proven in Tier-1 Residential Megaplexes</span>
+        {/* Main City Showcase Card */}
+        <div className="bg-white rounded-3xl border-3 border-slate-900 shadow-[6px_6px_0px_#0F172A] p-6 sm:p-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Left: City Data Metrics */}
+            <div className="lg:col-span-7 space-y-5">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-900 border border-slate-900">
+                  {selectedData.exampleSociety}
+                </span>
+              </div>
+
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {selectedData.name}
               </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Simulated workload impact based on verified society audits
-              </p>
-            </div>
 
-            <div className="flex items-center gap-1.5 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-              {(['bengaluru', 'mumbai', 'gurugram', 'hyderabad'] as const).map((city) => (
-                <button
-                  key={city}
-                  type="button"
-                  onClick={() => setActiveCity(city)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
-                    activeCity === city
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Active City Details Showcase */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 items-center">
-            {/* Left Blueprint Architecture */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <span className="text-[11px] font-mono text-emerald-400 uppercase">Representative Cluster</span>
-                    <h4 className="text-xl font-bold text-white">{selectedData.exampleSociety}</h4>
-                  </div>
-                  <span className="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-mono">
-                    {selectedData.dailyParcels}
-                  </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div className="bg-amber-50 rounded-2xl p-4 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A]">
+                  <div className="text-xs font-black uppercase text-amber-900">Daily Deliveries</div>
+                  <div className="text-2xl font-black text-slate-900 mt-1">{selectedData.dailyParcels}</div>
+                  <div className="text-xs font-semibold text-slate-600 mt-0.5">Handled smoothly by 1 hub</div>
                 </div>
 
-                <div className="space-y-3 text-xs text-slate-300">
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                    <Truck className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span><strong>Carrier Ecosystem:</strong> {selectedData.topCouriers}</span>
-                  </div>
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
-                    <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span><strong>Operational Impact:</strong> {selectedData.gateSaving}</span>
-                  </div>
+                <div className="bg-emerald-50 rounded-2xl p-4 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A]">
+                  <div className="text-xs font-black uppercase text-emerald-900">Gate Impact</div>
+                  <div className="text-base font-black text-slate-900 mt-1">{selectedData.gateSaving}</div>
                 </div>
               </div>
 
-              {/* High Density Architecture Diagram */}
-              <div className="rounded-2xl bg-slate-900/50 border border-slate-800 p-6">
-                <h5 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <Warehouse className="w-4 h-4 text-emerald-400" />
-                  <span>The ParcelFlow High-Density Blueprint</span>
-                </h5>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                    <div className="text-[10px] font-mono text-blue-400 uppercase mb-1">Gate Intake Hub</div>
-                    <div className="text-xs font-bold text-white">Central Drop Zone</div>
-                    <div className="text-[10px] text-slate-400 mt-1">Couriers unload in 3 mins</div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                    <div className="text-[10px] font-mono text-emerald-400 uppercase mb-1">Sorting Bays</div>
-                    <div className="text-xs font-bold text-white">Tower-wise Shelving</div>
-                    <div className="text-[10px] text-slate-400 mt-1">Organized by A/B/C/D wings</div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-                    <div className="text-[10px] font-mono text-purple-400 uppercase mb-1">Handover Point</div>
-                    <div className="text-xs font-bold text-white">Resident Pickup</div>
-                    <div className="text-[10px] text-slate-400 mt-1">Evening scheduled window</div>
-                  </div>
-                </div>
+              <div className="bg-slate-50 rounded-2xl p-4 border-2 border-slate-900">
+                <div className="text-xs font-black uppercase text-slate-700 mb-1">Supported Carriers at Gate Hub:</div>
+                <div className="text-xs sm:text-sm font-bold text-slate-900">{selectedData.topCouriers}</div>
               </div>
             </div>
 
-            {/* Right Side: Ground Reality Friction Solved */}
-            <div className="lg:col-span-5 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-slate-800 p-6 space-y-4">
-              <h4 className="text-base font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-blue-400" />
-                <span>The Three Realities of Indian Gate Life</span>
-              </h4>
-
-              <div className="space-y-3 text-xs">
-                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <div className="font-semibold text-slate-200 mb-1">1. The Peak 11 AM - 3 PM Courier Flood</div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Instead of 40 couriers ringing 400 different doorbells throughout the afternoon, all parcels consolidate into the Gate Hub in seconds.
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <div className="font-semibold text-slate-200 mb-1">2. No Corridor Security Breaches</div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Zero unauthorized personnel wandering residential lift lobbies and stairwells. Elevators remain free for residents and children.
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                  <div className="font-semibold text-slate-200 mb-1">3. Guard Focus Remains on Perimeter Protection</div>
-                  <p className="text-slate-400 leading-relaxed">
-                    Guards are security officers, not parcel receptionists. ParcelFlow handles the notifications, tracking, and handovers digitally.
-                  </p>
-                </div>
+            {/* Right: Cartoon Society Blueprint Graphic */}
+            <div className="lg:col-span-5 bg-sky-50 rounded-2xl p-6 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A]">
+              <div className="text-center font-black text-xs uppercase text-sky-950 mb-3 tracking-wider">
+                High-Density Hub Blueprint
               </div>
+
+              <svg viewBox="0 0 240 180" className="w-full h-auto drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Gate Hub Station */}
+                <rect x="20" y="20" width="80" height="60" rx="8" fill="#FDE047" stroke="#0F172A" strokeWidth="2.5" />
+                <text x="60" y="45" textAnchor="middle" fill="#0F172A" fontSize="8" fontWeight="900">GATE HUB</text>
+                <text x="60" y="60" textAnchor="middle" fill="#0F172A" fontSize="7" fontWeight="bold">Intake Desk</text>
+
+                {/* Arrow to Tower Staging */}
+                <path d="M100 50 H140" stroke="#0F172A" strokeWidth="3" strokeDasharray="4 2" />
+                <polygon points="140,46 148,50 140,54" fill="#0F172A" />
+
+                {/* Society Racks */}
+                <rect x="150" y="20" width="70" height="60" rx="8" fill="#86EFAC" stroke="#0F172A" strokeWidth="2.5" />
+                <text x="185" y="45" textAnchor="middle" fill="#0F172A" fontSize="8" fontWeight="900">SMART RACKS</text>
+                <text x="185" y="60" textAnchor="middle" fill="#0F172A" fontSize="7" fontWeight="bold">Tower Categorized</text>
+
+                {/* Arrow Down to Handover */}
+                <path d="M185 80 V115" stroke="#0F172A" strokeWidth="3" strokeDasharray="4 2" />
+                <polygon points="181,115 185,123 189,115" fill="#0F172A" />
+
+                {/* Resident Pickup Window */}
+                <rect x="130" y="125" width="100" height="45" rx="8" fill="#93C5FD" stroke="#0F172A" strokeWidth="2.5" />
+                <text x="180" y="145" textAnchor="middle" fill="#0F172A" fontSize="8" fontWeight="900">EVENING PICKUP</text>
+                <text x="180" y="158" textAnchor="middle" fill="#0F172A" fontSize="7" fontWeight="bold">QR / OTP Verified</text>
+
+                {/* Happy Resident Icon */}
+                <circle cx="60" cy="140" r="16" fill="#FED7AA" stroke="#0F172A" strokeWidth="2" />
+                <text x="60" y="145" textAnchor="middle" fontSize="14">😎</text>
+                <path d="M80 145 H120" stroke="#10B981" strokeWidth="3" strokeDasharray="3 2" />
+              </svg>
             </div>
+
           </div>
         </div>
+
       </div>
     </section>
   );
 };
 
 export default IndiaFirstSection;
-

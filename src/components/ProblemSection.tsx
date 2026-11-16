@@ -1,407 +1,567 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BellRing, 
+  Sparkles, 
   Clock, 
-  Briefcase, 
-  Car, 
-  GraduationCap, 
-  MapPinOff, 
-  PhoneMissed, 
-  HelpCircle, 
-  ArrowRight, 
+  AlertTriangle, 
   CheckCircle2, 
-  Sparkles,
-  AlertTriangle,
-  XCircle,
-  Package
+  ArrowRight, 
+  PhoneCall, 
+  Coffee, 
+  ShieldCheck, 
+  Building2, 
+  Package, 
+  Smartphone,
+  ChevronRight,
+  Smile,
+  Frown,
+  Zap
 } from 'lucide-react';
+import { Sticker } from './Sticker';
 
 export const ProblemSection: React.FC = () => {
-  const [activeTimeIndex, setActiveTimeIndex] = useState<number>(0);
-  const [activeScenarioIndex, setActiveScenarioIndex] = useState<number>(0);
-  const [isChaoticView, setIsChaoticView] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'both' | 'chaos' | 'flow'>('both');
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
+  const [activeThought, setActiveThought] = useState<number>(0);
 
-  const unpredictableTimes = [
-    { time: '9:00 AM', context: 'During your standup meeting' },
-    { time: '2:30 PM', context: 'While you are deep in focus' },
-    { time: '6:45 PM', context: 'Stuck in bumper-to-bumper traffic' },
-    { time: '8:17 PM', context: 'When you stepped out for dinner' },
-  ];
-
-  const scenarios = [
-    {
-      title: "You're at work.",
-      tag: "Office Hours",
-      icon: Briefcase,
-      color: "from-blue-500/20 to-blue-600/10",
-      borderColor: "border-blue-500/30",
-      iconColor: "text-blue-400",
-      quote: "Sir, parcel leke aaya hu. Gate pe koi nahi hai, kiske paas chhodu?",
-      painPoint: "Trapped in a client presentation while your phone buzzes incessantly with an unknown courier number.",
-      stat: "68% of delivery calls occur during core work hours."
-    },
-    {
-      title: "You're in traffic.",
-      tag: "Daily Commute",
-      icon: Car,
-      color: "from-amber-500/20 to-amber-600/10",
-      borderColor: "border-amber-500/30",
-      iconColor: "text-amber-400",
-      quote: "Sir, main 2 minute wait kar sakta hu, fir wapas le jaunga.",
-      painPoint: "Stuck 45 minutes away on the flyover, powerless to receive an urgent order you've been tracking for days.",
-      stat: "Average commute delay leaves zero margin for courier windows."
-    },
-    {
-      title: "You're in class.",
-      tag: "University / Study",
-      icon: GraduationCap,
-      color: "from-indigo-500/20 to-indigo-600/10",
-      borderColor: "border-indigo-500/30",
-      iconColor: "text-indigo-400",
-      quote: "Resident not reachable. Delivery attempted and rescheduled.",
-      painPoint: "Phone on silent during a lecture or lab exam. You step out to 3 missed calls and a 'Failed Delivery' SMS.",
-      stat: "42% of first-attempt apartment deliveries fail on first try."
-    },
-    {
-      title: "You're nowhere near home.",
-      tag: "Errands & Travel",
-      icon: MapPinOff,
-      color: "from-rose-500/20 to-rose-600/10",
-      borderColor: "border-rose-500/30",
-      iconColor: "text-rose-400",
-      quote: "Bahar fek ke jaa raha hu door pe.",
-      painPoint: "Left unattended outside your door or dumped in an overflowing security guard cabin with no accountability.",
-      stat: "Over 80% of gate guards complain of unmanaged parcel dumping."
-    }
-  ];
-
-  // Prefers reduced motion check
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setPrefersReducedMotion(mediaQuery.matches);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mq.matches);
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // Time roulette animation
+  // Cycle through the thoughts automatically
   useEffect(() => {
     if (prefersReducedMotion) return;
-    const interval = setInterval(() => {
-      setActiveTimeIndex((prev) => (prev + 1) % unpredictableTimes.length);
-    }, 2400);
-    return () => clearInterval(interval);
-  }, [unpredictableTimes.length, prefersReducedMotion]);
+    const timer = setInterval(() => {
+      setActiveThought((prev) => (prev + 1) % 3);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [prefersReducedMotion]);
 
   return (
-    <section className="relative py-20 lg:py-32 bg-[#0B0F19] text-white border-t border-slate-800/80 overflow-hidden">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 pointer-events-none opacity-20">
-        <div className="absolute left-1/4 top-0 w-80 h-80 bg-rose-600/30 rounded-full blur-[130px]" />
-        <div className="absolute right-1/4 bottom-0 w-96 h-96 bg-blue-600/20 rounded-full blur-[140px]" />
-      </div>
+    <section className="relative py-20 lg:py-32 bg-[#FDFBF7] text-[#0F172A] border-b-[3px] border-[#0F172A] overflow-hidden">
+      {/* Background paper grid pattern */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.35]"
+        style={{
+          backgroundImage: 'linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px)',
+          backgroundSize: '28px 28px'
+        }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold uppercase tracking-wider">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>The Daily Apartment Dilemma</span>
+        {/* ================= SECTION HEADER ================= */}
+        <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
+          <div className="inline-flex items-center">
+            <Sticker 
+              color="orange" 
+              rotate="slight-left" 
+              size="md" 
+              shadow="md"
+              icon={<span className="text-base">🤯</span>}
+            >
+              The Daily Delivery Struggle
+            </Sticker>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
-            We've all seen this message.
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F172A] leading-tight">
+            We've all been there.
           </h2>
 
-          <p className="text-base sm:text-lg text-slate-300 font-normal">
-            Every courier app promises your package is arriving today. Yet none of them tell you the only detail that actually matters.
+          <p className="text-lg sm:text-xl font-medium text-slate-700 leading-relaxed">
+            That dreaded notification pops up at 8:30 AM: <br className="hidden sm:inline" />
+            <span className="font-extrabold text-[#0F172A] bg-amber-200/80 px-2 py-0.5 rounded-md border border-[#0F172A]">
+              "Your delivery partner is arriving today."
+            </span>{' '}
+            And your entire day turns into a stressful guessing game.
           </p>
-        </div>
 
-        {/* Big Simulated Delivery Notification */}
-        <div className="mt-12 max-w-2xl mx-auto">
-          <div className="relative rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-slate-700/70 p-6 sm:p-8 shadow-2xl shadow-rose-950/20 backdrop-blur-xl overflow-hidden">
-            
-            {/* Top notification header */}
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                  <Package className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">Express Courier</span>
-                    <span className="text-[10px] text-slate-400">• Just now</span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 font-mono">Tracking #IN-9402-EXP</div>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-medium flex items-center gap-1.5">
-                <BellRing className="w-3 h-3 animate-ping" />
-                Out For Delivery
-              </span>
+          {/* Interactive Switcher for Mobile / Desktop focus */}
+          <div className="pt-2 flex items-center justify-center gap-2">
+            <div className="inline-flex p-1.5 rounded-2xl bg-white border-2 border-[#0F172A] shadow-cartoon-sm">
+              <button
+                onClick={() => setActiveTab('both')}
+                className={`px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all ${
+                  activeTab === 'both'
+                    ? 'bg-amber-400 text-[#0F172A] border-2 border-[#0F172A] shadow-cartoon-sm -translate-y-0.5'
+                    : 'text-slate-600 hover:text-[#0F172A]'
+                }`}
+              >
+                Compare Side-by-Side ⚖️
+              </button>
+              <button
+                onClick={() => setActiveTab('chaos')}
+                className={`px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all ${
+                  activeTab === 'chaos'
+                    ? 'bg-rose-500 text-white border-2 border-[#0F172A] shadow-cartoon-sm -translate-y-0.5'
+                    : 'text-slate-600 hover:text-[#0F172A]'
+                }`}
+              >
+                The Chaos 😭
+              </button>
+              <button
+                onClick={() => setActiveTab('flow')}
+                className={`px-3 py-1.5 rounded-xl font-black text-xs sm:text-sm transition-all ${
+                  activeTab === 'flow'
+                    ? 'bg-emerald-500 text-white border-2 border-[#0F172A] shadow-cartoon-sm -translate-y-0.5'
+                    : 'text-slate-600 hover:text-[#0F172A]'
+                }`}
+              >
+                With ParcelFlow ✨
+              </button>
             </div>
-
-            {/* Notification Core Content */}
-            <div className="py-6 space-y-4">
-              <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                "Your parcel is arriving today."
-              </div>
-
-              {/* The "But... when?" Animated Time Shifter */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center flex-shrink-0">
-                    <Clock className="w-5 h-5 animate-spin" style={{ animationDuration: '6s' }} />
-                  </div>
-                  <div>
-                    <div className="text-xs text-slate-400 font-medium">The Big Question</div>
-                    <div className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                      <span>But... when?</span>
-                      <HelpCircle className="w-4 h-4 text-slate-400" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Animated changing time pill */}
-                <div className="flex items-center gap-3 bg-slate-900 border border-slate-700/80 px-4 py-2.5 rounded-xl shadow-inner">
-                  <div className="text-right">
-                    <div className="text-lg sm:text-xl font-mono font-bold text-amber-400 transition-all duration-300">
-                      {unpredictableTimes[activeTimeIndex].time}
-                    </div>
-                    <div className="text-[10px] text-slate-400">
-                      {unpredictableTimes[activeTimeIndex].context}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Simulated missed calls callout */}
-              <div className="flex items-center gap-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 px-3.5 py-2.5 rounded-xl">
-                <PhoneMissed className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <span>3 missed calls from Delivery Associate while you were away from your desk.</span>
-              </div>
-            </div>
-
           </div>
         </div>
 
-        {/* Resident Real-World Scenarios Grid */}
-        <div className="mt-16 sm:mt-24">
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <h3 className="text-2xl sm:text-3xl font-bold text-white">
-              Because life happens when couriers ring.
-            </h3>
-            <p className="text-sm sm:text-base text-slate-400 mt-2">
-              Deliveries don't check your calendar. You're left scrambling to coordinate handovers in the middle of your day.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {scenarios.map((sc, idx) => {
-              const Icon = sc.icon;
-              const isSelected = activeScenarioIndex === idx;
-
-              return (
-                <div
-                  key={sc.title}
-                  onClick={() => setActiveScenarioIndex(idx)}
-                  className={`group relative rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border transition-all duration-300 p-6 flex flex-col justify-between cursor-pointer hover:-translate-y-1 ${
-                    isSelected 
-                      ? `${sc.borderColor} shadow-xl shadow-blue-500/5 ring-1 ring-blue-500/30` 
-                      : 'border-slate-800 hover:border-slate-700'
-                  }`}
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${sc.color} border ${sc.borderColor} flex items-center justify-center ${sc.iconColor}`}>
-                        <Icon className="w-6 h-6" />
-                      </div>
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-2.5 py-1 rounded-full bg-slate-800/80">
-                        {sc.tag}
-                      </span>
-                    </div>
-
-                    <h4 className="text-xl font-bold text-white group-hover:text-blue-300 transition-colors">
-                      {sc.title}
-                    </h4>
-
-                    {/* Delivery phone dialogue quote */}
-                    <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800/70 text-xs italic text-slate-300 font-mono">
-                      "{sc.quote}"
-                    </div>
-
-                    <p className="text-xs text-slate-400 leading-relaxed">
-                      {sc.painPoint}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                    <span>{sc.stat}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Transition: "What if you could choose?" */}
-        <div className="mt-20 sm:mt-28">
-          <div className="rounded-3xl bg-gradient-to-b from-slate-900/90 via-slate-950 to-slate-950 border border-slate-800 p-6 sm:p-10 lg:p-12 relative overflow-hidden">
-            
-            {/* Header of transition */}
-            <div className="max-w-2xl mx-auto text-center space-y-3">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                <Sparkles className="w-3.5 h-3.5" />
-                The ParcelFlow Shift
-              </span>
-              <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
-                What if you could choose?
-              </h3>
-              <p className="text-sm sm:text-base text-slate-300">
-                Instead of being held hostage by random delivery arrival times, turn unpredictable chaos into a smooth, scheduled handover.
-              </p>
-            </div>
-
-            {/* Toggle view button */}
-            <div className="flex justify-center mt-6">
-              <div className="inline-flex rounded-xl p-1 bg-slate-900 border border-slate-800">
-                <button
-                  onClick={() => setIsChaoticView(true)}
-                  className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
-                    isChaoticView 
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 shadow-sm' 
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                  Without ParcelFlow (Chaos)
-                </button>
-                <button
-                  onClick={() => setIsChaoticView(false)}
-                  className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 ${
-                    !isChaoticView 
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm' 
-                      : 'text-slate-400 hover:text-white'
-                  }`}
-                >
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  With ParcelFlow (Calm)
-                </button>
-              </div>
-            </div>
-
-            {/* Visual Route comparison container */}
-            <div className="mt-8 max-w-4xl mx-auto rounded-2xl bg-slate-950 border border-slate-800 p-6 sm:p-8">
+        {/* ================= MAIN COMPARISON ARENA ================= */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-stretch">
+          
+          {/* ================= LEFT CARD: THE CHAOS (BEFORE PARCELFLOW) ================= */}
+          {(activeTab === 'both' || activeTab === 'chaos') && (
+            <div className="relative rounded-3xl bg-white border-[3px] border-[#0F172A] shadow-cartoon-xl p-6 sm:p-8 flex flex-col justify-between overflow-hidden group">
               
-              {!isChaoticView ? (
-                /* The ParcelFlow Way: Clean, sleek, organized route line */
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between text-xs text-slate-400 pb-3 border-b border-slate-800">
-                    <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" /> Organized & Scheduled Journey
-                    </span>
-                    <span className="font-mono text-slate-400">Status: In Control</span>
-                  </div>
+              {/* Card Banner */}
+              <div className="flex items-center justify-between pb-4 border-b-2 border-slate-200">
+                <div className="inline-flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full bg-rose-500 border border-[#0F172A] animate-ping" />
+                  <span className="font-black text-base sm:text-lg text-rose-600 uppercase tracking-wider">
+                    Without ParcelFlow
+                  </span>
+                </div>
+                <Sticker color="red" size="sm" rotate={2} shadow="sm">
+                  Panic Mode 🚨
+                </Sticker>
+              </div>
 
-                  {/* SVG Clean Direct Path */}
-                  <div className="relative py-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 relative z-10">
-                      
-                      <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-center">
-                        <div className="text-[10px] uppercase font-bold text-blue-400">Step 1 • Gate Arrival</div>
-                        <div className="text-sm font-bold text-white mt-1">Logged Safely</div>
-                        <div className="text-[11px] text-slate-400 mt-1">No missed calls or rushes</div>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-center">
-                        <div className="text-[10px] uppercase font-bold text-indigo-400">Step 2 • Tower Hub</div>
-                        <div className="text-sm font-bold text-white mt-1">Secured in Storage</div>
-                        <div className="text-[11px] text-slate-400 mt-1">Verified check-in</div>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl bg-slate-900/90 border border-blue-500/60 shadow-lg shadow-blue-500/10 text-center">
-                        <div className="text-[10px] uppercase font-bold text-emerald-400">Step 3 • You Choose</div>
-                        <div className="text-sm font-bold text-white mt-1">8:00 PM – 8:30 PM</div>
-                        <div className="text-[11px] text-slate-300 mt-1">When you are actually home</div>
-                      </div>
-
-                      <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/50 text-center">
-                        <div className="text-[10px] uppercase font-bold text-emerald-400">Step 4 • Safe Handover</div>
-                        <div className="text-sm font-bold text-emerald-200 mt-1">QR / OTP Verified</div>
-                        <div className="text-[11px] text-emerald-400/80 mt-1">Zero hassle. Done.</div>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-blue-950/30 border border-blue-500/30 text-xs text-blue-200 flex items-center justify-between">
-                    <span>Your schedule dictates the delivery, never the other way around.</span>
-                    <a href="/download" className="font-semibold text-white hover:text-blue-300 flex items-center gap-1">
-                      <span>Get started</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </a>
+              {/* The Stressed Resident Cartoon Illustration */}
+              <div className="my-5 relative w-full bg-rose-50/70 rounded-2xl border-2 border-[#0F172A] p-4 overflow-hidden flex flex-col items-center justify-center">
+                
+                {/* Comic Jagged "Bro... WHEN?!" Bubble */}
+                <div 
+                  className="absolute top-3 right-4 z-20 cursor-pointer"
+                  style={{
+                    animation: prefersReducedMotion ? 'none' : 'calloutShake 2.4s ease-in-out infinite'
+                  }}
+                >
+                  <div className="relative bg-amber-300 text-rose-600 font-black text-sm sm:text-base px-4 py-2 rounded-2xl border-2 border-[#0F172A] shadow-cartoon rotate-6">
+                    <span className="text-[#0F172A]">Bro... </span>
+                    <span className="text-rose-600 text-lg">WHEN?! 🤯</span>
+                    {/* Speech bubble pointer */}
+                    <div className="absolute -bottom-2.5 left-4 w-4 h-4 bg-amber-300 border-r-2 border-b-2 border-[#0F172A] rotate-45" />
                   </div>
                 </div>
-              ) : (
-                /* Chaotic View: Tangled dotted path, stress, missed calls */
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between text-xs text-slate-400 pb-3 border-b border-slate-800">
-                    <span className="font-semibold text-rose-400 flex items-center gap-1.5">
-                      <XCircle className="w-4 h-4" /> Chaotic Tangled Routine
-                    </span>
-                    <span className="font-mono text-rose-400">Status: Constant Stress</span>
+
+                {/* SVG Illustration: Stressed resident at desk staring at phone */}
+                <div className="w-full flex items-center justify-center py-2">
+                  <svg 
+                    viewBox="0 0 460 290" 
+                    className="w-full max-w-[420px] h-auto drop-shadow-sm select-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      <style>{`
+                        @keyframes sweatDrop {
+                          0%, 100% { transform: translateY(0px); opacity: 1; }
+                          50% { transform: translateY(6px); opacity: 0.3; }
+                        }
+                        @keyframes phoneBuzz {
+                          0%, 100% { transform: rotate(-5deg); }
+                          25% { transform: rotate(5deg); }
+                          50% { transform: rotate(-4deg); }
+                          75% { transform: rotate(4deg); }
+                        }
+                        @keyframes tangledDash {
+                          0% { stroke-dashoffset: 40; }
+                          100% { stroke-dashoffset: 0; }
+                        }
+                        .animate-sweat {
+                          animation: ${prefersReducedMotion ? 'none' : 'sweatDrop 1.6s ease-in-out infinite'};
+                        }
+                        .animate-buzz {
+                          animation: ${prefersReducedMotion ? 'none' : 'phoneBuzz 0.25s ease-in-out infinite'};
+                          transform-origin: 320px 190px;
+                        }
+                        .animate-tangled {
+                          animation: ${prefersReducedMotion ? 'none' : 'tangledDash 1.5s linear infinite'};
+                        }
+                      `}</style>
+                    </defs>
+
+                    {/* Chaotic tangled background scribble */}
+                    <path 
+                      d="M20 50 Q 80 15 130 90 T 220 40 T 320 120 T 420 50 Q 400 130 330 140 T 180 160 T 60 120" 
+                      fill="none" 
+                      stroke="#FDA4AF" 
+                      strokeWidth="3.5" 
+                      strokeDasharray="6 4" 
+                      className="animate-tangled" 
+                    />
+
+                    {/* Comic Stress Stars and Sparks */}
+                    <text x="140" y="70" fontSize="18">⚡</text>
+                    <text x="280" y="80" fontSize="18">❓</text>
+                    <text x="100" y="110" fontSize="16">❗</text>
+
+                    {/* Desk & Chair */}
+                    <rect x="50" y="195" width="360" height="14" rx="3" fill="#D97706" stroke="#0F172A" strokeWidth="2.5" />
+                    <line x1="80" y1="209" x2="80" y2="280" stroke="#0F172A" strokeWidth="3.5" />
+                    <line x1="380" y1="209" x2="380" y2="280" stroke="#0F172A" strokeWidth="3.5" />
+
+                    {/* Laptop with "Q4 Review Call" on desk */}
+                    <rect x="110" y="145" width="70" height="50" rx="3" fill="#64748B" stroke="#0F172A" strokeWidth="2.5" />
+                    <rect x="115" y="150" width="60" height="38" rx="2" fill="#0F172A" />
+                    {/* Red mic muted dot on laptop */}
+                    <circle cx="125" cy="160" r="3" fill="#EF4444" />
+                    <rect x="132" y="158" width="36" height="4" rx="1" fill="#FFFFFF" />
+                    <rect x="125" y="168" width="45" height="3" rx="1" fill="#94A3B8" />
+                    {/* Laptop Base */}
+                    <polygon points="98,195 192,195 180,198 110,198" fill="#94A3B8" stroke="#0F172A" strokeWidth="2" />
+
+                    {/* Spilled / Knocked Coffee Mug */}
+                    <ellipse cx="90" cy="192" rx="8" ry="4" fill="#E2E8F0" stroke="#0F172A" strokeWidth="1.5" />
+                    <path d="M82 192L84 178H96L98 192Z" fill="#E2E8F0" stroke="#0F172A" strokeWidth="2" />
+                    {/* Coffee spill puddle */}
+                    <path d="M70 195Q80 192 90 195Q105 198 95 200Z" fill="#78350F" />
+
+                    {/* Buzzing Smartphone on desk */}
+                    <g className="animate-buzz">
+                      <rect x="305" y="160" width="34" height="60" rx="6" fill="#1E293B" stroke="#0F172A" strokeWidth="2.5" />
+                      <rect x="308" y="166" width="28" height="48" rx="3" fill="#EF4444" />
+                      {/* Incoming Call Icon */}
+                      <circle cx="322" cy="182" r="8" fill="#FFFFFF" />
+                      <path d="M318 182C318 180 324 180 326 182" stroke="#EF4444" strokeWidth="2" fill="none" />
+                      {/* Buzz soundwaves */}
+                      <path d="M300 170Q296 180 300 190" stroke="#EF4444" strokeWidth="2.5" fill="none" />
+                      <path d="M344 170Q348 180 344 190" stroke="#EF4444" strokeWidth="2.5" fill="none" />
+                    </g>
+
+                    {/* STRESSED RESIDENT CHARACTER */}
+                    {/* Torso */}
+                    <rect x="195" y="160" width="55" height="50" rx="8" fill="#3B82F6" stroke="#0F172A" strokeWidth="2.5" />
+                    
+                    {/* Panic Hands On Head */}
+                    <path d="M190 165Q180 130 200 115" stroke="#FDBA74" strokeWidth="9" strokeLinecap="round" fill="none" />
+                    <path d="M190 165Q180 130 200 115" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    <circle cx="202" cy="114" r="5" fill="#FDBA74" stroke="#0F172A" strokeWidth="1.5" />
+
+                    <path d="M255 165Q265 130 245 115" stroke="#FDBA74" strokeWidth="9" strokeLinecap="round" fill="none" />
+                    <path d="M255 165Q265 130 245 115" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    <circle cx="243" cy="114" r="5" fill="#FDBA74" stroke="#0F172A" strokeWidth="1.5" />
+
+                    {/* Head */}
+                    <circle cx="222" cy="130" r="26" fill="#FED7AA" stroke="#0F172A" strokeWidth="2.5" />
+                    
+                    {/* Disheveled Messy Hair */}
+                    <path d="M196 122C196 100 215 95 222 95C230 95 248 100 248 122L244 112L235 115L228 108L220 114L212 108L205 115Z" fill="#1E293B" stroke="#0F172A" strokeWidth="2" />
+
+                    {/* Wide Stressed Eyes (Spirals / Dots) */}
+                    <circle cx="212" cy="128" r="5" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+                    <circle cx="212" cy="128" r="2.5" fill="#EF4444" />
+                    <circle cx="232" cy="128" r="5" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+                    <circle cx="232" cy="128" r="2.5" fill="#EF4444" />
+
+                    {/* Comical Wavy Panicked Mouth */}
+                    <path d="M212 144Q216 140 220 144Q224 148 228 144Q232 140 236 144" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+
+                    {/* Animated Sweat Droplets */}
+                    <g className="animate-sweat">
+                      <path d="M246 118C246 123 252 125 252 118C252 112 246 114 246 118Z" fill="#38BDF8" stroke="#0F172A" strokeWidth="1.5" />
+                      <path d="M194 124C194 128 198 130 198 124C198 120 194 121 194 124Z" fill="#38BDF8" stroke="#0F172A" strokeWidth="1.5" />
+                    </g>
+                  </svg>
+                </div>
+
+                {/* Simulated Delivery SMS Alert Card */}
+                <div className="w-full bg-white p-3 rounded-xl border-2 border-[#0F172A] shadow-cartoon-sm flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-rose-100 border border-[#0F172A] flex items-center justify-center shrink-0">
+                      <PhoneCall className="w-4 h-4 text-rose-600 animate-bounce" />
+                    </div>
+                    <div>
+                      <div className="font-black text-[#0F172A]">Courier: "Sir main gate pe khada hu!"</div>
+                      <div className="text-slate-600 text-[11px]">"2 min me aao warna OTP return kar raha hu."</div>
+                    </div>
                   </div>
+                  <span className="font-extrabold text-rose-600 shrink-0">12:47 PM</span>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 relative z-10">
-                    <div className="p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/30 text-center">
-                      <div className="text-[10px] uppercase font-bold text-rose-400">Random Time</div>
-                      <div className="text-sm font-bold text-white mt-1">11:15 AM Ring</div>
-                      <div className="text-[11px] text-rose-300 mt-1">"Bhaiya gate pe hu"</div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/30 text-center">
-                      <div className="text-[10px] uppercase font-bold text-rose-400">Panic & Commute</div>
-                      <div className="text-sm font-bold text-white mt-1">3 Missed Calls</div>
-                      <div className="text-[11px] text-rose-300 mt-1">Trapped in meeting/traffic</div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/30 text-center">
-                      <div className="text-[10px] uppercase font-bold text-rose-400">Unsafe Dump</div>
-                      <div className="text-sm font-bold text-white mt-1">Left Outside Door</div>
-                      <div className="text-[11px] text-rose-300 mt-1">Risk of theft or damage</div>
-                    </div>
-
-                    <div className="p-3.5 rounded-xl bg-rose-950/20 border border-rose-500/30 text-center">
-                      <div className="text-[10px] uppercase font-bold text-rose-400">Failed Handover</div>
-                      <div className="text-sm font-bold text-white mt-1">Return to Hub</div>
-                      <div className="text-[11px] text-rose-300 mt-1">Wait another 48 hours</div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-xs text-rose-200 flex items-center justify-between">
-                    <span>This broken workflow costs apartment communities hours of friction every day.</span>
-                    <button 
-                      onClick={() => setIsChaoticView(false)}
-                      className="font-semibold text-emerald-400 hover:underline"
+              {/* 3 Floating Thought Bubbles (Rotates automatically or click) */}
+              <div className="space-y-2.5 pt-2">
+                <p className="font-black text-xs uppercase tracking-wider text-slate-500">
+                  The Three Horrible Possibilities:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                  {[
+                    { time: '9:00 AM?', sub: 'During your sprint standup meeting' },
+                    { time: '2:00 PM?', sub: 'Deep in client sales pitch presentation' },
+                    { time: '7:30 PM?', sub: 'Stuck on flyover in gridlock traffic' },
+                  ].map((thought, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setActiveThought(idx)}
+                      className={`p-2.5 rounded-xl border-2 border-[#0F172A] transition-all cursor-pointer ${
+                        activeThought === idx
+                          ? 'bg-amber-100 shadow-cartoon -translate-y-0.5'
+                          : 'bg-slate-50 shadow-[1px_1px_0px_#0F172A] opacity-75'
+                      }`}
                     >
-                      Switch to ParcelFlow solution →
-                    </button>
-                  </div>
+                      <div className="font-black text-sm text-[#0F172A] flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5 text-rose-500" />
+                        <span>{thought.time}</span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 mt-1 leading-snug">{thought.sub}</p>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
 
             </div>
+          )}
 
+          {/* ================= RIGHT CARD: THE RELIEF (WITH PARCELFLOW) ================= */}
+          {(activeTab === 'both' || activeTab === 'flow') && (
+            <div className="relative rounded-3xl bg-white border-[3px] border-[#0F172A] shadow-cartoon-xl p-6 sm:p-8 flex flex-col justify-between overflow-hidden group">
+              
+              {/* Card Banner */}
+              <div className="flex items-center justify-between pb-4 border-b-2 border-slate-200">
+                <div className="inline-flex items-center gap-2">
+                  <span className="w-3.5 h-3.5 rounded-full bg-emerald-500 border border-[#0F172A] animate-ping" />
+                  <span className="font-black text-base sm:text-lg text-emerald-600 uppercase tracking-wider">
+                    Then ParcelFlow Happened ✨
+                  </span>
+                </div>
+                <Sticker color="mint" size="sm" rotate={-2} shadow="sm">
+                  100% Peace of Mind ☕
+                </Sticker>
+              </div>
+
+              {/* The Relaxed Resident Cartoon Illustration */}
+              <div className="my-5 relative w-full bg-emerald-50/70 rounded-2xl border-2 border-[#0F172A] p-4 overflow-hidden flex flex-col items-center justify-center">
+                
+                {/* Floating "Pickup at 8 PM ✓" Sticker */}
+                <div 
+                  className="absolute top-3 right-4 z-20"
+                  style={{
+                    animation: prefersReducedMotion ? 'none' : 'calloutFloat 3s ease-in-out infinite'
+                  }}
+                >
+                  <Sticker 
+                    color="yellow" 
+                    rotate={-4} 
+                    size="sm" 
+                    shadow="md"
+                    icon={<CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                  >
+                    Picked: 8:00 PM ✓
+                  </Sticker>
+                </div>
+
+                {/* SVG Illustration: Relaxed resident enjoying coffee & smiling */}
+                <div className="w-full flex items-center justify-center py-2">
+                  <svg 
+                    viewBox="0 0 460 290" 
+                    className="w-full max-w-[420px] h-auto drop-shadow-sm select-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      <style>{`
+                        @keyframes steamRise {
+                          0% { transform: translateY(0px); opacity: 0; }
+                          50% { opacity: 0.8; }
+                          100% { transform: translateY(-10px); opacity: 0; }
+                        }
+                        @keyframes cleanPathFlow {
+                          0% { stroke-dashoffset: 30; }
+                          100% { stroke-dashoffset: 0; }
+                        }
+                        .animate-steam {
+                          animation: ${prefersReducedMotion ? 'none' : 'steamRise 2s ease-out infinite'};
+                        }
+                        .animate-clean-path {
+                          animation: ${prefersReducedMotion ? 'none' : 'cleanPathFlow 1s linear infinite'};
+                        }
+                      `}</style>
+                    </defs>
+
+                    {/* Clean Organized Pathway in Background */}
+                    <path 
+                      d="M30 60 H 430" 
+                      fill="none" 
+                      stroke="#86EFAC" 
+                      strokeWidth="5" 
+                      strokeDasharray="10 8" 
+                      className="animate-clean-path" 
+                    />
+
+                    {/* Happy Stars / Sparkles */}
+                    <text x="80" y="80" fontSize="18">✨</text>
+                    <text x="360" y="70" fontSize="18">🌱</text>
+                    <text x="280" y="60" fontSize="18">⭐</text>
+
+                    {/* Potted Plant on Desk */}
+                    <rect x="70" y="165" width="22" height="25" rx="3" fill="#EA580C" stroke="#0F172A" strokeWidth="2" />
+                    <path d="M81 165Q70 145 60 148Q70 155 81 165" fill="#10B981" stroke="#0F172A" strokeWidth="1.5" />
+                    <path d="M81 165Q92 145 102 148Q92 155 81 165" fill="#059669" stroke="#0F172A" strokeWidth="1.5" />
+
+                    {/* Neat Wooden Desk */}
+                    <rect x="50" y="195" width="360" height="14" rx="3" fill="#FBBF24" stroke="#0F172A" strokeWidth="2.5" />
+                    <line x1="80" y1="209" x2="80" y2="280" stroke="#0F172A" strokeWidth="3.5" />
+                    <line x1="380" y1="209" x2="380" y2="280" stroke="#0F172A" strokeWidth="3.5" />
+
+                    {/* Laptop Screen with Green "Tasks Finished" */}
+                    <rect x="120" y="145" width="70" height="50" rx="3" fill="#64748B" stroke="#0F172A" strokeWidth="2.5" />
+                    <rect x="125" y="150" width="60" height="38" rx="2" fill="#F0FDF4" />
+                    <circle cx="155" cy="165" r="8" fill="#10B981" />
+                    <path d="M152 165L154 167L158 162" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    <polygon points="108,195 202,195 190,198 120,198" fill="#94A3B8" stroke="#0F172A" strokeWidth="2" />
+
+                    {/* Calm Phone on Desk Showing ParcelFlow Checkmark */}
+                    <rect x="310" y="165" width="34" height="60" rx="6" fill="#1E293B" stroke="#0F172A" strokeWidth="2.5" />
+                    <rect x="313" y="171" width="28" height="48" rx="3" fill="#10B981" />
+                    <rect x="318" y="180" width="18" height="12" rx="2" fill="#FFFFFF" />
+                    <text x="327" y="189" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#0F172A">📦</text>
+                    <rect x="318" y="196" width="18" height="4" rx="1" fill="#FFFFFF" />
+
+                    {/* RELAXED RESIDENT CHARACTER */}
+                    {/* Comfortable Ergonomic Chair Back */}
+                    <rect x="200" y="120" width="60" height="85" rx="12" fill="#CBD5E1" stroke="#0F172A" strokeWidth="2.5" />
+                    
+                    {/* Torso in Comfortable Mint Shirt */}
+                    <rect x="205" y="160" width="50" height="50" rx="8" fill="#10B981" stroke="#0F172A" strokeWidth="2.5" />
+
+                    {/* Arm Holding Coffee Mug */}
+                    <path d="M255 170Q275 165 270 185" stroke="#FDBA74" strokeWidth="9" strokeLinecap="round" fill="none" />
+                    <path d="M255 170Q275 165 270 185" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" fill="none" />
+                    
+                    {/* Hot Steaming Ceramic Coffee Mug */}
+                    <rect x="265" y="178" width="16" height="18" rx="3" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+                    <path d="M281 182Q287 186 281 191" stroke="#0F172A" strokeWidth="2" fill="none" />
+                    {/* Animated Steam */}
+                    <g className="animate-steam">
+                      <path d="M270 174Q273 168 271 164" stroke="#94A3B8" strokeWidth="2" fill="none" />
+                      <path d="M276 174Q279 168 277 164" stroke="#94A3B8" strokeWidth="2" fill="none" />
+                    </g>
+
+                    {/* Peaceful Head with Smile & Cool Glasses */}
+                    <circle cx="230" cy="130" r="25" fill="#FED7AA" stroke="#0F172A" strokeWidth="2.5" />
+                    
+                    {/* Neat Combed Hair */}
+                    <path d="M205 125C205 105 220 100 230 100C240 100 255 105 255 125H205Z" fill="#1E293B" stroke="#0F172A" strokeWidth="2" />
+
+                    {/* Chill Sunglasses / Peaceful Happy Eyes */}
+                    <rect x="218" y="122" width="11" height="8" rx="2" fill="#0F172A" />
+                    <rect x="233" y="122" width="11" height="8" rx="2" fill="#0F172A" />
+                    <line x1="229" y1="125" x2="233" y2="125" stroke="#0F172A" strokeWidth="2" />
+
+                    {/* Happy Big Relaxed Smile */}
+                    <path d="M222 140C222 148 238 148 238 140" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" fill="#FFFFFF" />
+
+                    {/* Rosy Cheeks */}
+                    <ellipse cx="216" cy="138" rx="3" ry="2" fill="#F43F5E" fillOpacity="0.6" />
+                    <ellipse cx="244" cy="138" rx="3" ry="2" fill="#F43F5E" fillOpacity="0.6" />
+                  </svg>
+                </div>
+
+                {/* Calm ParcelFlow Status Bar */}
+                <div className="w-full bg-white p-3 rounded-xl border-2 border-[#0F172A] shadow-cartoon-sm flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-100 border border-[#0F172A] flex items-center justify-center shrink-0">
+                      <Package className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <div>
+                      <div className="font-black text-[#0F172A]">Parcel safely checked into Society Hub!</div>
+                      <div className="text-slate-600 text-[11px]">Stored securely. Ready when you arrive home.</div>
+                    </div>
+                  </div>
+                  <span className="font-extrabold text-emerald-600 shrink-0">Ready ✓</span>
+                </div>
+              </div>
+
+              {/* Straightened Organized 4-Step Route: Courier → Society Hub → Choose Time → Secure Handover */}
+              <div className="space-y-2.5 pt-2">
+                <p className="font-black text-xs uppercase tracking-wider text-slate-500">
+                  The Organized Straightened Route:
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  {[
+                    { step: '01', title: 'Courier Gate', icon: '🚚', bg: 'bg-blue-100' },
+                    { step: '02', title: 'Society Hub', icon: '🏢', bg: 'bg-amber-100' },
+                    { step: '03', title: 'Choose Time', icon: '📱', bg: 'bg-purple-100' },
+                    { step: '04', title: 'Secure Handover', icon: '🔐', bg: 'bg-emerald-100' },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-2 rounded-xl border-2 border-[#0F172A] shadow-cartoon-sm ${item.bg} flex flex-col justify-between`}
+                    >
+                      <div className="flex items-center justify-between text-[11px] font-black text-slate-700">
+                        <span>{item.step}</span>
+                        <span className="text-sm">{item.icon}</span>
+                      </div>
+                      <div className="font-extrabold text-[#0F172A] text-xs mt-1">
+                        {item.title}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          )}
+
+        </div>
+
+        {/* ================= BIG VISUAL TRANSITION BANNER ================= */}
+        <div className="mt-14 relative bg-amber-300 rounded-3xl border-[3px] border-[#0F172A] shadow-cartoon-xl p-6 sm:p-8 overflow-hidden text-center">
+          {/* Decorative Background Doodles */}
+          <div className="absolute top-2 left-4 text-2xl select-none opacity-40">✨</div>
+          <div className="absolute bottom-2 right-4 text-2xl select-none opacity-40">🚀</div>
+          <div className="absolute top-3 right-1/4 text-2xl select-none opacity-30">📦</div>
+
+          <div className="relative z-10 max-w-3xl mx-auto space-y-4">
+            <div className="inline-flex items-center">
+              <Sticker color="blue" size="sm" rotate={-2} shadow="md">
+                ⚡ The Golden Rule of Deliveries
+              </Sticker>
+            </div>
+
+            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F172A]">
+              Delivery people have schedules. <br className="hidden sm:inline" />
+              So do you. ParcelFlow syncs both.
+            </h3>
+
+            <p className="text-base sm:text-lg font-bold text-slate-800 max-w-2xl mx-auto">
+              No more interrupting meetings. No more packages dumped at the guard cabin. Collect your delivery with a single 10-second OTP when you're genuinely ready.
+            </p>
+
+            <div className="pt-2">
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-[#0F172A] font-black text-base border-2 border-[#0F172A] shadow-cartoon hover:-translate-y-0.5 hover:shadow-cartoon-lg transition-all"
+              >
+                <span>See the 4-step delivery journey</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
           </div>
         </div>
 
       </div>
+
+      {/* Comic Callout Keyframes */}
+      <style>{`
+        @keyframes calloutShake {
+          0%, 100% { transform: rotate(5deg) scale(1); }
+          50% { transform: rotate(8deg) scale(1.04); }
+        }
+        @keyframes calloutFloat {
+          0%, 100% { transform: translateY(0px) rotate(-4deg); }
+          50% { transform: translateY(-5px) rotate(-2deg); }
+        }
+      `}</style>
     </section>
   );
 };
-
-export default ProblemSection;

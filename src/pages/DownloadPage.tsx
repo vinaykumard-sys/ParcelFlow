@@ -11,8 +11,12 @@ import {
   Building2, 
   Info, 
   Copy,
-  Check
+  Check,
+  Package,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
+import { Sticker } from '../components/Sticker';
 
 interface DownloadPageProps {
   onOpenPilotModal?: () => void;
@@ -43,7 +47,6 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
 
   const triggerDownload = () => {
     setDownloadStarted(true);
-    // Link to public APK or fallback download
     const link = document.createElement('a');
     link.href = '/downloads/ParcelFlow.apk';
     link.setAttribute('download', 'ParcelFlow-v0.1.0-pilot.apk');
@@ -53,231 +56,255 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white pt-28 pb-20 relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/10 blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-96 h-96 bg-indigo-600/10 blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-[#FAF7F2] text-[#0F172A] pt-28 pb-20 relative overflow-hidden selection:bg-amber-300 selection:text-[#0F172A]">
       
+      {/* Decorative cartoon background bubbles */}
+      <div className="absolute top-20 right-10 w-24 h-24 rounded-full border-[3px] border-[#0F172A] bg-amber-300 opacity-20 hidden lg:block pointer-events-none" />
+      <div className="absolute top-80 left-8 w-16 h-16 rounded-2xl rotate-12 border-[3px] border-[#0F172A] bg-blue-400 opacity-20 hidden lg:block pointer-events-none" />
+
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Page Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold uppercase tracking-wider mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Official Mobile Client</span>
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <Sticker color="blue" rotate="slight-left" size="sm">
+              <Smartphone className="w-3.5 h-3.5 inline mr-1 text-white" />
+              Official Mobile Release
+            </Sticker>
           </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white">
-            Get <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">ParcelFlow</span>
+
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-[#0F172A] leading-tight">
+            Get <span className="text-blue-600 underline decoration-amber-400 decoration-wavy decoration-2">ParcelFlow</span>
           </h1>
-          <p className="mt-4 text-lg text-slate-300">
-            Download the official Android pilot APK or join the waitlist for your society. Take total control over parcel delivery timings.
+          <p className="mt-4 text-base sm:text-lg text-slate-700 font-medium">
+            Download the official Android pilot APK or scan the QR code. Take total control over when your society parcels reach your hands.
           </p>
 
-          {/* Pilot Banner */}
-          <div className="mt-6 inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs sm:text-sm text-left">
-            <Info className="w-4 h-4 shrink-0 text-amber-400" />
+          {/* Pilot Info Sticker Card */}
+          <div className="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-100 border-[2.5px] border-[#0F172A] text-[#0F172A] text-xs sm:text-sm shadow-[3px_3px_0px_#0F172A] text-left">
+            <span className="text-lg">📢</span>
             <span>
-              <strong>Pilot Release:</strong> Currently rolling out across pilot apartment communities. Ask your society committee to enable ParcelFlow.
+              <strong>Pilot Community Release:</strong> Rolling out across partner apartment societies in Bengaluru. Is your society registered?
             </span>
+            {onOpenPilotModal && (
+              <button
+                onClick={onOpenPilotModal}
+                className="ml-auto underline font-black text-blue-700 hover:text-blue-900 shrink-0"
+              >
+                Request Pilot →
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Main Grid: Android Card vs iOS Card */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-20">
+        {/* Main Grid: Android Card vs iOS & QR Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
           
           {/* Android Card (Dominant, 7 Cols) */}
-          <div className="lg:col-span-7 rounded-3xl bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 border border-blue-500/30 p-8 sm:p-10 shadow-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="lg:col-span-7 rounded-3xl bg-white border-[3px] border-[#0F172A] p-7 sm:p-9 shadow-[6px_6px_0px_#0F172A] relative overflow-hidden">
             
             {/* Header info */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
-                  <Smartphone className="w-6 h-6 text-white" />
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b-[2.5px] border-slate-100 pb-6 mb-6">
+              <div className="flex items-center gap-3.5">
+                <div className="w-14 h-14 rounded-2xl bg-blue-500 border-[2.5px] border-[#0F172A] flex items-center justify-center shadow-[3px_3px_0px_#0F172A]">
+                  <Smartphone className="w-7 h-7 text-white stroke-[2.2]" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-white">ParcelFlow for Android</h3>
+                  <h3 className="text-2xl font-black text-[#0F172A]">ParcelFlow for Android</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs font-mono text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    <span className="text-xs font-mono font-black text-[#0F172A] bg-amber-300 px-2 py-0.5 rounded-lg border-[1.5px] border-[#0F172A] shadow-[1px_1px_0px_#0F172A]">
                       v0.1.0-pilot
                     </span>
-                    <span className="text-xs text-slate-400">Release Build</span>
+                    <span className="text-xs font-bold text-slate-500">Official Pilot Build</span>
                   </div>
                 </div>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 text-xs font-semibold flex items-center gap-1.5 border border-emerald-500/30">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Ready to Install
-              </span>
+
+              <Sticker color="mint" rotate="slight-right" size="sm">
+                ✓ Ready to Install
+              </Sticker>
             </div>
 
             {/* Specifications row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-              <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                <div className="text-xs text-slate-400">OS Requirement</div>
-                <div className="text-sm font-semibold text-white mt-1">Android 8.0+</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-7">
+              <div className="p-3 rounded-xl bg-blue-50 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+                <div className="text-[11px] font-bold text-slate-500 uppercase">OS Requirement</div>
+                <div className="text-sm font-black text-[#0F172A] mt-0.5">Android 8.0+</div>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                <div className="text-xs text-slate-400">Package Size</div>
-                <div className="text-sm font-semibold text-white mt-1">18.4 MB</div>
+              <div className="p-3 rounded-xl bg-amber-50 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+                <div className="text-[11px] font-bold text-slate-500 uppercase">APK Size</div>
+                <div className="text-sm font-black text-[#0F172A] mt-0.5">18.4 MB</div>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                <div className="text-xs text-slate-400">Architecture</div>
-                <div className="text-sm font-semibold text-white mt-1">Universal (arm64)</div>
+              <div className="p-3 rounded-xl bg-emerald-50 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+                <div className="text-[11px] font-bold text-slate-500 uppercase">Architecture</div>
+                <div className="text-sm font-black text-[#0F172A] mt-0.5">arm64-v8a</div>
               </div>
-              <div className="p-3.5 rounded-xl bg-slate-800/40 border border-slate-800">
-                <div className="text-xs text-slate-400">Updated</div>
-                <div className="text-sm font-semibold text-white mt-1">November 2026</div>
+              <div className="p-3 rounded-xl bg-purple-50 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+                <div className="text-[11px] font-bold text-slate-500 uppercase">Release Date</div>
+                <div className="text-sm font-black text-[#0F172A] mt-0.5">Nov 2026</div>
               </div>
             </div>
 
             {/* Feature highlights */}
-            <div className="space-y-3 mb-8">
-              <div className="flex items-start gap-3 text-sm text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                <span>One-tap pickup scheduling with customizable evening slots (6:00 PM – 9:30 PM).</span>
+            <div className="space-y-3 mb-8 bg-[#FFFDF9] p-4.5 rounded-2xl border-[2px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A]">
+              <div className="text-xs font-black uppercase text-slate-500 tracking-wider mb-2">Key Features Included:</div>
+              <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 stroke-[2.5]" />
+                <span>One-tap evening pickup scheduling with flexible slots (6:00 PM – 9:30 PM).</span>
               </div>
-              <div className="flex items-start gap-3 text-sm text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                <span>Single-use dynamic QR codes and encrypted 4-digit OTPs for tamper-proof collection.</span>
+              <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 stroke-[2.5]" />
+                <span>Single-use dynamic QR codes and backup 4-digit OTPs for instant gate collection.</span>
               </div>
-              <div className="flex items-start gap-3 text-sm text-slate-300">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
-                <span>Proxy delegation: forward your collection token to flatmates or neighbors via WhatsApp.</span>
+              <div className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700 font-semibold">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0 stroke-[2.5]" />
+                <span>Proxy delegation: forward your collection pass to roommates or family via WhatsApp.</span>
               </div>
             </div>
 
             {/* Main Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center gap-3.5 pt-1">
               <button
                 onClick={triggerDownload}
                 type="button"
-                className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-base shadow-xl shadow-blue-500/30 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-base border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
-                <Download className="w-5 h-5" />
-                <span>{downloadStarted ? 'Downloading ParcelFlow.apk...' : 'Download APK (v0.1.0)'}</span>
+                <Download className="w-5 h-5 stroke-[2.5]" />
+                <span>{downloadStarted ? 'Downloading ParcelFlow.apk...' : 'Download APK (18.4 MB)'}</span>
               </button>
 
               {onOpenPilotModal && (
                 <button
                   onClick={onOpenPilotModal}
                   type="button"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white font-medium text-sm transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-[#0F172A] font-black text-sm border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
                 >
-                  <Building2 className="w-4 h-4 text-blue-400" />
+                  <Building2 className="w-4 h-4 stroke-[2.5]" />
                   <span>Request Society Pilot</span>
                 </button>
               )}
             </div>
 
             {/* Checksum & verification */}
-            <div className="mt-8 pt-6 border-t border-slate-800 text-xs text-slate-400">
+            <div className="mt-8 pt-5 border-t-[2px] border-slate-200 text-xs">
               <div className="flex items-center justify-between gap-2 mb-1.5">
-                <span className="font-medium text-slate-300 flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                  SHA-256 Checksum:
+                <span className="font-extrabold text-slate-700 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+                  SHA-256 Checksum Integrity:
                 </span>
                 <button
                   onClick={handleCopyHash}
-                  className="text-blue-400 hover:text-blue-300 flex items-center gap-1 text-[11px]"
+                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 border-[1.5px] border-[#0F172A] font-black text-[#0F172A] flex items-center gap-1 text-[11px] shadow-[1px_1px_0px_#0F172A] transition-all"
                 >
-                  {copiedHash ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedHash ? <Check className="w-3 h-3 text-emerald-600 stroke-[3]" /> : <Copy className="w-3 h-3 stroke-[2.5]" />}
                   <span>{copiedHash ? 'Copied!' : 'Copy Hash'}</span>
                 </button>
               </div>
-              <p className="font-mono bg-slate-950/80 p-2.5 rounded-lg border border-slate-800/80 break-all text-slate-400 text-[11px]">
+              <p className="font-mono bg-slate-100 p-2.5 rounded-xl border-[1.5px] border-[#0F172A] break-all text-slate-700 text-[11px] font-semibold">
                 {sha256Checksum}
               </p>
             </div>
           </div>
 
           {/* iOS & Scan Card (5 Cols) */}
-          <div className="lg:col-span-5 space-y-8">
+          <div className="lg:col-span-5 space-y-6">
             
             {/* QR Code Quick Install */}
-            <div className="rounded-3xl bg-slate-900 border border-slate-800 p-8 shadow-xl text-center relative overflow-hidden">
-              <div className="flex items-center justify-center gap-2 mb-4 text-sm font-semibold text-white">
-                <QrCode className="w-5 h-5 text-emerald-400" />
-                <span>Scan to Download Directly</span>
+            <div className="rounded-3xl bg-white border-[3px] border-[#0F172A] p-7 shadow-[5px_5px_0px_#0F172A] text-center relative overflow-hidden">
+              <div className="flex items-center justify-center gap-2 mb-3 text-base font-black text-[#0F172A]">
+                <QrCode className="w-5 h-5 text-blue-600 stroke-[2.5]" />
+                <span>Scan with Phone Camera</span>
               </div>
+
+              <p className="text-xs text-slate-600 font-medium mb-3">
+                Point your mobile camera at this code to open direct APK download link on your phone.
+              </p>
               
-              <div className="inline-block bg-white p-4 rounded-2xl shadow-inner my-2">
-                <div className="w-44 h-44 bg-slate-950 rounded-xl p-2 flex items-center justify-center">
-                  <svg viewBox="0 0 120 120" className="w-full h-full text-white fill-current">
-                    <rect x="10" y="10" width="30" height="30" rx="3" fill="#0F172A" stroke="#FFFFFF" strokeWidth="6" />
-                    <rect x="20" y="20" width="10" height="10" fill="#3B82F6" />
-                    <rect x="80" y="10" width="30" height="30" rx="3" fill="#0F172A" stroke="#FFFFFF" strokeWidth="6" />
-                    <rect x="90" y="20" width="10" height="10" fill="#3B82F6" />
-                    <rect x="10" y="80" width="30" height="30" rx="3" fill="#0F172A" stroke="#FFFFFF" strokeWidth="6" />
-                    <rect x="20" y="90" width="10" height="10" fill="#3B82F6" />
-                    <rect x="48" y="12" width="6" height="6" fill="#0F172A" />
-                    <rect x="58" y="12" width="14" height="6" fill="#0F172A" />
-                    <rect x="48" y="24" width="8" height="6" fill="#0F172A" />
-                    <rect x="62" y="24" width="6" height="6" fill="#0F172A" />
-                    <rect x="52" y="34" width="16" height="6" fill="#0F172A" />
-                    <rect x="12" y="48" width="8" height="6" fill="#0F172A" />
-                    <rect x="26" y="48" width="12" height="6" fill="#0F172A" />
-                    <rect x="44" y="48" width="6" height="6" fill="#0F172A" />
-                    <rect x="56" y="48" width="18" height="6" fill="#3B82F6" />
-                    <rect x="80" y="48" width="8" height="6" fill="#0F172A" />
-                    <rect x="94" y="48" width="14" height="6" fill="#0F172A" />
-                    <rect x="12" y="60" width="14" height="6" fill="#0F172A" />
-                    <rect x="34" y="60" width="6" height="6" fill="#0F172A" />
-                    <rect x="48" y="60" width="10" height="6" fill="#0F172A" />
-                    <rect x="66" y="60" width="14" height="6" fill="#0F172A" />
-                    <rect x="88" y="60" width="6" height="6" fill="#0F172A" />
-                    <rect x="100" y="60" width="8" height="6" fill="#0F172A" />
-                    <rect x="48" y="74" width="12" height="6" fill="#0F172A" />
-                    <rect x="68" y="74" width="6" height="6" fill="#0F172A" />
-                    <rect x="80" y="74" width="14" height="6" fill="#0F172A" />
-                    <rect x="100" y="74" width="8" height="6" fill="#0F172A" />
-                    <rect x="48" y="88" width="6" height="6" fill="#0F172A" />
-                    <rect x="60" y="88" width="14" height="6" fill="#3B82F6" />
-                    <rect x="80" y="88" width="8" height="6" fill="#0F172A" />
-                    <rect x="94" y="88" width="14" height="6" fill="#0F172A" />
+              <div className="inline-block bg-white p-3.5 rounded-2xl border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] my-1">
+                <div className="w-44 h-44 bg-slate-50 rounded-xl p-2 flex items-center justify-center">
+                  <svg viewBox="0 0 120 120" className="w-full h-full text-[#0F172A] fill-current">
+                    <rect x="8" y="8" width="34" height="34" rx="4" fill="#2563EB" stroke="#0F172A" strokeWidth="4" />
+                    <rect x="18" y="18" width="14" height="14" fill="#FFFFFF" rx="2" />
+                    <rect x="78" y="8" width="34" height="34" rx="4" fill="#2563EB" stroke="#0F172A" strokeWidth="4" />
+                    <rect x="88" y="18" width="14" height="14" fill="#FFFFFF" rx="2" />
+                    <rect x="8" y="78" width="34" height="34" rx="4" fill="#2563EB" stroke="#0F172A" strokeWidth="4" />
+                    <rect x="18" y="88" width="14" height="14" fill="#FFFFFF" rx="2" />
+                    <rect x="48" y="12" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="60" y="12" width="12" height="8" fill="#0F172A" rx="1" />
+                    <rect x="48" y="24" width="10" height="8" fill="#F59E0B" rx="1" />
+                    <rect x="64" y="24" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="52" y="36" width="16" height="8" fill="#0F172A" rx="1" />
+                    <rect x="12" y="48" width="10" height="8" fill="#0F172A" rx="1" />
+                    <rect x="28" y="48" width="12" height="8" fill="#0F172A" rx="1" />
+                    <rect x="46" y="48" width="8" height="8" fill="#10B981" rx="1" />
+                    <rect x="58" y="48" width="16" height="8" fill="#0F172A" rx="1" />
+                    <rect x="80" y="48" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="94" y="48" width="16" height="8" fill="#0F172A" rx="1" />
+                    <rect x="12" y="60" width="16" height="8" fill="#0F172A" rx="1" />
+                    <rect x="34" y="60" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="48" y="60" width="12" height="8" fill="#0F172A" rx="1" />
+                    <rect x="66" y="60" width="16" height="8" fill="#2563EB" rx="1" />
+                    <rect x="88" y="60" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="100" y="60" width="10" height="8" fill="#0F172A" rx="1" />
+                    <rect x="48" y="74" width="14" height="8" fill="#0F172A" rx="1" />
+                    <rect x="68" y="74" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="80" y="74" width="16" height="8" fill="#0F172A" rx="1" />
+                    <rect x="100" y="74" width="10" height="8" fill="#0F172A" rx="1" />
+                    <rect x="48" y="88" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="60" y="88" width="16" height="8" fill="#F59E0B" rx="1" />
+                    <rect x="80" y="88" width="8" height="8" fill="#0F172A" rx="1" />
+                    <rect x="94" y="88" width="16" height="8" fill="#0F172A" rx="1" />
                   </svg>
                 </div>
               </div>
 
-              <p className="text-xs text-slate-400 mt-2">
-                Point your phone camera at this QR code to download the APK directly onto your mobile browser.
-              </p>
+              <div className="mt-3 inline-block">
+                <Sticker color="yellow" rotate="none" size="sm">
+                  ⚡ Instant Mobile Link
+                </Sticker>
+              </div>
             </div>
 
             {/* iOS Status Card */}
-            <div className="rounded-3xl bg-slate-900/80 border border-slate-800 p-8 shadow-xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300">
-                  <Apple className="w-5 h-5" />
+            <div className="rounded-3xl bg-white border-[3px] border-[#0F172A] p-7 shadow-[5px_5px_0px_#0F172A]">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-slate-100 border-[2px] border-[#0F172A] flex items-center justify-center text-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
+                    <Apple className="w-6 h-6 stroke-[2.2]" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-[#0F172A]">Apple iOS Status</h4>
+                    <p className="text-xs text-blue-600 font-bold">In Active Development</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-bold text-white">Apple iOS Status</h4>
-                  <p className="text-xs text-blue-400 font-medium">Coming in Phase 2</p>
-                </div>
+
+                <Sticker color="purple" rotate="slight-right" size="sm">
+                  Phase 2
+                </Sticker>
               </div>
 
-              <p className="text-sm text-slate-300 mb-6">
-                Our native iOS and watchOS companions are currently under active development and TestFlight review. Sign up below to get early beta access.
+              <p className="text-xs sm:text-sm text-slate-600 font-medium mb-5">
+                Our native iOS and Apple Watch companion app is currently undergoing internal testing. Sign up for instant TestFlight invitations!
               </p>
 
               {iosSubmitted ? (
-                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
-                  <span>You're on the list! We'll email you the moment TestFlight opens.</span>
+                <div className="p-3.5 rounded-2xl bg-emerald-100 border-[2px] border-[#0F172A] text-emerald-950 text-xs font-bold flex items-center gap-2 shadow-[2px_2px_0px_#0F172A]">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700 shrink-0 stroke-[2.5]" />
+                  <span>You're on the list! We'll email you when TestFlight opens.</span>
                 </div>
               ) : (
                 <form onSubmit={handleIosNotify} className="flex gap-2">
                   <input
                     type="email"
                     required
-                    placeholder="Enter your email"
+                    placeholder="Enter your email for TestFlight"
                     value={iosEmail}
                     onChange={(e) => setIosEmail(e.target.value)}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 border-[2px] border-[#0F172A] text-[#0F172A] placeholder-slate-400 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-[2px_2px_0px_#0F172A]"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 text-xs font-semibold whitespace-nowrap"
+                    className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white border-[2px] border-[#0F172A] text-xs font-black shadow-[2px_2px_0px_#0F172A] hover:-translate-y-0.5 transition-all whitespace-nowrap"
                   >
                     Notify Me
                   </button>
@@ -288,44 +315,47 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
         </div>
 
         {/* Step-by-Step Installation Guide */}
-        <div className="rounded-3xl bg-slate-900/60 border border-slate-800 p-8 sm:p-12 mb-20">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h3 className="text-2xl sm:text-3xl font-bold text-white">
+        <div className="rounded-3xl bg-white border-[3px] border-[#0F172A] p-7 sm:p-10 shadow-[6px_6px_0px_#0F172A] mb-16">
+          <div className="text-center max-w-2xl mx-auto mb-10">
+            <Sticker color="mint" rotate="none" size="sm" className="mb-3 inline-flex">
+              Simple 3-Step Setup
+            </Sticker>
+            <h3 className="text-2xl sm:text-3xl font-black text-[#0F172A]">
               How to Install the Android APK
             </h3>
-            <p className="text-slate-400 text-sm mt-2">
-              Three quick steps to install and start receiving delivery updates.
+            <p className="text-slate-600 font-medium text-sm mt-1">
+              Takes less than 60 seconds to get your society account connected.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 relative">
-              <div className="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 font-bold flex items-center justify-center text-sm mb-4 border border-blue-500/30">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-[#FFFDF9] border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:-translate-y-1 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-blue-500 text-white font-black flex items-center justify-center text-base mb-4 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
                 01
               </div>
-              <h4 className="text-base font-semibold text-white mb-2">Download the APK</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Click the <strong>Download APK</strong> button above on your Android smartphone. If prompted, confirm that you wish to keep the file.
+              <h4 className="text-base font-black text-[#0F172A] mb-1.5">Download the File</h4>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                Tap <strong>Download APK</strong> above on your Android phone. If your browser prompts you with a download confirmation, tap <em>Keep</em>.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 relative">
-              <div className="w-9 h-9 rounded-xl bg-indigo-600/20 text-indigo-400 font-bold flex items-center justify-center text-sm mb-4 border border-indigo-500/30">
+            <div className="p-6 rounded-2xl bg-[#FFFDF9] border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:-translate-y-1 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-amber-400 text-[#0F172A] font-black flex items-center justify-center text-base mb-4 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
                 02
               </div>
-              <h4 className="text-base font-semibold text-white mb-2">Allow Unknown Sources</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                When opening the downloaded file, your browser may ask for permission. Tap <em>Settings → Allow from this source</em> to proceed.
+              <h4 className="text-base font-black text-[#0F172A] mb-1.5">Allow Install</h4>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                When opening the downloaded file, tap <em>Settings → Allow from this source</em>. ParcelFlow is 100% verified and secure.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 relative">
-              <div className="w-9 h-9 rounded-xl bg-emerald-600/20 text-emerald-400 font-bold flex items-center justify-center text-sm mb-4 border border-emerald-500/30">
+            <div className="p-6 rounded-2xl bg-[#FFFDF9] border-[2.5px] border-[#0F172A] shadow-[4px_4px_0px_#0F172A] hover:-translate-y-1 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-emerald-400 text-[#0F172A] font-black flex items-center justify-center text-base mb-4 border-[2px] border-[#0F172A] shadow-[2px_2px_0px_#0F172A]">
                 03
               </div>
-              <h4 className="text-base font-semibold text-white mb-2">Connect Your Society</h4>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Launch ParcelFlow, enter your mobile number, and select your registered society and apartment tower to start scheduling deliveries.
+              <h4 className="text-base font-black text-[#0F172A] mb-1.5">Link Your Apartment</h4>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
+                Open ParcelFlow, enter your mobile number, and select your apartment tower to start receiving parcel notifications.
               </p>
             </div>
           </div>

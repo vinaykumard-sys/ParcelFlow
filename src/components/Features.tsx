@@ -1,4 +1,4 @@
-import React, { useState, useRef, type MouseEvent } from 'react';
+import React, { useState } from 'react';
 import { 
   Package, 
   Clock, 
@@ -6,396 +6,466 @@ import {
   Bell, 
   Building2, 
   BarChart3, 
-  ArrowUpRight, 
-  CheckCircle2, 
-  QrCode, 
+  Check, 
   Sparkles,
-  Check
+  ArrowRight,
+  QrCode,
+  CheckCircle2,
+  Lock,
+  Smartphone
 } from 'lucide-react';
 
-interface FeatureItem {
+interface FeatureCard {
   id: string;
-  icon: React.ReactNode;
+  emoji: string;
   badge: string;
   badgeColor: string;
   title: string;
-  tagline: string;
+  subtitle: string;
   description: string;
-  metrics: string;
-  interactivePreview: React.ReactNode;
+  color: string;
+  rotation: string;
+  hoverRotation: string;
+  accentBg: string;
+  illustration: React.ReactNode;
+  interactiveElement: React.ReactNode;
 }
 
-// 3D Tilt Card Component
-const TiltCard: React.FC<{
-  feature: FeatureItem;
-  isActive: boolean;
-  onSelect: () => void;
-}> = ({ feature, isActive, onSelect }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotateX, setRotateX] = useState<number>(0);
-  const [rotateY, setRotateY] = useState<number>(0);
-  const [glowPos, setGlowPos] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
-  const [isHovered, setIsHovered] = useState<boolean>(false);
-
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // Percentage for glow
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
-    setGlowPos({ x: xPercent, y: yPercent });
-
-    // Calculate tilt angles (-8deg to 8deg)
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotX = ((y - centerY) / centerY) * -8;
-    const rotY = ((x - centerX) / centerX) * 8;
-
-    setRotateX(rotX);
-    setRotateY(rotY);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setRotateX(0);
-    setRotateY(0);
-  };
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={onSelect}
-      style={{
-        transform: isHovered 
-          ? `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px)` 
-          : 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)',
-        transition: isHovered ? 'transform 0.12s ease-out' : 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)',
-      }}
-      className={`group relative rounded-2xl bg-gradient-to-b from-slate-900/90 via-slate-900/60 to-slate-950/90 border transition-all duration-300 p-6 sm:p-7 flex flex-col justify-between cursor-pointer overflow-hidden ${
-        isActive 
-          ? 'border-blue-500/80 shadow-[0_0_35px_rgba(59,130,246,0.25)] ring-1 ring-blue-400/40' 
-          : 'border-slate-800/80 hover:border-slate-700/90 shadow-xl'
-      }`}
-    >
-      {/* Dynamic Cursor Spotlight Radial Glow */}
-      <div
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background: `radial-gradient(400px circle at ${glowPos.x}% ${glowPos.y}%, rgba(59, 130, 246, 0.18), transparent 70%)`
-        }}
-      />
-
-      {/* Top Border Subtle Gradient Glow */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-blue-500/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-      <div>
-        {/* Card Header: Icon & Badge */}
-        <div className="flex items-center justify-between gap-3 mb-5">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600/20 to-indigo-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 group-hover:scale-110 group-hover:text-blue-300 transition-transform duration-300 shadow-inner">
-            {feature.icon}
-          </div>
-          <div className="flex items-center gap-2">
-            <span className={`text-[11px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-full border ${feature.badgeColor}`}>
-              {feature.badge}
-            </span>
-            <div className="w-6 h-6 rounded-full bg-slate-800/80 border border-slate-700/60 flex items-center justify-center text-slate-400 group-hover:text-white group-hover:border-blue-500/50 transition-colors">
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </div>
-          </div>
-        </div>
-
-        {/* Feature Title & Tagline */}
-        <h3 className="text-xl font-bold text-white tracking-tight group-hover:text-blue-200 transition-colors mb-1.5 flex items-center gap-2">
-          {feature.title}
-        </h3>
-        <p className="text-xs font-semibold text-blue-400/90 mb-3 tracking-wide">
-          {feature.tagline}
-        </p>
-        <p className="text-slate-400 text-sm leading-relaxed mb-6 font-normal">
-          {feature.description}
-        </p>
-      </div>
-
-      {/* Card Interactive Micro-Preview Visual */}
-      <div className="mt-auto">
-        <div className="rounded-xl bg-slate-950/80 border border-slate-800/80 p-3.5 group-hover:border-slate-700/70 transition-colors backdrop-blur-sm">
-          {feature.interactivePreview}
-        </div>
-
-        {/* Bottom Metric Strip */}
-        <div className="mt-3.5 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
-          <span className="font-mono text-[11px] text-slate-400">BENCHMARK</span>
-          <span className="font-medium text-emerald-400 flex items-center gap-1">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            {feature.metrics}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export const Features: React.FC = () => {
-  const [selectedFeature, setSelectedFeature] = useState<number>(0);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('8:00 PM');
-  const [copiedOtp, setCopiedOtp] = useState<boolean>(false);
+  const [selectedSlot, setSelectedSlot] = useState<string>('8:00 PM');
+  const [showOtpVerified, setShowOtpVerified] = useState<boolean>(true);
+  const [notificationState, setNotificationState] = useState<boolean>(true);
 
-  const handleCopyOtp = () => {
-    setCopiedOtp(true);
-    setTimeout(() => setCopiedOtp(false), 2000);
-  };
-
-  const featureItems: FeatureItem[] = [
+  const features: FeatureCard[] = [
     {
-      id: 'visibility',
-      icon: <Package className="w-6 h-6" />,
-      badge: 'Visibility',
-      badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
-      title: 'Parcel Visibility',
-      tagline: 'Instant society gate check-in',
-      description: 'Know the second your delivery arrives at your society gate. Complete audit trail with tracking ID and carrier tags.',
-      metrics: '100% Gate Logging',
-      interactivePreview: (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-mono text-slate-400">ID: PF-8492-IN</span>
-            <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-medium">Logged at Gate</span>
+      id: 'tracking',
+      emoji: '📦',
+      badge: 'Real-Time Intake',
+      badgeColor: 'bg-amber-300 text-slate-900',
+      title: 'Parcel Tracking',
+      subtitle: 'Know when parcel reaches society',
+      description: 'No more guessing where the courier dumped your box. Get notified the exact second your package is scanned at your society gate hub.',
+      color: 'bg-sky-50',
+      rotation: '-rotate-1',
+      hoverRotation: 'hover:rotate-0',
+      accentBg: 'bg-sky-400',
+      illustration: (
+        <svg viewBox="0 0 200 130" className="w-full h-28 drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          {/* Floor Shadow */}
+          <ellipse cx="100" cy="118" rx="65" ry="8" fill="#0F172A" opacity="0.12" />
+          
+          {/* Society Gate Hub Signboard */}
+          <rect x="25" y="15" width="60" height="26" rx="6" fill="#FDE047" stroke="#0F172A" strokeWidth="2.5" />
+          <text x="55" y="32" textAnchor="middle" fill="#0F172A" fontSize="9" fontWeight="900" fontFamily="sans-serif">HUB 01</text>
+          
+          {/* Main Box */}
+          <g className="animate-bounce" style={{ animationDuration: '3s' }}>
+            <rect x="68" y="42" width="64" height="60" rx="8" fill="#FDBA74" stroke="#0F172A" strokeWidth="2.5" />
+            {/* Box tape */}
+            <path d="M68 66 H132" stroke="#EA580C" strokeWidth="6" strokeDasharray="4 2" />
+            <path d="M96 42 V102" stroke="#EA580C" strokeWidth="6" />
+            {/* Happy Face on Box */}
+            <circle cx="86" cy="56" r="3" fill="#0F172A" />
+            <circle cx="114" cy="56" r="3" fill="#0F172A" />
+            <path d="M94 62 Q100 68 106 62" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+            {/* Shipping Label */}
+            <rect x="76" y="78" width="28" height="16" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+            <line x1="80" y1="83" x2="98" y2="83" stroke="#0F172A" strokeWidth="1.5" />
+            <line x1="80" y1="88" x2="92" y2="88" stroke="#0F172A" strokeWidth="1.5" />
+          </g>
+
+          {/* Scanner beam */}
+          <path d="M138 28 L110 50 L124 58 Z" fill="#38BDF8" opacity="0.4" />
+          <circle cx="140" cy="26" r="8" fill="#38BDF8" stroke="#0F172A" strokeWidth="2" />
+          <path d="M137 23 L143 29 M143 23 L137 29" stroke="#0F172A" strokeWidth="1.5" strokeLinecap="round" />
+
+          {/* Success Check Pill */}
+          <g transform="translate(132, 70)">
+            <rect width="52" height="22" rx="11" fill="#86EFAC" stroke="#0F172A" strokeWidth="2" />
+            <text x="26" y="15" textAnchor="middle" fill="#0F172A" fontSize="9" fontWeight="800">Scanned ✓</text>
+          </g>
+        </svg>
+      ),
+      interactiveElement: (
+        <div className="bg-white rounded-xl p-3 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+            <span className="text-xs font-bold text-slate-900">Hub Gate 2 • Tower B Shelf 4</span>
           </div>
-          <div className="flex items-center gap-2 bg-slate-900/90 rounded-lg p-2 border border-slate-800">
-            <div className="w-7 h-7 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold">
-              AMZ
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-slate-200 truncate">Electronics Box (1.2 kg)</div>
-              <div className="text-[10px] text-slate-400">Arrived Gate 2 • 3:42 PM</div>
-            </div>
-          </div>
+          <span className="text-[11px] font-black px-2 py-0.5 bg-sky-100 text-sky-800 rounded border border-slate-900">11:42 AM</span>
         </div>
       )
     },
     {
       id: 'timing',
-      icon: <Clock className="w-6 h-6" />,
-      badge: 'Control',
-      badgeColor: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
-      title: 'Flexible Timing',
-      tagline: 'Choose when it fits your schedule',
-      description: 'Never worry about couriers calling while you are in a meeting. Select a verified pickup window that matches your day.',
-      metrics: 'Zero Missed Handovers',
-      interactivePreview: (
-        <div className="space-y-1.5">
-          <div className="text-[11px] text-slate-400 flex justify-between">
-            <span>Select Pickup Window:</span>
-            <span className="text-indigo-400 font-semibold">{selectedTimeSlot}</span>
-          </div>
-          <div className="grid grid-cols-3 gap-1.5 pt-1">
-            {['6:30 PM', '8:00 PM', '9:15 PM'].map((time) => (
-              <button
-                key={time}
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedTimeSlot(time);
-                }}
-                className={`py-1 text-[11px] font-medium rounded border transition-all text-center ${
-                  selectedTimeSlot === time
-                    ? 'bg-blue-600 text-white border-blue-400 shadow-sm'
-                    : 'bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-700'
-                }`}
-              >
-                {time}
-              </button>
-            ))}
-          </div>
+      emoji: '🕐',
+      badge: 'Zero Rush',
+      badgeColor: 'bg-emerald-300 text-slate-900',
+      title: 'Flexible Pickup',
+      subtitle: 'Choose a convenient handover window',
+      description: 'Stop racing home before the delivery rider leaves. Tell ParcelFlow when you are free, and your parcel is waiting at your chosen hour.',
+      color: 'bg-emerald-50',
+      rotation: 'rotate-1',
+      hoverRotation: 'hover:rotate-0',
+      accentBg: 'bg-emerald-400',
+      illustration: (
+        <svg viewBox="0 0 200 130" className="w-full h-28 drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="116" rx="60" ry="7" fill="#0F172A" opacity="0.12" />
+          {/* Cartoon Clock */}
+          <circle cx="100" cy="62" r="42" fill="#FEF08A" stroke="#0F172A" strokeWidth="3" />
+          <circle cx="100" cy="62" r="33" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+          {/* Clock face ticks */}
+          <line x1="100" y1="33" x2="100" y2="38" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="129" y1="62" x2="124" y2="62" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="100" y1="91" x2="100" y2="86" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="71" y1="62" x2="76" y2="62" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          {/* Clock hands pointing to 8:00 */}
+          <line x1="100" y1="62" x2="100" y2="44" stroke="#0F172A" strokeWidth="3.5" strokeLinecap="round" />
+          <line x1="100" y1="62" x2="80" y2="76" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="100" cy="62" r="4.5" fill="#EF4444" stroke="#0F172A" strokeWidth="2" />
+          
+          {/* Little wings on clock */}
+          <path d="M58 52 Q44 42 46 62 Q52 66 60 62 Z" fill="#93C5FD" stroke="#0F172A" strokeWidth="2" />
+          <path d="M142 52 Q156 42 154 62 Q148 66 140 62 Z" fill="#93C5FD" stroke="#0F172A" strokeWidth="2" />
+
+          {/* Little sticker on side */}
+          <g transform="translate(125, 20) rotate(12)">
+            <rect width="56" height="20" rx="5" fill="#F472B6" stroke="#0F172A" strokeWidth="2" />
+            <text x="28" y="14" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="900">Your Time!</text>
+          </g>
+        </svg>
+      ),
+      interactiveElement: (
+        <div className="flex items-center gap-1.5 justify-between">
+          {['6:30 PM', '8:00 PM', '9:15 PM'].map((slot) => (
+            <button
+              key={slot}
+              type="button"
+              onClick={() => setSelectedSlot(slot)}
+              className={`flex-1 py-1.5 px-1 text-xs font-black rounded-lg border-2 border-slate-900 transition-all ${
+                selectedSlot === slot 
+                  ? 'bg-emerald-400 text-slate-900 shadow-[2px_2px_0px_#0F172A] -translate-y-0.5' 
+                  : 'bg-white text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              {slot} {selectedSlot === slot && '✓'}
+            </button>
+          ))}
         </div>
       )
     },
     {
       id: 'security',
-      icon: <ShieldCheck className="w-6 h-6" />,
-      badge: 'Tamper-Proof',
-      badgeColor: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
+      emoji: '🔐',
+      badge: 'Zero Theft',
+      badgeColor: 'bg-purple-300 text-slate-900',
       title: 'Secure Handover',
-      tagline: 'Cryptographic QR & OTP verification',
-      description: 'Strict chain-of-custody protocols. Guard scans your dynamic one-time QR or verifies your 4-digit code before releasing.',
-      metrics: '0 False Collections',
-      interactivePreview: (
-        <div className="flex items-center justify-between bg-slate-900/90 rounded-lg p-2.5 border border-slate-800">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded bg-white p-1 flex items-center justify-center">
-              <QrCode className="w-7 h-7 text-slate-950" />
-            </div>
-            <div>
-              <div className="text-[10px] uppercase text-slate-400 tracking-wider font-mono">One-Time OTP</div>
-              <div className="text-sm font-mono font-bold text-emerald-400 tracking-widest">7492</div>
-            </div>
+      subtitle: 'QR and OTP verification',
+      description: 'Your package is never left unattended at doorsteps. Every handover requires a one-time OTP or secure QR verification.',
+      color: 'bg-purple-50',
+      rotation: '-rotate-1',
+      hoverRotation: 'hover:rotate-0',
+      accentBg: 'bg-purple-400',
+      illustration: (
+        <svg viewBox="0 0 200 130" className="w-full h-28 drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="116" rx="60" ry="7" fill="#0F172A" opacity="0.12" />
+          {/* Cartoon Padlock */}
+          <rect x="74" y="52" width="52" height="46" rx="10" fill="#A855F7" stroke="#0F172A" strokeWidth="3" />
+          {/* Shackle */}
+          <path d="M84 52 V36 C84 26 116 26 116 36 V52" stroke="#0F172A" strokeWidth="6" strokeLinecap="round" fill="none" />
+          <path d="M84 52 V36 C84 28 116 28 116 36 V52" stroke="#FEF08A" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          
+          {/* Keyhole */}
+          <circle cx="100" cy="72" r="5" fill="#0F172A" />
+          <path d="M98 74 L97 86 H103 L102 74 Z" fill="#0F172A" />
+          
+          {/* Glowing QR Shield */}
+          <g transform="translate(132, 42) rotate(-8)">
+            <rect width="46" height="46" rx="8" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+            {/* Mini QR pattern */}
+            <rect x="6" y="6" width="12" height="12" fill="#0F172A" />
+            <rect x="8" y="8" width="8" height="8" fill="#FFFFFF" />
+            <rect x="28" y="6" width="12" height="12" fill="#0F172A" />
+            <rect x="30" y="8" width="8" height="8" fill="#FFFFFF" />
+            <rect x="6" y="28" width="12" height="12" fill="#0F172A" />
+            <rect x="8" y="30" width="8" height="8" fill="#FFFFFF" />
+            <rect x="24" y="24" width="8" height="8" fill="#0F172A" />
+            <rect x="34" y="34" width="6" height="6" fill="#10B981" />
+          </g>
+
+          {/* Sparkles */}
+          <circle cx="60" cy="40" r="4" fill="#FBBF24" stroke="#0F172A" strokeWidth="1.5" />
+          <circle cx="140" cy="100" r="3" fill="#F472B6" />
+        </svg>
+      ),
+      interactiveElement: (
+        <div 
+          onClick={() => setShowOtpVerified(!showOtpVerified)}
+          className="cursor-pointer bg-white rounded-xl p-2.5 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <span className="font-mono font-black text-sm text-slate-900 tracking-wider bg-purple-100 px-2 py-0.5 rounded border border-slate-900">
+              OTP: 8392
+            </span>
           </div>
-          <button 
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCopyOtp();
-            }}
-            className="text-[11px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700 transition-colors"
-          >
-            {copiedOtp ? 'Verified ✓' : 'Verify'}
-          </button>
+          <span className="text-[11px] font-black px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded border border-slate-900">
+            {showOtpVerified ? 'Verified ✓' : 'Tap to Verify'}
+          </span>
         </div>
       )
     },
     {
       id: 'notifications',
-      icon: <Bell className="w-6 h-6" />,
-      badge: 'Real-time',
-      badgeColor: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
+      emoji: '🔔',
+      badge: 'Smart Alerts',
+      badgeColor: 'bg-rose-300 text-slate-900',
       title: 'Instant Notifications',
-      tagline: 'Intelligent multi-channel alerts',
-      description: 'Get notified via App push, WhatsApp, or SMS the moment your parcel enters the society locker or hub shelf.',
-      metrics: '< 1.2s Dispatch Speed',
-      interactivePreview: (
-        <div className="space-y-1.5 bg-slate-900/90 rounded-lg p-2.5 border border-slate-800">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-semibold text-slate-200">ParcelFlow Notification</span>
-            </div>
-            <span className="text-[10px] text-slate-500">Just now</span>
+      subtitle: 'Know when your parcel arrives',
+      description: 'Clean, respectful push notifications and WhatsApp alerts. No spam calls, no panic, just friendly reminders when your box is waiting.',
+      color: 'bg-rose-50',
+      rotation: 'rotate-1',
+      hoverRotation: 'hover:rotate-0',
+      accentBg: 'bg-rose-400',
+      illustration: (
+        <svg viewBox="0 0 200 130" className="w-full h-28 drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="116" rx="55" ry="7" fill="#0F172A" opacity="0.12" />
+          {/* Cartoon Bell */}
+          <g className="animate-pulse" style={{ animationDuration: '2.5s' }}>
+            <path d="M100 24 C82 24 72 38 72 62 C72 74 64 82 62 86 H138 C136 82 128 74 128 62 C128 38 118 24 100 24 Z" fill="#FDE047" stroke="#0F172A" strokeWidth="3" />
+            {/* Clapper */}
+            <circle cx="100" cy="92" r="8" fill="#F59E0B" stroke="#0F172A" strokeWidth="2.5" />
+            {/* Bell highlight */}
+            <path d="M84 46 Q88 34 100 32" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+            {/* Top loop */}
+            <path d="M96 24 C96 20 104 20 104 24" stroke="#0F172A" strokeWidth="3" strokeLinecap="round" />
+          </g>
+
+          {/* Sound waves */}
+          <path d="M50 56 C46 62 46 72 50 78" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M42 50 C36 60 36 78 42 88" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M150 56 C154 62 154 72 150 78" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M158 50 C164 60 164 78 158 88" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" />
+
+          {/* Floating message bubble */}
+          <g transform="translate(112, 16) rotate(6)">
+            <rect width="64" height="26" rx="8" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+            <path d="M120 42 L124 48 L128 42" fill="#FFFFFF" stroke="#0F172A" strokeWidth="2" />
+            <text x="32" y="17" textAnchor="middle" fill="#0F172A" fontSize="9" fontWeight="800">📦 Amazon In!</text>
+          </g>
+        </svg>
+      ),
+      interactiveElement: (
+        <div 
+          onClick={() => setNotificationState(!notificationState)}
+          className="cursor-pointer bg-white rounded-xl p-2.5 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-base">💬</span>
+            <span className="text-xs font-bold text-slate-900">WhatsApp Alert</span>
           </div>
-          <div className="text-xs text-slate-300 line-clamp-1">
-            "Your parcel is safe in Locker Bay B. Ready for pickup."
-          </div>
+          <span className={`text-[11px] font-black px-2 py-0.5 rounded border border-slate-900 ${
+            notificationState ? 'bg-green-100 text-green-800' : 'bg-slate-100 text-slate-700'
+          }`}>
+            {notificationState ? 'Enabled 🔔' : 'Muted'}
+          </span>
         </div>
       )
     },
     {
-      id: 'society-ready',
-      icon: <Building2 className="w-6 h-6" />,
-      badge: 'Community',
-      badgeColor: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30',
+      id: 'society',
+      emoji: '🏢',
+      badge: 'Community First',
+      badgeColor: 'bg-blue-300 text-slate-900',
       title: 'Society Ready',
-      tagline: 'Tailored for high-density gated societies',
-      description: 'Flawlessly handles 200+ parcels a day. Eliminates gate chaos, reduces delivery truck jams, and protects guard sanity.',
-      metrics: '78% Less Gate Chaos',
-      interactivePreview: (
-        <div className="grid grid-cols-2 gap-2 text-center text-xs">
-          <div className="p-2 rounded bg-slate-900 border border-slate-800">
-            <div className="text-[10px] text-slate-400">Tower Integration</div>
-            <div className="font-semibold text-cyan-300">Towers A - G</div>
-          </div>
-          <div className="p-2 rounded bg-slate-900 border border-slate-800">
-            <div className="text-[10px] text-slate-400">Guard Scan Time</div>
-            <div className="font-semibold text-emerald-400">~ 9 Seconds</div>
-          </div>
+      subtitle: 'Designed for apartment communities',
+      description: 'Clears out corridor pile-ups, stops courier delivery bikes from speeding inside walking zones, and brings safety back to your community.',
+      color: 'bg-blue-50',
+      rotation: '-rotate-1',
+      hoverRotation: 'hover:rotate-0',
+      accentBg: 'bg-blue-400',
+      illustration: (
+        <svg viewBox="0 0 200 130" className="w-full h-28 drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="116" rx="65" ry="7" fill="#0F172A" opacity="0.12" />
+          
+          {/* Apartment Tower 1 */}
+          <rect x="42" y="32" width="46" height="78" rx="4" fill="#60A5FA" stroke="#0F172A" strokeWidth="2.5" />
+          {/* Windows */}
+          <rect x="50" y="40" width="8" height="8" rx="1" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="64" y="40" width="8" height="8" rx="1" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="50" y="56" width="8" height="8" rx="1" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="64" y="56" width="8" height="8" rx="1" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="50" y="72" width="8" height="8" rx="1" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="64" y="72" width="8" height="8" rx="1" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+
+          {/* Apartment Tower 2 */}
+          <rect x="94" y="18" width="56" height="92" rx="4" fill="#93C5FD" stroke="#0F172A" strokeWidth="2.5" />
+          <rect x="104" y="28" width="9" height="9" rx="1" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="122" y="28" width="9" height="9" rx="1" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="104" y="46" width="9" height="9" rx="1" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="122" y="46" width="9" height="9" rx="1" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="104" y="64" width="9" height="9" rx="1" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="122" y="64" width="9" height="9" rx="1" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+
+          {/* Little tree */}
+          <circle cx="160" cy="94" r="14" fill="#4ADE80" stroke="#0F172A" strokeWidth="2" />
+          <rect x="157" y="102" width="6" height="12" fill="#92400E" stroke="#0F172A" strokeWidth="1.5" />
+
+          {/* Society Badge */}
+          <g transform="translate(68, 92)">
+            <rect width="64" height="22" rx="6" fill="#FDE047" stroke="#0F172A" strokeWidth="2" />
+            <text x="32" y="15" textAnchor="middle" fill="#0F172A" fontSize="9" fontWeight="900">500+ Flats Ready</text>
+          </g>
+        </svg>
+      ),
+      interactiveElement: (
+        <div className="bg-white rounded-xl p-2.5 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-between text-xs">
+          <span className="font-bold text-slate-800">Gate Traffic Reduction:</span>
+          <span className="font-black text-blue-700 bg-blue-100 px-2 py-0.5 rounded border border-slate-900">-85%</span>
         </div>
       )
     },
     {
       id: 'management',
-      icon: <BarChart3 className="w-6 h-6" />,
-      badge: 'Operations',
-      badgeColor: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+      emoji: '📊',
+      badge: 'Zero Disputes',
+      badgeColor: 'bg-orange-300 text-slate-900',
       title: 'Smart Management',
-      tagline: 'Centralized admin audit & analytics',
-      description: 'Societies and RWA management gain 100% transparency. Live inventory logs, pickup analytics, and staff audit reports.',
-      metrics: 'Zero Lost Parcels Record',
-      interactivePreview: (
-        <div className="space-y-2 bg-slate-900/90 rounded-lg p-2.5 border border-slate-800">
-          <div className="flex items-center justify-between text-[11px]">
-            <span className="text-slate-400">Daily Clearance Rate</span>
-            <span className="font-semibold text-purple-300">96.4%</span>
-          </div>
-          <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-full w-[96.4%]" />
-          </div>
+      subtitle: 'Tools for society management',
+      description: 'Guards get a dead-simple, 5-second scan screen. RWA management gets complete audit trails and proof of handover for every package.',
+      color: 'bg-orange-50',
+      rotation: 'rotate-1',
+      hoverRotation: 'hover:rotate-0',
+      accentBg: 'bg-orange-400',
+      illustration: (
+        <svg viewBox="0 0 200 130" className="w-full h-28 drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="100" cy="116" rx="60" ry="7" fill="#0F172A" opacity="0.12" />
+          
+          {/* Dashboard Tablet */}
+          <rect x="45" y="24" width="110" height="82" rx="10" fill="#FFFFFF" stroke="#0F172A" strokeWidth="3" />
+          <rect x="52" y="32" width="96" height="66" rx="6" fill="#FFF7ED" stroke="#0F172A" strokeWidth="1.5" />
+          
+          {/* Cartoon Bar Chart */}
+          <rect x="62" y="68" width="12" height="22" rx="2" fill="#F97316" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="80" y="54" width="12" height="36" rx="2" fill="#FBBF24" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="98" y="44" width="12" height="46" rx="2" fill="#34D399" stroke="#0F172A" strokeWidth="1.5" />
+          <rect x="116" y="38" width="12" height="52" rx="2" fill="#60A5FA" stroke="#0F172A" strokeWidth="1.5" />
+
+          {/* Upward trend spark */}
+          <path d="M64 62 L82 50 L102 38 L124 30" stroke="#EF4444" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3" />
+          <circle cx="124" cy="30" r="3.5" fill="#EF4444" stroke="#0F172A" strokeWidth="1.5" />
+
+          {/* Sticker on tablet */}
+          <g transform="translate(125, 14) rotate(14)">
+            <rect width="48" height="18" rx="4" fill="#F472B6" stroke="#0F172A" strokeWidth="1.5" />
+            <text x="24" y="12" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="900">100% Audit</text>
+          </g>
+        </svg>
+      ),
+      interactiveElement: (
+        <div className="bg-white rounded-xl p-2.5 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-between text-xs">
+          <span className="font-bold text-slate-800">Clearance Rate Today:</span>
+          <span className="font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-slate-900">98.4%</span>
         </div>
       )
     }
   ];
 
   return (
-    <section id="features" className="relative py-24 sm:py-32 bg-slate-950 text-white overflow-hidden">
-      {/* Background Lighting Gradients */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-[500px] h-[350px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none" />
-      
-      {/* Decorative Grid Lines */}
+    <section id="features" className="relative py-20 sm:py-28 bg-[#FAF7F2] text-slate-900 overflow-hidden border-b-2 border-slate-900">
+      {/* Background polka dots */}
       <div 
-        className="absolute inset-0 opacity-[0.025] pointer-events-none"
+        className="absolute inset-0 opacity-[0.06] pointer-events-none"
         style={{
-          backgroundImage: `linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)`,
-          backgroundSize: '48px 48px'
+          backgroundImage: `radial-gradient(#0F172A 2px, transparent 2px)`,
+          backgroundSize: '24px 24px'
         }}
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wider uppercase mb-5 backdrop-blur-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Built For Precision & Peace of Mind</span>
+        {/* Header with Cartoon Sticker Badge */}
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-300 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-slate-900 text-xs sm:text-sm font-black uppercase tracking-wider mb-4 -rotate-1 hover:rotate-0 transition-transform">
+            <Sparkles className="w-4 h-4 text-slate-900" />
+            <span>Built Differently For Apartment Living</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-6 leading-tight">
-            Designed for convenience. <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent">
-              Engineered for absolute security.
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Everything your parcel needs. <br />
+            <span className="relative inline-block text-blue-600">
+              Nothing you don't.
+              {/* Playful cartoon underline stroke */}
+              <svg className="absolute -bottom-2 left-0 w-full h-3 text-amber-400" viewBox="0 0 100 12" preserveAspectRatio="none" fill="none">
+                <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+              </svg>
             </span>
           </h2>
-          <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
-            Every feature in ParcelFlow is tuned specifically for the realities of modern apartment communities — removing gate friction while giving residents total control.
+
+          <p className="mt-5 text-base sm:text-lg text-slate-700 font-medium max-w-2xl mx-auto leading-relaxed">
+            Six thoughtful, stress-free features engineered to bring calm, security, and predictability to high-density apartment deliveries.
           </p>
         </div>
 
-        {/* 6 Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          {featureItems.map((feature, idx) => (
-            <TiltCard
+        {/* 6 Illustrated Feature Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {features.map((feature) => (
+            <div
               key={feature.id}
-              feature={feature}
-              isActive={selectedFeature === idx}
-              onSelect={() => setSelectedFeature(idx)}
-            />
+              className={`group relative ${feature.color} rounded-2xl p-6 sm:p-7 border-2 border-slate-900 shadow-[4px_4px_0px_#0F172A] ${feature.rotation} ${feature.hoverRotation} transition-all duration-200 hover:-translate-y-1.5 hover:shadow-[7px_7px_0px_#0F172A] flex flex-col justify-between`}
+            >
+              <div>
+                {/* Top bar with emoji & badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-white border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                    {feature.emoji}
+                  </div>
+                  <span className={`px-2.5 py-1 text-xs font-black rounded-full border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] ${feature.badgeColor}`}>
+                    {feature.badge}
+                  </span>
+                </div>
+
+                {/* Cartoon Illustration */}
+                <div className="my-2 bg-white/70 rounded-xl p-2 border-2 border-slate-900/60 overflow-hidden">
+                  {feature.illustration}
+                </div>
+
+                {/* Content */}
+                <h3 className="text-xl font-black text-slate-900 mt-4 mb-1 tracking-tight flex items-center gap-2">
+                  {feature.title}
+                </h3>
+                <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">
+                  {feature.subtitle}
+                </p>
+                <p className="text-sm font-medium text-slate-700 leading-relaxed mb-5">
+                  {feature.description}
+                </p>
+              </div>
+
+              {/* Bottom Interactive Playground */}
+              <div className="pt-2 border-t-2 border-slate-900/10">
+                {feature.interactiveElement}
+              </div>
+            </div>
           ))}
         </div>
 
-        {/* Interactive Feature Deep Dive Highlight Banner */}
-        <div className="mt-16 sm:mt-20 rounded-3xl bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-950/90 border border-slate-800/80 p-8 sm:p-10 backdrop-blur-xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
-                <Check className="w-3.5 h-3.5" />
-                <span>Zero Compromises on Privacy</span>
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                No strangers roaming your apartment corridors.
-              </h3>
-              <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-                By centralizing intake at your society's dedicated ParcelFlow Gate Hub, delivery personnel no longer require elevator access or corridor entry. Parcels rest safely in organized bays until you're ready to collect.
-              </p>
+        {/* Bottom Fun Banner */}
+        <div className="mt-14 bg-white rounded-2xl p-6 sm:p-8 border-2 border-slate-900 shadow-[4px_4px_0px_#0F172A] flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-300 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] flex items-center justify-center text-3xl shrink-0">
+              ⚡
             </div>
-            
-            <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-              <div className="rounded-2xl bg-slate-950/70 border border-slate-800/80 p-4.5 text-center">
-                <div className="text-3xl sm:text-4xl font-black text-blue-400 font-mono mb-1">0</div>
-                <div className="text-xs text-slate-300 font-medium">Unverified Gate Entries</div>
-              </div>
-              <div className="rounded-2xl bg-slate-950/70 border border-slate-800/80 p-4.5 text-center">
-                <div className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono mb-1">100%</div>
-                <div className="text-xs text-slate-300 font-medium">Verified Handover Proof</div>
-              </div>
+            <div>
+              <h4 className="text-lg font-black text-slate-900">Zero Corridor Intrusions. Zero Doorstep Thefts.</h4>
+              <p className="text-sm font-medium text-slate-600">Enjoy full privacy inside your home while your packages stay safe at the gate hub.</p>
             </div>
           </div>
+          <a
+            href="/features"
+            className="shrink-0 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0F172A] transition-all inline-flex items-center gap-2"
+          >
+            <span>Explore All Features</span>
+            <ArrowRight className="w-4 h-4" />
+          </a>
         </div>
       </div>
     </section>
@@ -403,4 +473,3 @@ export const Features: React.FC = () => {
 };
 
 export default Features;
-

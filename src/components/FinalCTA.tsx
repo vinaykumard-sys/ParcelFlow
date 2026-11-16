@@ -6,7 +6,9 @@ import {
   ShieldCheck, 
   Clock, 
   Sparkles,
-  Users
+  Users,
+  CheckCircle2,
+  Heart
 } from 'lucide-react';
 
 interface FinalCTAProps {
@@ -15,83 +17,89 @@ interface FinalCTAProps {
 
 export const FinalCTA: React.FC<FinalCTAProps> = ({ onOpenPilotModal }) => {
   return (
-    <section className="relative py-28 bg-slate-950 text-white overflow-hidden">
-      {/* Dynamic ambient background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-r from-blue-600/15 via-indigo-600/20 to-emerald-600/15 rounded-full blur-[120px] pointer-events-none" />
-      
-      {/* Subtle geometric line accents */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b12_1px,transparent_1px),linear-gradient(to_bottom,#1e293b12_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+    <section className="relative py-24 sm:py-32 bg-[#FFFDF9] text-slate-900 overflow-hidden border-t-2 border-slate-900">
+      {/* Background Decorative polka dots */}
+      <div 
+        className="absolute inset-0 opacity-[0.06] pointer-events-none" 
+        style={{
+          backgroundImage: `radial-gradient(#0F172A 2px, transparent 2px)`,
+          backgroundSize: '24px 24px'
+        }}
+      />
 
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/20 text-blue-400 text-xs sm:text-sm font-medium mb-8">
-          <Sparkles className="w-4 h-4 text-blue-400" />
-          <span>Transform your apartment delivery experience</span>
+        
+        {/* Floating Cartoon Stickers */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-300 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-slate-900 text-xs sm:text-sm font-black -rotate-2 hover:rotate-0 transition-transform">
+            <Sparkles className="w-4 h-4 text-slate-900" />
+            <span>Zero Doorstep Thefts</span>
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-300 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-slate-900 text-xs sm:text-sm font-black rotate-2 hover:rotate-0 transition-transform">
+            <span>📦 500+ Flat Communities Ready</span>
+          </div>
+
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sky-300 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-slate-900 text-xs sm:text-sm font-black -rotate-1 hover:rotate-0 transition-transform">
+            <span>⚡ 10-Second QR Pickup</span>
+          </div>
         </div>
 
         {/* Main Headline */}
-        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
-          Ready to stop waiting around <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
+        <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-tight">
+          Ready to stop waiting around <br />
+          <span className="relative inline-block text-blue-600">
             for your parcels?
+            <svg className="absolute -bottom-2 left-0 w-full h-3 text-amber-400" viewBox="0 0 100 12" preserveAspectRatio="none" fill="none">
+              <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+            </svg>
           </span>
         </h2>
 
         {/* Subtitle */}
-        <p className="mt-6 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Bring ParcelFlow to your gated community or apartment society today. Experience zero gate clutter, guaranteed security, and pickup at your exact convenience.
+        <p className="mt-6 text-base sm:text-xl font-medium text-slate-700 max-w-2xl mx-auto leading-relaxed">
+          Bring ParcelFlow to your gated apartment society today. Experience zero gate clutter, complete delivery security, and pickup at your exact convenience.
         </p>
 
         {/* Action Buttons */}
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/download"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-base shadow-xl shadow-blue-500/30 transition-all duration-200 hover:scale-[1.03] active:scale-[0.98]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-base border-2 border-slate-900 shadow-[4px_4px_0px_#0F172A] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#0F172A] transition-all"
           >
             <Download className="w-5 h-5" />
-            <span>Get the ParcelFlow App</span>
-            <ArrowRight className="w-4 h-4 ml-1" />
+            <span>Download App for Free</span>
           </a>
 
-          {onOpenPilotModal && (
-            <button
-              onClick={onOpenPilotModal}
-              type="button"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-semibold text-base transition-all duration-200 hover:border-slate-600"
-            >
-              <Building2 className="w-5 h-5 text-blue-400" />
-              <span>Request Society Pilot</span>
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => onOpenPilotModal ? onOpenPilotModal() : alert('Pilot inquiry: pilot@parcelflow.in')}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-amber-300 hover:bg-amber-200 text-slate-900 font-black text-base border-2 border-slate-900 shadow-[4px_4px_0px_#0F172A] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#0F172A] transition-all"
+          >
+            <Building2 className="w-5 h-5 text-slate-900" />
+            <span>Bring ParcelFlow to My Society</span>
+          </button>
         </div>
 
-        {/* Trust Stats & Pillars */}
-        <div className="mt-16 pt-12 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-3 gap-8">
-          <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-3">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div className="text-xl font-bold text-white">100% Secure Handover</div>
-            <p className="text-xs text-slate-400 mt-1">Encrypted dynamic QR and OTP verification for zero misplaced items.</p>
+        {/* Trust Badges Bar */}
+        <div className="mt-14 pt-8 border-t-2 border-slate-900/10 flex flex-wrap items-center justify-center gap-6 text-xs font-black text-slate-700">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>100% Free For Residents</span>
           </div>
-
-          <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center mb-3">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div className="text-xl font-bold text-white">&lt; 15 Second Pickup</div>
-            <p className="text-xs text-slate-400 mt-1">Quick scan at the hub on your way home with zero paperwork.</p>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>Works With All Couriers (Amazon, Flipkart, Blinkit)</span>
           </div>
-
-          <div className="flex flex-col items-center text-center p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-3">
-              <Users className="w-5 h-5" />
-            </div>
-            <div className="text-xl font-bold text-white">Built for High-Density</div>
-            <p className="text-xs text-slate-400 mt-1">Easily scales from 100 to 2,000+ flats without gate bottlenecks.</p>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>No Hardware Cost for Society Pilots</span>
           </div>
         </div>
+
       </div>
     </section>
   );
 };
+
+export default FinalCTA;

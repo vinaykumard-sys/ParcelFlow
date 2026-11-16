@@ -6,342 +6,328 @@ import {
   Clock, 
   Package, 
   Search, 
-  AlertTriangle, 
+  Sparkles, 
   TrendingUp, 
   QrCode, 
-  FileSpreadsheet
+  Boxes,
+  Users,
+  Check
 } from 'lucide-react';
 
-interface ParcelRecord {
-  id: string;
-  trackingId: string;
-  flat: string;
-  courier: string;
-  timeIn: string;
-  status: 'collected' | 'scheduled' | 'pending';
-  scheduledTime?: string;
-  bay: string;
+interface SocietySectionProps {
+  onOpenPilotModal?: () => void;
 }
 
-export const SocietySection: React.FC = () => {
-  const [activeFilter, setActiveFilter] = useState<'all' | 'collected' | 'scheduled' | 'pending'>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+export const SocietySection: React.FC<SocietySectionProps> = ({ onOpenPilotModal }) => {
+  const [activeRack, setActiveRack] = useState<'A' | 'B' | 'C'>('A');
+  const [scannedCount, setScannedCount] = useState<number>(87);
   const [isScanning, setIsScanning] = useState<boolean>(false);
-  const [scanSuccess, setScanSuccess] = useState<boolean>(false);
-  
-  // Counting metrics with simulated live updates
-  const [counts, setCounts] = useState({
-    today: 87,
-    collected: 61,
-    scheduled: 18,
-    pending: 8
-  });
-
-  const [parcels, setParcels] = useState<ParcelRecord[]>([
-    { id: '1', trackingId: 'AMZ-9921', flat: 'Tower B - 1204', courier: 'Amazon Logistics', timeIn: '01:40 PM', status: 'collected', scheduledTime: '06:30 PM', bay: 'Locker B-04' },
-    { id: '2', trackingId: 'FK-4819', flat: 'Tower A - 402', courier: 'Flipkart Express', timeIn: '02:15 PM', status: 'scheduled', scheduledTime: '08:00 PM', bay: 'Bay C-12' },
-    { id: '3', trackingId: 'BLD-1102', flat: 'Tower D - 801', courier: 'BlueDart Air', timeIn: '03:10 PM', status: 'scheduled', scheduledTime: '08:30 PM', bay: 'Bay A-07' },
-    { id: '4', trackingId: 'DEL-6720', flat: 'Tower C - 1503', courier: 'Delhivery', timeIn: '03:45 PM', status: 'pending', bay: 'Hub Staging' },
-    { id: '5', trackingId: 'ZOM-8831', flat: 'Tower B - 601', courier: 'Blinkit / Box', timeIn: '12:20 PM', status: 'collected', scheduledTime: '01:00 PM', bay: 'Locker A-02' },
-    { id: '6', trackingId: 'MYN-2901', flat: 'Tower A - 904', courier: 'Myntra Logistics', timeIn: '04:05 PM', status: 'pending', bay: 'Bay D-03' },
-  ]);
 
   const handleSimulateScan = () => {
     setIsScanning(true);
-    setScanSuccess(false);
-
     setTimeout(() => {
+      setScannedCount(prev => prev + 1);
       setIsScanning(false);
-      setScanSuccess(true);
-      const newId = (parcels.length + 1).toString();
-      const newRecord: ParcelRecord = {
-        id: newId,
-        trackingId: `AMZ-NEW${Math.floor(1000 + Math.random() * 9000)}`,
-        flat: 'Tower B - 504',
-        courier: 'Amazon Prime',
-        timeIn: 'Just now',
-        status: 'pending',
-        bay: 'Bay E-01'
-      };
-      setParcels(prev => [newRecord, ...prev]);
-      setCounts(prev => ({
-        ...prev,
-        today: prev.today + 1,
-        pending: prev.pending + 1
-      }));
-
-      setTimeout(() => setScanSuccess(false), 3000);
-    }, 1200);
+    }, 600);
   };
 
-  const filteredParcels = parcels.filter(p => {
-    const matchesFilter = activeFilter === 'all' || p.status === activeFilter;
-    const matchesSearch = p.flat.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.trackingId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          p.courier.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  const racksData = {
+    A: {
+      name: 'Rack A • Towers 1 & 2',
+      color: 'bg-amber-100 border-amber-400',
+      parcels: [
+        { id: 'PF-104', flat: 'Tower 1 • #402', carrier: 'Amazon', time: '11:15 AM', status: 'Ready for 8 PM' },
+        { id: 'PF-105', flat: 'Tower 1 • #1105', carrier: 'Flipkart', time: '11:32 AM', status: 'Ready for 7:30 PM' },
+        { id: 'PF-108', flat: 'Tower 2 • #301', carrier: 'BlueDart', time: '12:04 PM', status: 'Ready for 8 PM' },
+        { id: 'PF-112', flat: 'Tower 2 • #904', carrier: 'Myntra', time: '12:45 PM', status: 'Ready for 9 PM' },
+      ]
+    },
+    B: {
+      name: 'Rack B • Towers 3 & 4',
+      color: 'bg-sky-100 border-sky-400',
+      parcels: [
+        { id: 'PF-201', flat: 'Tower 3 • #601', carrier: 'Blinkit', time: '01:10 PM', status: 'Ready for 6:30 PM' },
+        { id: 'PF-205', flat: 'Tower 3 • #1202', carrier: 'Amazon', time: '01:25 PM', status: 'Ready for 8 PM' },
+        { id: 'PF-209', flat: 'Tower 4 • #204', carrier: 'Delhivery', time: '02:00 PM', status: 'Ready for 8:30 PM' },
+      ]
+    },
+    C: {
+      name: 'Rack C • Towers 5 & Clubhouse',
+      color: 'bg-emerald-100 border-emerald-400',
+      parcels: [
+        { id: 'PF-301', flat: 'Tower 5 • #1402', carrier: 'Amazon', time: '02:15 PM', status: 'Ready for 7 PM' },
+        { id: 'PF-304', flat: 'Tower 5 • #704', carrier: 'Zara', time: '02:40 PM', status: 'Ready for 8 PM' },
+        { id: 'PF-309', flat: 'Clubhouse • Staff', carrier: 'FedEx', time: '03:10 PM', status: 'Internal Store' },
+      ]
+    }
+  };
 
   return (
-    <section id="for-societies" className="relative py-24 sm:py-32 bg-slate-950 text-white overflow-hidden border-t border-slate-800/80">
-      {/* Background radial atmosphere */}
-      <div className="absolute top-1/2 right-1/4 w-[600px] h-[400px] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-[500px] h-[350px] bg-emerald-600/10 blur-[130px] rounded-full pointer-events-none" />
+    <section id="for-societies" className="relative py-20 sm:py-28 bg-[#FAF7F2] text-slate-900 overflow-hidden border-b-2 border-slate-900">
+      {/* Background Grid Pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.05] pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(to right, #0F172A 1px, transparent 1px), linear-gradient(to bottom, #0F172A 1px, transparent 1px)`,
+          backgroundSize: '36px 36px'
+        }}
+      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wider uppercase mb-5 backdrop-blur-sm">
-            <Building2 className="w-3.5 h-3.5" />
-            <span>Society & RWA Operations</span>
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-300 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-slate-900 text-xs sm:text-sm font-black uppercase tracking-wider mb-4 -rotate-1 hover:rotate-0 transition-transform">
+            <Building2 className="w-4 h-4 text-slate-900" />
+            <span>Built For Modern Gated Societies</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-6 leading-tight">
-            Built for the way <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-blue-400 bg-clip-text text-transparent">
-              modern societies actually work.
+
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            Built for apartment communities. <br />
+            <span className="relative inline-block text-blue-600">
+              One organized hub for 500+ homes.
+              <svg className="absolute -bottom-2 left-0 w-full h-3 text-amber-400" viewBox="0 0 100 12" preserveAspectRatio="none" fill="none">
+                <path d="M0,8 Q50,0 100,8" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+              </svg>
             </span>
           </h2>
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal">
-            Gated communities are overwhelmed by 200+ delivery couriers per day. ParcelFlow empowers estate managers and security guards with seamless digital intake and verified handovers.
+
+          <p className="mt-5 text-base sm:text-lg text-slate-700 font-medium max-w-2xl mx-auto leading-relaxed">
+            Stop turning your residential lobby into a courier warehouse. ParcelFlow gives security guards and RWAs a clean, high-speed parcel station.
           </p>
         </div>
 
-        {/* Live Animated Counters Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-12">
-          {/* Metric 1 */}
-          <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 backdrop-blur-md relative overflow-hidden group hover:border-blue-500/50 transition-all">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span>Parcels Today</span>
-              <Package className="w-4 h-4 text-blue-400" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tight group-hover:text-blue-300 transition-colors">
-              {counts.today}
-            </div>
-            <div className="text-[11px] text-slate-400 mt-2 flex items-center gap-1">
-              <span className="text-emerald-400 font-semibold flex items-center">
-                <TrendingUp className="w-3 h-3 mr-0.5" /> +14%
+        {/* 2-Column Showcase: Left Cartoon Society & Hub Scene, Right Interactive Hub Terminal */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          {/* Left: Illustrated Society Scene */}
+          <div className="lg:col-span-6 bg-white rounded-3xl p-6 sm:p-8 border-3 border-slate-900 shadow-[6px_6px_0px_#0F172A] relative">
+            <div className="flex items-center justify-between mb-4">
+              <span className="px-3 py-1 rounded-full text-xs font-black bg-amber-300 text-slate-900 border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A]">
+                🏢 Prestige Green Oaks • 520 Apartments
               </span>
-              <span>vs yesterday avg</span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-slate-900">
+                Gate Hub Live ✓
+              </span>
             </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500/40" />
+
+            {/* Custom SVG: The Apartment Community + Organized Parcel Hub */}
+            <div className="bg-amber-50/70 rounded-2xl p-3 border-2 border-slate-900/40 overflow-hidden">
+              <svg viewBox="0 0 400 250" className="w-full h-auto drop-shadow-sm select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* Sky & Clouds */}
+                <ellipse cx="60" cy="30" rx="30" ry="12" fill="#FFFFFF" opacity="0.8" />
+                <ellipse cx="80" cy="25" rx="20" ry="10" fill="#FFFFFF" opacity="0.8" />
+                <ellipse cx="320" cy="40" rx="25" ry="10" fill="#FFFFFF" opacity="0.8" />
+
+                {/* Society Background Towers */}
+                {/* Tower 1 */}
+                <rect x="25" y="40" width="55" height="150" rx="4" fill="#93C5FD" stroke="#0F172A" strokeWidth="2.5" />
+                <rect x="35" y="55" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="55" y="55" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="35" y="80" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="55" y="80" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="35" y="105" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="55" y="105" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+                
+                {/* Tower 2 (Taller) */}
+                <rect x="85" y="15" width="65" height="175" rx="4" fill="#60A5FA" stroke="#0F172A" strokeWidth="2.5" />
+                <rect x="95" y="30" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="115" y="30" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="95" y="55" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="115" y="55" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="95" y="80" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="115" y="80" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="95" y="105" width="12" height="12" rx="2" fill="#FEF08A" stroke="#0F172A" strokeWidth="1.5" />
+                <rect x="115" y="105" width="12" height="12" rx="2" fill="#FFFFFF" stroke="#0F172A" strokeWidth="1.5" />
+
+                {/* Ground Line */}
+                <line x1="10" y1="190" x2="390" y2="190" stroke="#0F172A" strokeWidth="4" strokeLinecap="round" />
+
+                {/* The Organized Society Parcel Hub Building */}
+                <g transform="translate(160, 65)">
+                  {/* Roof with ParcelFlow sign */}
+                  <polygon points="10,40 110,10 210,40" fill="#F97316" stroke="#0F172A" strokeWidth="3" />
+                  <rect x="65" y="22" width="90" height="20" rx="4" fill="#FDE047" stroke="#0F172A" strokeWidth="2" />
+                  <text x="110" y="36" textAnchor="middle" fill="#0F172A" fontSize="9" fontWeight="900">PARCEL HUB 📦</text>
+
+                  {/* Hub Main Wall */}
+                  <rect x="20" y="40" width="180" height="85" fill="#FFFFFF" stroke="#0F172A" strokeWidth="3" />
+                  
+                  {/* The Colorful Parcel Racks Inside */}
+                  {/* Rack A (Amber) */}
+                  <rect x="30" y="50" width="45" height="70" rx="3" fill="#FEF3C7" stroke="#0F172A" strokeWidth="2" />
+                  <line x1="30" y1="72" x2="75" y2="72" stroke="#0F172A" strokeWidth="2" />
+                  <line x1="30" y1="95" x2="75" y2="95" stroke="#0F172A" strokeWidth="2" />
+                  {/* Parcels on Rack A */}
+                  <rect x="34" y="55" width="16" height="14" rx="2" fill="#FB923C" stroke="#0F172A" strokeWidth="1.5" />
+                  <rect x="53" y="58" width="18" height="11" rx="2" fill="#F472B6" stroke="#0F172A" strokeWidth="1.5" />
+                  <rect x="34" y="78" width="18" height="14" rx="2" fill="#38BDF8" stroke="#0F172A" strokeWidth="1.5" />
+                  <rect x="54" y="80" width="17" height="12" rx="2" fill="#FBBF24" stroke="#0F172A" strokeWidth="1.5" />
+
+                  {/* Rack B (Sky Blue) */}
+                  <rect x="85" y="50" width="45" height="70" rx="3" fill="#E0F2FE" stroke="#0F172A" strokeWidth="2" />
+                  <line x1="85" y1="72" x2="130" y2="72" stroke="#0F172A" strokeWidth="2" />
+                  <line x1="85" y1="95" x2="130" y2="95" stroke="#0F172A" strokeWidth="2" />
+                  {/* Parcels on Rack B */}
+                  <rect x="89" y="56" width="18" height="13" rx="2" fill="#34D399" stroke="#0F172A" strokeWidth="1.5" />
+                  <rect x="90" y="77" width="17" height="15" rx="2" fill="#FB923C" stroke="#0F172A" strokeWidth="1.5" />
+                  <rect x="109" y="79" width="18" height="13" rx="2" fill="#F472B6" stroke="#0F172A" strokeWidth="1.5" />
+
+                  {/* Security Intake Desk */}
+                  <rect x="140" y="80" width="50" height="45" rx="4" fill="#3B82F6" stroke="#0F172A" strokeWidth="2.5" />
+                  <text x="165" y="105" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold">SCANNER</text>
+
+                  {/* Friendly Security Officer Guard */}
+                  <circle cx="165" cy="62" r="12" fill="#FED7AA" stroke="#0F172A" strokeWidth="2" />
+                  <path d="M153 60 C153 50 177 50 177 60 Z" fill="#1E3A8A" stroke="#0F172A" strokeWidth="1.5" />
+                  <circle cx="162" cy="62" r="1.5" fill="#0F172A" />
+                  <circle cx="168" cy="62" r="1.5" fill="#0F172A" />
+                  <path d="M163 66 Q165 69 167 66" stroke="#0F172A" strokeWidth="1" />
+                </g>
+
+                {/* Society Gate Boom Barrier */}
+                <rect x="350" y="150" width="16" height="40" rx="3" fill="#475569" stroke="#0F172A" strokeWidth="2" />
+                {/* Striped Boom Barrier */}
+                <line x1="358" y1="160" x2="280" y2="160" stroke="#EF4444" strokeWidth="6" strokeLinecap="round" />
+                <line x1="340" y1="160" x2="330" y2="160" stroke="#FFFFFF" strokeWidth="6" />
+                <line x1="315" y1="160" x2="305" y2="160" stroke="#FFFFFF" strokeWidth="6" />
+
+                {/* Cute Courier handing over parcel */}
+                <g transform="translate(230, 140)">
+                  <ellipse cx="25" cy="50" rx="20" ry="4" fill="#0F172A" opacity="0.2" />
+                  <circle cx="20" cy="15" r="10" fill="#FED7AA" stroke="#0F172A" strokeWidth="2" />
+                  <path d="M12 12 C12 6 28 6 28 12 Z" fill="#DC2626" stroke="#0F172A" strokeWidth="1.5" />
+                  {/* Delivery bag */}
+                  <rect x="5" y="24" width="30" height="24" rx="4" fill="#EA580C" stroke="#0F172A" strokeWidth="2" />
+                  {/* Smiling Face */}
+                  <circle cx="18" cy="15" r="1.2" fill="#0F172A" />
+                  <circle cx="23" cy="15" r="1.2" fill="#0F172A" />
+                  <path d="M19 19 Q21 21 23 19" stroke="#0F172A" strokeWidth="1" />
+                </g>
+
+                {/* Floating Hub Sticker */}
+                <g transform="translate(20, 205)">
+                  <rect width="130" height="26" rx="6" fill="#86EFAC" stroke="#0F172A" strokeWidth="2" />
+                  <text x="65" y="17" textAnchor="middle" fill="#0F172A" fontSize="9" fontWeight="900">Zero Corridor Clutter ✓</text>
+                </g>
+              </svg>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between text-xs font-bold text-slate-700">
+              <span>Gate Intercom Load: <strong className="text-emerald-700">Reduced by 92%</strong></span>
+              <span>Guard Intake Speed: <strong className="text-blue-700">8 Sec / Parcel</strong></span>
+            </div>
           </div>
 
-          {/* Metric 2 */}
-          <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 backdrop-blur-md relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span>Collected</span>
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-emerald-400 font-mono tracking-tight group-hover:scale-105 transition-transform origin-left">
-              {counts.collected}
-            </div>
-            <div className="text-[11px] text-slate-400 mt-2">
-              <span className="text-emerald-400 font-medium">70.1%</span> cleared from hub
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500/60" />
-          </div>
-
-          {/* Metric 3 */}
-          <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 backdrop-blur-md relative overflow-hidden group hover:border-indigo-500/50 transition-all">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span>Scheduled</span>
-              <Clock className="w-4 h-4 text-indigo-400" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-indigo-300 font-mono tracking-tight">
-              {counts.scheduled}
-            </div>
-            <div className="text-[11px] text-slate-400 mt-2">
-              Pickups booked for 6PM - 10PM
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-500/60" />
-          </div>
-
-          {/* Metric 4 */}
-          <div className="rounded-2xl bg-slate-900/80 border border-slate-800 p-6 backdrop-blur-md relative overflow-hidden group hover:border-amber-500/50 transition-all">
-            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">
-              <span>Pending Action</span>
-              <AlertTriangle className="w-4 h-4 text-amber-400" />
-            </div>
-            <div className="text-4xl sm:text-5xl font-black text-amber-300 font-mono tracking-tight">
-              {counts.pending}
-            </div>
-            <div className="text-[11px] text-slate-400 mt-2">
-              Awaiting resident selection
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/60" />
-          </div>
-        </div>
-
-        {/* Society Admin & Guard Live Hub Preview */}
-        <div className="rounded-3xl bg-slate-900/90 border border-slate-800/90 p-6 sm:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-          {/* Top Control Bar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <h3 className="text-xl font-bold text-white tracking-tight">
-                  Prestige Green Oaks — Gate Hub 1 Terminal
-                </h3>
+          {/* Right: Interactive Society Parcel Hub Terminal */}
+          <div className="lg:col-span-6 space-y-5">
+            {/* Live Counters */}
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-amber-100 rounded-2xl p-4 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-center">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">{scannedCount}</div>
+                <div className="text-[11px] font-black uppercase text-amber-900 mt-1">Parcels Today</div>
               </div>
-              <p className="text-xs text-slate-400">
-                Staff On Duty: Supervisor Ramakant S. • Connected to Society Cloud Database
-              </p>
+
+              <div className="bg-emerald-100 rounded-2xl p-4 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-center">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">62</div>
+                <div className="text-[11px] font-black uppercase text-emerald-900 mt-1">Collected</div>
+              </div>
+
+              <div className="bg-sky-100 rounded-2xl p-4 border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] text-center">
+                <div className="text-2xl sm:text-3xl font-black text-slate-900">25</div>
+                <div className="text-[11px] font-black uppercase text-sky-900 mt-1">Scheduled</div>
+              </div>
             </div>
 
-            {/* Quick Action Button */}
-            <div className="flex items-center gap-3">
+            {/* Interactive Rack Browser Box */}
+            <div className="bg-white rounded-3xl p-6 border-3 border-slate-900 shadow-[5px_5px_0px_#0F172A]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <Boxes className="w-5 h-5 text-amber-500" />
+                    <span>Live Society Rack Manager</span>
+                  </h3>
+                  <p className="text-xs font-semibold text-slate-600">Select a rack to see organized parcel inventory</p>
+                </div>
+
+                {/* Simulate Quick Scan Button */}
+                <button
+                  type="button"
+                  onClick={handleSimulateScan}
+                  disabled={isScanning}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-900 text-xs font-black border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] active:translate-y-0.5 transition-all flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-slate-900" />
+                  <span>{isScanning ? 'Scanning...' : '+ Inbound Scan'}</span>
+                </button>
+              </div>
+
+              {/* Rack Selector Tabs */}
+              <div className="flex gap-2 mb-4">
+                {(['A', 'B', 'C'] as const).map((rack) => (
+                  <button
+                    key={rack}
+                    type="button"
+                    onClick={() => setActiveRack(rack)}
+                    className={`flex-1 py-2 px-3 rounded-xl text-xs font-black border-2 border-slate-900 transition-all ${
+                      activeRack === rack
+                        ? 'bg-amber-300 text-slate-900 shadow-[2px_2px_0px_#0F172A] -translate-y-0.5'
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    Rack {rack}
+                  </button>
+                ))}
+              </div>
+
+              {/* Parcels List for Selected Rack */}
+              <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+                {racksData[activeRack].parcels.map((parcel) => (
+                  <div
+                    key={parcel.id}
+                    className="p-3 bg-slate-50 rounded-xl border-2 border-slate-900 flex items-center justify-between hover:bg-amber-50/60 transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-white border-2 border-slate-900 flex items-center justify-center font-black text-xs text-slate-900">
+                        📦
+                      </div>
+                      <div>
+                        <div className="text-xs font-black text-slate-900">{parcel.flat}</div>
+                        <div className="text-[11px] font-semibold text-slate-600">
+                          {parcel.carrier} • In at {parcel.time}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="px-2 py-1 text-[11px] font-black rounded-lg bg-emerald-100 text-emerald-800 border border-slate-900">
+                      {parcel.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Society RWA Pilot Callout */}
+            <div className="bg-amber-300 rounded-2xl p-5 border-2 border-slate-900 shadow-[4px_4px_0px_#0F172A] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <h4 className="text-sm font-black text-slate-900">Are you an RWA Member or Society Manager?</h4>
+                <p className="text-xs font-semibold text-slate-800 mt-0.5">We set up the entire parcel station with hardware and staff training in under 48 hours.</p>
+              </div>
               <button
                 type="button"
-                disabled={isScanning}
-                onClick={handleSimulateScan}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs sm:text-sm shadow-lg shadow-blue-600/30 transition-all disabled:opacity-50"
+                onClick={() => onOpenPilotModal ? onOpenPilotModal() : alert('Join Pilot: contact@parcelflow.in')}
+                className="shrink-0 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs border-2 border-slate-900 shadow-[2px_2px_0px_#FFFFFF] hover:-translate-y-0.5 transition-all"
               >
-                <QrCode className="w-4 h-4" />
-                <span>{isScanning ? 'Scanning Barcode...' : '+ Quick Inbound Scan'}</span>
+                Join Society Pilot →
               </button>
             </div>
+
           </div>
 
-          {/* Notification banner on scan */}
-          {scanSuccess && (
-            <div className="my-4 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between animate-fadeIn">
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                New parcel scanned into Bay E-01! Resident notified via push & WhatsApp.
-              </span>
-              <span className="font-mono text-[11px] text-emerald-400">Time: 1.1s</span>
-            </div>
-          )}
-
-          {/* Search & Filter Toolbar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 my-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search flat (e.g. Tower B), tracking ID, courier..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-              />
-            </div>
-
-            {/* Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-              {(['all', 'collected', 'scheduled', 'pending'] as const).map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize border transition-all ${
-                    activeFilter === filter
-                      ? 'bg-blue-600/20 text-blue-300 border-blue-500/40'
-                      : 'bg-slate-950/60 text-slate-400 border-slate-800 hover:text-slate-200'
-                  }`}
-                >
-                  {filter} ({filter === 'all' ? counts.today : counts[filter]})
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Data Table */}
-          <div className="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/60">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-900/90 text-slate-400 font-mono uppercase text-[10px] tracking-wider border-b border-slate-800">
-                <tr>
-                  <th className="py-3 px-4">Tracking Code</th>
-                  <th className="py-3 px-4">Destination Flat</th>
-                  <th className="py-3 px-4">Carrier</th>
-                  <th className="py-3 px-4">Hub Storage Bay</th>
-                  <th className="py-3 px-4">Intake Time</th>
-                  <th className="py-3 px-4">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {filteredParcels.map((parcel) => (
-                  <tr key={parcel.id} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3 px-4 font-mono font-medium text-blue-400">
-                      {parcel.trackingId}
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-white">
-                      {parcel.flat}
-                    </td>
-                    <td className="py-3 px-4 text-slate-300">
-                      {parcel.courier}
-                    </td>
-                    <td className="py-3 px-4 font-mono text-slate-400">
-                      {parcel.bay}
-                    </td>
-                    <td className="py-3 px-4 text-slate-400 font-mono">
-                      {parcel.timeIn}
-                    </td>
-                    <td className="py-3 px-4">
-                      {parcel.status === 'collected' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-medium">
-                          <CheckCircle2 className="w-3 h-3" /> Collected
-                        </span>
-                      )}
-                      {parcel.status === 'scheduled' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[11px] font-medium">
-                          <Clock className="w-3 h-3" /> Scheduled {parcel.scheduledTime}
-                        </span>
-                      )}
-                      {parcel.status === 'pending' && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px] font-medium">
-                          <AlertTriangle className="w-3 h-3" /> Pending Selection
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 3 Society Key Value Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 pt-8 border-t border-slate-800/80">
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">Zero Lost Parcel Disputes</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Every parcel is scanned upon delivery. Tamper-evident OTP or QR handover ensures zero claims of "I never received my package."
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-                <Building2 className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">80% Less Gate Congestion</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Delivery vans drop off batches at the parcel hub in under 3 minutes, instead of wandering through internal lanes or jamming the entry barrier.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3.5">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
-                <FileSpreadsheet className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-white mb-1">Automated Security Audit Trails</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Complete digital chain of custody. Society RWA committee and security heads can export PDF/Excel logs with one click.
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
+
       </div>
     </section>
   );
 };
 
 export default SocietySection;
-
