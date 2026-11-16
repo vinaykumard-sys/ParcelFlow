@@ -32,7 +32,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const [iosSubmitted, setIosSubmitted] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
 
-  const sha256Checksum = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+  const sha256Checksum = "9d7069714dddac3177c8e3b504c45fc9d17bb1ac9809c99303a7a7b53283829a";
 
   const handleCopyHash = () => {
     navigator.clipboard.writeText(sha256Checksum);

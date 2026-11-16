@@ -142,6 +142,28 @@ export interface User {
   updated_at: string;
 }
 
+export type ProfileRole = 'resident' | 'staff' | 'admin';
+
+export interface Profile {
+  id: string; // references auth.users(id)
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  role: ProfileRole;
+  society_id: string | null;
+  avatar_url?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface AuthSessionResponse {
+  user: any | null;
+  session: any | null;
+  profile: Profile | null;
+  isAdmin: boolean;
+  error?: string | null;
+}
+
 export interface Resident {
   id: string;
   user_id: string;
@@ -393,6 +415,11 @@ export interface SocietyDashboardKPIs {
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: Profile;
+        Insert: Omit<Profile, 'created_at' | 'updated_at'> & { created_at?: string; updated_at?: string };
+        Update: Partial<Profile>;
+      };
       societies: {
         Row: Society;
         Insert: Omit<Society, 'id' | 'created_at' | 'updated_at'> & { id?: string; created_at?: string; updated_at?: string };
