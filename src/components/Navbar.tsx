@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
           </a>
 
           {/* Center: Clean Nav Links in font-semibold text-slate-800 hover:text-blue-600 */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-6 xl:gap-8">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.name}

@@ -73,13 +73,13 @@ export const Hero: React.FC = () => {
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-6 lg:gap-12 items-center">
           
           {/* ================= LEFT COLUMN (Matches User's Reference Artwork) ================= */}
-          <div className="lg:col-span-5 space-y-6 text-center lg:text-left z-10">
+          <div className="md:col-span-5 space-y-6 text-center md:text-left z-10">
             
             {/* Playful Green Brush Badge with Yellow Burst Lines */}
-            <div className="inline-flex items-center justify-center lg:justify-start">
+            <div className="inline-flex items-center justify-center md:justify-start">
               <div className="relative inline-flex items-center group cursor-default select-none">
                 {/* Left Burst Rays */}
                 <div className="absolute -left-6 -top-2.5 w-6 h-6 pointer-events-none text-amber-400">
@@ -122,11 +122,11 @@ export const Hero: React.FC = () => {
             </p>
 
             {/* Buttons: Download App → and ▷ How It Works */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
               {/* Royal Blue Pill: Download App → */}
               <a
                 href="/download"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-[#1D4ED8] hover:bg-blue-600 text-white font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 lg:px-8 py-3.5 lg:py-4 rounded-full bg-[#1D4ED8] hover:bg-blue-600 text-white font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
               >
                 <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
                 <span>Download App</span>
@@ -136,7 +136,7 @@ export const Hero: React.FC = () => {
               {/* White Pill with Black Border: ▷ How It Works */}
               <a
                 href="#how-it-works"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-full bg-white hover:bg-amber-50 text-[#0A1128] font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 lg:px-7 py-3.5 lg:py-4 rounded-full bg-white hover:bg-amber-50 text-[#0A1128] font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
               >
                 <div className="w-6 h-6 rounded-full bg-slate-100 border border-[#0A1128] flex items-center justify-center group-hover:bg-amber-200 transition-colors">
                   <Play className="w-3 h-3 fill-[#0A1128] text-[#0A1128] translate-x-0.5" />
@@ -146,7 +146,7 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Hand-drawn Orange Curved Arrow pointing down */}
-            <div className="flex items-center justify-center lg:justify-start gap-3 pt-1">
+            <div className="flex items-center justify-center md:justify-start gap-3 pt-1">
               <svg 
                 className="w-10 h-8 text-orange-500 -rotate-6" 
                 viewBox="0 0 44 32" 
@@ -167,7 +167,7 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Flying Cardboard Package with Speed Lines (Bottom Left) */}
-            <div className="pt-2 flex items-center justify-center lg:justify-start">
+            <div className="pt-2 flex items-center justify-center md:justify-start">
               <div className="flex items-center gap-3.5 px-4 py-2.5 rounded-2xl bg-white border-2 border-[#0A1128] shadow-[3px_3px_0px_#0A1128]">
                 {/* Speed Lines */}
                 <div className="flex flex-col gap-1 items-end opacity-80">
@@ -204,7 +204,7 @@ export const Hero: React.FC = () => {
           </div>
 
           {/* ================= RIGHT COLUMN (Rider Scene & Interactive Timing Layout) ================= */}
-          <div className="lg:col-span-7 relative flex flex-col items-center">
+          <div className="md:col-span-7 relative flex flex-col items-center">
             
             {/* The Main Illustration Canvas (Full-Bleed, Seamless Warm Cream) */}
             <div className="relative w-full max-w-[620px] select-none">
