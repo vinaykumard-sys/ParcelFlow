@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://parcelflow.in/sitemap.xml
