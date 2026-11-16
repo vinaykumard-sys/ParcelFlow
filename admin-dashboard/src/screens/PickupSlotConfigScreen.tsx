@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock, Sliders, CheckCircle2, AlertTriangle, ShieldCheck, Power, Users } from 'lucide-react';
 import { Sticker } from '../components/Sticker';
 import { adminService } from '../services/adminService';
@@ -11,6 +11,10 @@ interface PickupSlotConfigScreenProps {
 export const PickupSlotConfigScreen: React.FC<PickupSlotConfigScreenProps> = ({ refreshTrigger }) => {
   const [slots, setSlots] = useState<PickupWindowSlotConfig[]>(adminService.getPickupSlots());
   const [saveToast, setSaveToast] = useState(false);
+
+  useEffect(() => {
+    setSlots(adminService.getPickupSlots());
+  }, [refreshTrigger]);
 
   const activeSociety = adminService.getActiveSociety();
 

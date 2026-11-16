@@ -14,20 +14,34 @@ export const AddResidentModal: React.FC<AddResidentModalProps> = ({ isOpen, onCl
   const [email, setEmail] = useState('');
   const [tower, setTower] = useState('Tower A');
   const [flatNumber, setFlatNumber] = useState('');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !flatNumber) return;
+    if (!name.trim() || !flatNumber.trim()) {
+      setErrorMsg('Resident name and flat number are required.');
+      return;
+    }
+    if (phone.replace(/\D/g, '').length < 10) {
+      setErrorMsg('Please enter a valid 10-digit mobile number.');
+      return;
+    }
 
     adminService.addResident({
-      name,
-      phone,
-      email: email || `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim() || `${name.trim().toLowerCase().replace(/\s+/g, '.')}@example.com`,
       tower,
-      flat_number: flatNumber,
+      flat_number: flatNumber.trim().toUpperCase(),
     });
+
+    setName('');
+    setPhone('+91 ');
+    setEmail('');
+    setFlatNumber('');
+    setErrorMsg(null);
     onSuccess();
   };
 
@@ -50,6 +64,12 @@ export const AddResidentModal: React.FC<AddResidentModalProps> = ({ isOpen, onCl
             <p className="text-xs font-semibold text-slate-600">Register resident in society directory</p>
           </div>
         </div>
+
+        {errorMsg && (
+          <div className="mb-3 p-2.5 rounded-xl bg-rose-100 border-2 border-rose-500 text-rose-950 text-xs font-bold">
+            {errorMsg}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>

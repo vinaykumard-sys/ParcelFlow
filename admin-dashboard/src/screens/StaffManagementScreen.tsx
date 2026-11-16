@@ -14,6 +14,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({ re
   const [newStaffName, setNewStaffName] = useState('');
   const [newStaffPhone, setNewStaffPhone] = useState('+91 98450 ');
   const [newStaffRole, setNewStaffRole] = useState<'HUB_OPERATOR' | 'SECURITY_GUARD' | 'SUPERVISOR' | 'MAINTENANCE'>('HUB_OPERATOR');
+  const [localUpdate, setLocalUpdate] = useState(0);
 
   const staffList = adminService.getStaff();
   const activeSociety = adminService.getActiveSociety();
@@ -24,6 +25,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({ re
 
   const handleToggleStatus = (id: string) => {
     adminService.toggleStaffStatus(id);
+    setLocalUpdate((v) => v + 1);
   };
 
   const handleCreateStaff = (e: React.FormEvent) => {
@@ -39,6 +41,7 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({ re
 
     setNewStaffName('');
     setShowAddForm(false);
+    setLocalUpdate((v) => v + 1);
   };
 
   return (
@@ -217,6 +220,12 @@ export const StaffManagementScreen: React.FC<StaffManagementScreenProps> = ({ re
           </div>
         ))}
       </div>
+
+      {filteredStaff.length === 0 && (
+        <div className="p-12 text-center text-slate-500 font-semibold text-xs rounded-2xl bg-white border-2 border-[#0A1128]">
+          No staff members found matching the selected filter.
+        </div>
+      )}
     </div>
   );
 };

@@ -3,7 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://czhxktgdrhdflmfmvggx.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_EjBHVFvH5qL7_WcZhQZmew_IeEtie5K';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
 
 export interface PilotRequestData {
   society_name: string;
@@ -18,6 +24,13 @@ export interface PilotRequestData {
 
 export async function submitPilotRequest(data: PilotRequestData) {
   try {
+    if (!data.society_name?.trim() || !data.contact_name?.trim()) {
+      return { success: false, error: 'Society name and contact name are required.' };
+    }
+    if (!data.contact_phone?.trim() || data.contact_phone.replace(/\D/g, '').length < 10) {
+      return { success: false, error: 'Valid 10-digit mobile number required.' };
+    }
+
     const { data: record, error } = await supabase
       .from('pilot_requests')
       .insert([
@@ -30,23 +43,27 @@ export async function submitPilotRequest(data: PilotRequestData) {
 
     if (error) {
       console.warn('Supabase pilot_requests insert notice:', error.message);
-      // Even if table does not exist yet in Supabase, return success flag so user gets feedback
       return { success: true, localOnly: true, record };
     }
     return { success: true, record };
-  } catch (err) {
+  } catch (err: any) {
     console.warn('Supabase client error:', err);
-    return { success: true, localOnly: true };
+    return { success: true, localOnly: true, error: err?.message };
   }
 }
 
 export async function submitWaitlistEmail(email: string, platform: 'android' | 'ios' | 'general' = 'general') {
   try {
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      return { success: false, error: 'Valid email address required.' };
+    }
+
     const { data: record, error } = await supabase
       .from('waitlist')
       .insert([
         {
-          email,
+          email: trimmed,
           platform,
           created_at: new Date().toISOString(),
         },
@@ -58,9 +75,9 @@ export async function submitWaitlistEmail(email: string, platform: 'android' | '
       return { success: true, localOnly: true, record };
     }
     return { success: true, record };
-  } catch (err) {
+  } catch (err: any) {
     console.warn('Supabase waitlist error:', err);
-    return { success: true, localOnly: true };
+    return { success: true, localOnly: true, error: err?.message };
   }
 }
 
@@ -106,15 +123,26 @@ export async function signUpWithEmail(
   societyId?: string
 ): Promise<AuthSessionResponse> {
   try {
+    if (!email || !email.trim()) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Email address is required.' };
+    }
     const cleanEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Please enter a valid email address.' };
+    }
+    if (!password || password.length < 6) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Password must be at least 6 characters long.' };
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
       password,
       options: {
         data: {
-          full_name: fullName || cleanEmail.split('@')[0],
-          name: fullName || cleanEmail.split('@')[0],
-          phone: phone || null,
+          full_name: fullName?.trim() || cleanEmail.split('@')[0],
+          name: fullName?.trim() || cleanEmail.split('@')[0],
+          phone: phone?.trim() || null,
           society_id: societyId || null,
         },
       },
@@ -127,12 +155,12 @@ export async function signUpWithEmail(
     const user = data.user;
     const session = data.session;
     let profile: Profile | null = null;
-    let isAdmin = cleanEmail === 'vinaykumard45678@gmail.com';
+    let isAdmin = false;
 
     if (user) {
       const profileRes = await getCurrentUserProfile();
       profile = profileRes.profile;
-      isAdmin = profileRes.isAdmin || isAdmin;
+      isAdmin = profileRes.isAdmin;
     }
 
     return { user, session, profile, isAdmin, error: null };
@@ -149,7 +177,14 @@ export async function signInWithEmail(
   password: string
 ): Promise<AuthSessionResponse> {
   try {
+    if (!email || !email.trim()) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Email address is required.' };
+    }
     const cleanEmail = email.trim().toLowerCase();
+    if (!password) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Password is required.' };
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: cleanEmail,
       password,
@@ -162,12 +197,12 @@ export async function signInWithEmail(
     const user = data.user;
     const session = data.session;
     let profile: Profile | null = null;
-    let isAdmin = cleanEmail === 'vinaykumard45678@gmail.com';
+    let isAdmin = false;
 
     if (user) {
       const profileRes = await getCurrentUserProfile();
       profile = profileRes.profile;
-      isAdmin = profileRes.isAdmin || isAdmin;
+      isAdmin = profileRes.isAdmin;
     }
 
     return { user, session, profile, isAdmin, error: null };
@@ -181,7 +216,7 @@ export async function signInWithEmail(
  */
 export async function signInWithGoogle(redirectTo?: string): Promise<{ data: any; error: string | null }> {
   try {
-    const targetUrl = redirectTo || (typeof window !== 'undefined' ? window.location.origin : undefined);
+    const targetUrl = redirectTo || (typeof window !== 'undefined' ? `${window.location.origin}/admin` : undefined);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -200,6 +235,9 @@ export async function signInWithGoogle(redirectTo?: string): Promise<{ data: any
  */
 export async function signInWithPhoneOtp(phone: string): Promise<{ data: any; error: string | null }> {
   try {
+    if (!phone || !phone.trim() || phone.trim().replace(/\D/g, '').length < 10) {
+      return { data: null, error: 'A valid phone number with at least 10 digits is required.' };
+    }
     const cleanPhone = phone.trim();
     const { data, error } = await supabase.auth.signInWithOtp({
       phone: cleanPhone,
@@ -219,6 +257,9 @@ export async function verifyPhoneOtp(
   token: string
 ): Promise<AuthSessionResponse> {
   try {
+    if (!phone || !phone.trim() || !token || !token.trim()) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Phone number and OTP code are required.' };
+    }
     const cleanPhone = phone.trim();
     const cleanToken = token.trim();
     const { data, error } = await supabase.auth.verifyOtp({
@@ -250,7 +291,7 @@ export async function verifyPhoneOtp(
 
 /**
  * Get current authenticated user and linked public.profiles record
- * Never relies on email alone; associates authenticated auth.uid() with profiles.id.
+ * Never relies on client email alone; associates authenticated auth.uid() with profiles.id.
  */
 export async function getCurrentUserProfile(): Promise<{
   user: any | null;
@@ -258,16 +299,15 @@ export async function getCurrentUserProfile(): Promise<{
   isAdmin: boolean;
 }> {
   try {
+    // 1. Authenticate with Supabase Auth (cryptographically verifies session token)
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return { user: null, profile: null, isAdmin: false };
     }
 
-    const userEmail = (user.email || '').toLowerCase().trim();
-    const isOwnerEmail = userEmail === 'vinaykumard45678@gmail.com';
-
-    // Query profiles table by primary key (auth.uid() = profiles.id)
+    // 2. Strict DB query: auth.uid() = profiles.id
+    // Admin privilege CANNOT be granted by email string or localStorage manipulation alone
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -276,17 +316,20 @@ export async function getCurrentUserProfile(): Promise<{
 
     if (!profileError && profileData) {
       const profile = profileData as Profile;
-      const isAdmin = profile.role === 'admin' || isOwnerEmail;
+      // Admin privilege is strictly determined by profiles.role in the database
+      const isAdmin = profile.role === 'admin';
       return { user, profile, isAdmin };
     }
 
-    // Fallback: If trigger hasn't fired yet or table query failed, synthesize profile from auth.user
+    // Fallback: If profile row is still syncing, synthesize a default non-admin resident profile
+    // Note: Never elevate to admin without verified DB record
+    const userEmail = (user.email || '').toLowerCase().trim();
     const fallbackProfile: Profile = {
       id: user.id,
       full_name: (user.user_metadata?.full_name || user.user_metadata?.name || userEmail.split('@')[0] || 'ParcelFlow User'),
       email: userEmail || null,
       phone: user.phone || user.user_metadata?.phone || null,
-      role: isOwnerEmail ? 'admin' : (user.user_metadata?.role === 'staff' ? 'staff' : 'resident'),
+      role: 'resident',
       society_id: user.user_metadata?.society_id || null,
       avatar_url: user.user_metadata?.avatar_url || null,
       created_at: user.created_at || new Date().toISOString(),
@@ -296,7 +339,7 @@ export async function getCurrentUserProfile(): Promise<{
     return {
       user,
       profile: fallbackProfile,
-      isAdmin: fallbackProfile.role === 'admin' || isOwnerEmail,
+      isAdmin: false,
     };
   } catch (err) {
     console.warn('getCurrentUserProfile error:', err);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Sidebar } from './components/Sidebar';
 import { SplashScreen } from './screens/SplashScreen';
@@ -37,12 +37,21 @@ export const App: React.FC = () => {
 
   const forceRefresh = () => setRefreshTrigger((prev) => prev + 1);
 
+  // Sync with live Supabase database on mount & on society switches
+  useEffect(() => {
+    adminService.syncFromSupabase().then(() => {
+      forceRefresh();
+    });
+  }, []);
+
   const handleRoleChanged = (role: UserRole) => {
     forceRefresh();
   };
 
   const handleSelectSociety = (societyId: string) => {
-    forceRefresh();
+    adminService.syncFromSupabase().then(() => {
+      forceRefresh();
+    });
   };
 
   return (

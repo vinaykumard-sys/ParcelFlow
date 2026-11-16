@@ -1,4 +1,5 @@
 import React from 'react';
+import { useModal } from '../context/ModalContext';
 import { 
   Download, 
   Building2, 
@@ -16,6 +17,8 @@ interface FinalCTAProps {
 }
 
 export const FinalCTA: React.FC<FinalCTAProps> = ({ onOpenPilotModal }) => {
+  const { openModal } = useModal();
+  const handleOpen = onOpenPilotModal || (() => openModal('pilot'));
   return (
     <section className="relative py-24 sm:py-32 bg-[#FEF9F3] text-[#0A1128] overflow-hidden border-t-2 border-[#0A1128]">
       {/* Background Decorative polka dots */}
@@ -73,7 +76,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onOpenPilotModal }) => {
 
           <button
             type="button"
-            onClick={() => onOpenPilotModal ? onOpenPilotModal() : alert('Pilot inquiry: pilot@parcelflow.in')}
+            onClick={handleOpen}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-amber-300 hover:bg-amber-200 text-[#0A1128] font-black text-base border-2 border-[#0A1128] shadow-[4px_4px_0px_#0A1128] hover:-translate-y-1 hover:shadow-[6px_6px_0px_#0A1128] transition-all"
           >
             <Building2 className="w-5 h-5 text-[#0A1128]" />

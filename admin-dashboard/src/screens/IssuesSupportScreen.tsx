@@ -13,6 +13,7 @@ export const IssuesSupportScreen: React.FC<IssuesSupportScreenProps> = ({ refres
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [resolutionNote, setResolutionNote] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [localUpdate, setLocalUpdate] = useState(0);
 
   const issues = adminService.getIssues();
   const activeSociety = adminService.getActiveSociety();
@@ -30,12 +31,14 @@ export const IssuesSupportScreen: React.FC<IssuesSupportScreenProps> = ({ refres
     setSelectedIssue(null);
     setResolutionNote('');
     setToastMessage('Issue resolved successfully.');
+    setLocalUpdate((v) => v + 1);
     setTimeout(() => setToastMessage(null), 2500);
   };
 
   const handleStatusChange = (id: string, newStatus: IssueStatus) => {
     adminService.updateIssueStatus(id, newStatus);
     setToastMessage(`Status updated to ${newStatus}`);
+    setLocalUpdate((v) => v + 1);
     setTimeout(() => setToastMessage(null), 2000);
   };
 
@@ -144,6 +147,12 @@ export const IssuesSupportScreen: React.FC<IssuesSupportScreenProps> = ({ refres
           </div>
         ))}
       </div>
+
+      {filteredIssues.length === 0 && (
+        <div className="p-12 text-center text-slate-500 font-semibold text-xs rounded-2xl bg-white border-2 border-[#0A1128]">
+          No tickets found matching this filter.
+        </div>
+      )}
 
       {/* Resolve Issue Modal */}
       {selectedIssue && (

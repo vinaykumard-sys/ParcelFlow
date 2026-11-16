@@ -15,19 +15,28 @@ export const ReceiveParcelModal: React.FC<ReceiveParcelModalProps> = ({ isOpen, 
   const [flatNumber, setFlatNumber] = useState('A-402');
   const [category, setCategory] = useState('ELECTRONICS');
   const [storageCode, setStorageCode] = useState('A3');
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!residentName.trim() || !flatNumber.trim() || !trackingNumber.trim()) {
+      setErrorMsg('All fields marked with an asterisk are required.');
+      return;
+    }
+
     adminService.receiveParcel({
-      tracking_number: trackingNumber,
+      tracking_number: trackingNumber.trim().toUpperCase(),
       courier_company: courier,
-      resident_name: residentName,
-      flat_number: flatNumber,
+      resident_name: residentName.trim(),
+      flat_number: flatNumber.trim().toUpperCase(),
       category,
       storage_code: storageCode,
     });
+
+    setTrackingNumber(`PF-${Math.floor(1000 + Math.random() * 9000)}-IN`);
+    setErrorMsg(null);
     onSuccess();
   };
 
@@ -50,6 +59,12 @@ export const ReceiveParcelModal: React.FC<ReceiveParcelModalProps> = ({ isOpen, 
             <p className="text-xs font-semibold text-slate-600">Society Intake Counter • Gate 2 Hub</p>
           </div>
         </div>
+
+        {errorMsg && (
+          <div className="mb-4 p-2.5 rounded-xl bg-rose-100 border-2 border-rose-500 text-rose-950 text-xs font-bold">
+            {errorMsg}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

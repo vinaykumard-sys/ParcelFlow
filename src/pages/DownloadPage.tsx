@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { submitWaitlistEmail } from '../utils/supabase';
+import { useModal } from '../context/ModalContext';
 import { 
   Download, 
   Smartphone, 
@@ -27,6 +28,8 @@ interface DownloadPageProps {
 }
 
 export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) => {
+  const { openModal } = useModal();
+  const handleOpenPilot = onOpenPilotModal || (() => openModal('pilot'));
   const [copiedHash, setCopiedHash] = useState(false);
   const [iosEmail, setIosEmail] = useState('');
   const [iosSubmitted, setIosSubmitted] = useState(false);
@@ -90,14 +93,12 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
             <span>
               <strong>Pilot Community Release:</strong> Preferred MVP architecture active in partner apartment societies. Single APK with automated role-based navigation.
             </span>
-            {onOpenPilotModal && (
-              <button
-                onClick={onOpenPilotModal}
-                className="ml-auto underline font-black text-blue-700 hover:text-blue-900 shrink-0"
-              >
-                Request Pilot →
-              </button>
-            )}
+            <button
+              onClick={handleOpenPilot}
+              className="ml-auto underline font-black text-blue-700 hover:text-blue-900 shrink-0"
+            >
+              Request Pilot →
+            </button>
           </div>
         </div>
 
@@ -137,7 +138,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
               <div className="p-3 rounded-xl bg-amber-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">APK Size</div>
-                <div className="text-sm font-black text-[#0A1128] mt-0.5">18.4 MB</div>
+                <div className="text-sm font-black text-[#0A1128] mt-0.5">2.0 MB</div>
               </div>
               <div className="p-3 rounded-xl bg-emerald-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">Architecture</div>

@@ -1,51 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { PilotModal } from './PilotModal';
+import { useModal } from '../context/ModalContext';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [modalState, setModalState] = useState<{
-    isOpen: boolean;
-    type: 'pilot' | 'society_login' | 'resident_login' | 'download_app';
-  }>({
-    isOpen: false,
-    type: 'pilot',
-  });
-
-  const handleOpenModal = (type: 'pilot' | 'society_login' | 'resident_login' | 'download_app') => {
-    setModalState({ isOpen: true, type });
-  };
-
-  const handleCloseModal = () => {
-    setModalState((prev) => ({ ...prev, isOpen: false }));
-  };
+  const { isOpen, type, openModal, closeModal } = useModal();
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-[#0F172A] flex flex-col font-sans selection:bg-amber-400 selection:text-[#0F172A] relative">
-      <Navbar onOpenModal={handleOpenModal} />
+      <Navbar onOpenModal={openModal} />
       
       <main className="flex-1 pt-20">
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement(child)) {
-            return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, { 
-              onOpenModal: handleOpenModal,
-              onOpenPilotModal: () => handleOpenModal('pilot')
-            });
-          }
-          return child;
-        })}
+        {children}
       </main>
 
-      <Footer onOpenModal={handleOpenModal} />
+      <Footer onOpenModal={openModal} />
 
       <PilotModal
-        isOpen={modalState.isOpen}
-        type={modalState.type}
-        onClose={handleCloseModal}
+        isOpen={isOpen}
+        type={type}
+        onClose={closeModal}
       />
     </div>
   );

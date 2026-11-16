@@ -8,11 +8,12 @@ export const BRAND = {
 };
 
 export const NAV_LINKS = [
-  { name: 'How It Works', href: '#how-it-works' },
-  { name: 'Features', href: '#features' },
-  { name: 'For Residents', href: '#residents' },
-  { name: 'For Societies', href: '#societies' },
-  { name: 'FAQ', href: '#faq' },
+  { name: 'How It Works', href: '/how-it-works' },
+  { name: 'Features', href: '/features' },
+  { name: 'For Residents', href: '/#residents' },
+  { name: 'For Societies', href: '/#societies' },
+  { name: 'Download App', href: '/download' },
+  { name: 'FAQ', href: '/faq' },
 ];
 
 export const SOCIAL_LINKS = [

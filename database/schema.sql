@@ -21,18 +21,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Helper to safely extract current auth user role
+-- Helper to safely extract current auth user role (checking public.profiles first, then public.users)
 CREATE OR REPLACE FUNCTION get_current_user_role()
 RETURNS TEXT AS $$
 DECLARE
     v_role TEXT;
 BEGIN
+    -- 1. Check modern profiles table
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
+        SELECT role INTO v_role
+        FROM public.profiles
+        WHERE id = auth.uid();
+
+        IF v_role IS NOT NULL THEN
+            RETURN UPPER(v_role);
+        END IF;
+    END IF;
+
+    -- 2. Fallback to public.users
     SELECT role INTO v_role
     FROM public.users
     WHERE auth_user_id = auth.uid() OR id = auth.uid()
     LIMIT 1;
 
-    RETURN COALESCE(v_role, 'ANONYMOUS');
+    RETURN COALESCE(UPPER(v_role), 'ANONYMOUS');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -335,11 +347,8 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
-DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
-DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 CREATE TRIGGER trg_log_parcel_status AFTER INSERT OR UPDATE ON public.parcels
     FOR EACH ROW EXECUTE FUNCTION log_parcel_status_change();

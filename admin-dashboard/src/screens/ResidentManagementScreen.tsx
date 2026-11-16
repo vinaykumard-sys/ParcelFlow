@@ -12,6 +12,7 @@ interface ResidentManagementScreenProps {
 export const ResidentManagementScreen: React.FC<ResidentManagementScreenProps> = ({ onOpenAddModal, refreshTrigger }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [towerFilter, setTowerFilter] = useState<'ALL' | 'Tower A' | 'Tower B' | 'Tower C'>('ALL');
+  const [localUpdate, setLocalUpdate] = useState(0);
   const residents = adminService.getResidents();
   const activeSociety = adminService.getActiveSociety();
 
@@ -29,6 +30,7 @@ export const ResidentManagementScreen: React.FC<ResidentManagementScreenProps> =
 
   const handleToggleStatus = (id: string) => {
     adminService.toggleResidentStatus(id);
+    setLocalUpdate((v) => v + 1);
   };
 
   const handleExportCSV = () => {

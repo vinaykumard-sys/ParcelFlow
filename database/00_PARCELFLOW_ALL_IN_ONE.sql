@@ -30,18 +30,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Helper to safely extract current auth user role
+-- Helper to safely extract current auth user role (checking public.profiles first, then public.users)
 CREATE OR REPLACE FUNCTION get_current_user_role()
 RETURNS TEXT AS $$
 DECLARE
     v_role TEXT;
 BEGIN
+    -- 1. Check modern profiles table
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
+        SELECT role INTO v_role
+        FROM public.profiles
+        WHERE id = auth.uid();
+
+        IF v_role IS NOT NULL THEN
+            RETURN UPPER(v_role);
+        END IF;
+    END IF;
+
+    -- 2. Fallback to public.users
     SELECT role INTO v_role
     FROM public.users
     WHERE auth_user_id = auth.uid() OR id = auth.uid()
     LIMIT 1;
 
-    RETURN COALESCE(v_role, 'ANONYMOUS');
+    RETURN COALESCE(UPPER(v_role), 'ANONYMOUS');
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -344,11 +356,8 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
-DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
-DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 DROP TRIGGER IF EXISTS trg_log_parcel_status ON public.parcels;
 CREATE TRIGGER trg_log_parcel_status AFTER INSERT OR UPDATE ON public.parcels
     FOR EACH ROW EXECUTE FUNCTION log_parcel_status_change();
@@ -1003,6 +1012,9 @@ BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.profiles
         WHERE id = auth.uid() AND role = 'admin'
+    ) OR EXISTS (
+        SELECT 1 FROM public.users
+        WHERE (auth_user_id = auth.uid() OR id = auth.uid()) AND UPPER(role) = 'ADMIN'
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
@@ -1014,6 +1026,9 @@ BEGIN
     RETURN EXISTS (
         SELECT 1 FROM public.profiles
         WHERE id = auth.uid() AND role IN ('staff', 'admin')
+    ) OR EXISTS (
+        SELECT 1 FROM public.users
+        WHERE (auth_user_id = auth.uid() OR id = auth.uid()) AND UPPER(role) IN ('STAFF', 'ADMIN')
     );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
@@ -1252,6 +1267,29 @@ CREATE TRIGGER trg_prevent_role_elevation
     BEFORE UPDATE ON public.profiles
     FOR EACH ROW EXECUTE FUNCTION public.prevent_role_elevation();
 
+-- Also guard legacy public.users against unauthorized role modifications
+CREATE OR REPLACE FUNCTION public.prevent_user_role_elevation()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.role IS DISTINCT FROM OLD.role THEN
+        IF NOT public.is_admin() THEN
+            RAISE EXCEPTION 'Access Denied: You do not have permission to alter user roles.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'users') THEN
+        DROP TRIGGER IF EXISTS trg_prevent_user_role_elevation ON public.users;
+        CREATE TRIGGER trg_prevent_user_role_elevation
+            BEFORE UPDATE ON public.users
+            FOR EACH ROW EXECUTE FUNCTION public.prevent_user_role_elevation();
+    END IF;
+END $$;
+
 -- ============================================================================
 -- 6. ROW LEVEL SECURITY (RLS) POLICIES
 -- ============================================================================
@@ -1355,8 +1393,16 @@ CREATE POLICY "Residents update own parcel delivery notes" ON public.parcels
         )
     )
     WITH CHECK (
-        -- Residents can only schedule or add notes; cannot arbitrarily mark handed over
-        status IN ('CREATED', 'RECEIVED', 'STORED', 'NOTIFIED', 'SCHEDULED', 'READY_FOR_PICKUP')
+        (
+            resident_id = auth.uid()
+            OR resident_id IN (
+                SELECT r.id FROM public.residents r 
+                WHERE r.user_id = auth.uid() 
+                   OR r.user_id IN (SELECT u.id FROM public.users u WHERE u.auth_user_id = auth.uid())
+            )
+            OR public.is_admin()
+        )
+        AND status IN ('CREATED', 'RECEIVED', 'STORED', 'NOTIFIED', 'SCHEDULED', 'READY_FOR_PICKUP')
     );
 
 -- ----------------------------------------------------------------------------
@@ -1492,6 +1538,10 @@ CREATE POLICY "Residents view and create pickup bookings" ON public.pickup_booki
             WHERE r.user_id = auth.uid() 
                OR r.user_id IN (SELECT u.id FROM public.users u WHERE u.auth_user_id = auth.uid())
         )
+        OR (
+            pickup_slot_id IN (SELECT ps.id FROM public.pickup_slots ps WHERE ps.society_id = public.get_auth_society_id())
+            AND public.is_staff()
+        )
         OR public.is_admin()
     );
 
@@ -1505,6 +1555,20 @@ CREATE POLICY "Residents view own handover tokens" ON public.handover_tokens
             WHERE r.user_id = auth.uid() 
                OR r.user_id IN (SELECT u.id FROM public.users u WHERE u.auth_user_id = auth.uid())
         )
+        OR public.is_admin()
+    );
+
+DROP POLICY IF EXISTS "Residents create own handover tokens" ON public.handover_tokens;
+CREATE POLICY "Residents create own handover tokens" ON public.handover_tokens
+    FOR INSERT TO authenticated
+    WITH CHECK (
+        resident_id = auth.uid()
+        OR resident_id IN (
+            SELECT r.id FROM public.residents r 
+            WHERE r.user_id = auth.uid() 
+               OR r.user_id IN (SELECT u.id FROM public.users u WHERE u.auth_user_id = auth.uid())
+        )
+        OR public.is_staff()
         OR public.is_admin()
     );
 

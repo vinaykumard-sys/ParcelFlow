@@ -8,7 +8,6 @@ export default defineConfig({
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),
       'lucide-react': path.resolve(import.meta.dirname, './src/lucide-shim.ts'),
-      'gsap': path.resolve(import.meta.dirname, './node_modules/gsap/index.js'),
       'gsap': path.resolve(import.meta.dirname, './src/gsap-shim.ts'),
     },
   },

@@ -662,6 +662,28 @@ class AdminServiceStore {
     };
     this.residents.unshift(newResident);
     this.logAudit('residents', newResident.id, 'ADD_RESIDENT', newResident);
+
+    // Persist to Supabase if accessible
+    try {
+      (supabase.from('residents') as any)
+        .insert([
+          {
+            id: newResident.id,
+            society_id: newResident.society_id,
+            apartment_id: newResident.apartment_id,
+            phone: newResident.phone,
+            is_active: true,
+            is_primary: true,
+            created_at: newResident.created_at,
+          },
+        ])
+        .then(({ error }: any) => {
+          if (error) console.warn('Supabase residents insert notice:', error.message);
+        });
+    } catch (e) {
+      console.warn('Supabase resident insert exception:', e);
+    }
+
     return newResident;
   }
 
@@ -670,6 +692,18 @@ class AdminServiceStore {
     if (res) {
       res.is_active = !res.is_active;
       this.logAudit('residents', residentId, 'TOGGLE_STATUS', { is_active: res.is_active });
+
+      try {
+        (supabase.from('residents') as any)
+          .update({ is_active: res.is_active })
+          .eq('id', residentId)
+          .then(({ error }: any) => {
+            if (error) console.warn('Supabase toggle resident notice:', error.message);
+          });
+      } catch (e) {
+        console.warn('Supabase toggle resident exception:', e);
+      }
+
       return res.is_active;
     }
     return false;
@@ -709,6 +743,28 @@ class AdminServiceStore {
     this.staff.unshift(newStaff);
     this.kpis.activeStaffCount = this.staff.filter((s) => s.is_active).length;
     this.logAudit('staff', newStaff.id, 'ADD_STAFF', newStaff);
+
+    try {
+      (supabase.from('staff') as any)
+        .insert([
+          {
+            id: newStaff.id,
+            society_id: newStaff.society_id,
+            badge_number: newStaff.badge_number,
+            designation: newStaff.designation,
+            role_type: newStaff.role_type,
+            shift_timings: newStaff.shift_timings,
+            is_active: true,
+            created_at: newStaff.created_at,
+          },
+        ])
+        .then(({ error }: any) => {
+          if (error) console.warn('Supabase staff insert notice:', error.message);
+        });
+    } catch (e) {
+      console.warn('Supabase staff insert exception:', e);
+    }
+
     return newStaff;
   }
 
@@ -718,6 +774,18 @@ class AdminServiceStore {
       member.is_active = !member.is_active;
       this.kpis.activeStaffCount = this.staff.filter((s) => s.is_active).length;
       this.logAudit('staff', staffId, 'TOGGLE_STAFF_STATUS', { is_active: member.is_active });
+
+      try {
+        (supabase.from('staff') as any)
+          .update({ is_active: member.is_active })
+          .eq('id', staffId)
+          .then(({ error }: any) => {
+            if (error) console.warn('Supabase toggle staff notice:', error.message);
+          });
+      } catch (e) {
+        console.warn('Supabase toggle staff exception:', e);
+      }
+
       return member.is_active;
     }
     return false;
@@ -870,6 +938,52 @@ class AdminServiceStore {
     });
 
     this.logAudit('parcels', newParcel.id, 'RECEIVE_PARCEL', newParcel);
+
+    // Persist parcel and token to Supabase
+    try {
+      (supabase.from('parcels') as any)
+        .insert([
+          {
+            id: newParcel.id,
+            tracking_number: newParcel.tracking_number,
+            carrier_name: newParcel.courier_company,
+            society_id: newParcel.society_id,
+            apartment_id: newParcel.apartment_id,
+            resident_id: newParcel.resident_id,
+            status: newParcel.status,
+            description: newParcel.description,
+            category: newParcel.category,
+            received_at: newParcel.received_at,
+            created_at: newParcel.created_at,
+          },
+        ])
+        .then(({ error }: any) => {
+          if (error) console.warn('Supabase parcel insert notice:', error.message);
+        });
+
+      if (newParcel.active_token) {
+        (supabase.from('handover_tokens') as any)
+          .insert([
+            {
+              id: newParcel.active_token.id,
+              parcel_id: newParcel.id,
+              resident_id: newParcel.resident_id,
+              token_code: newParcel.active_token.token_code,
+              otp_code: newParcel.active_token.otp_code,
+              qr_code_data: newParcel.active_token.qr_code_data,
+              status: 'ACTIVE',
+              expires_at: newParcel.active_token.expires_at,
+              created_at: newParcel.active_token.created_at,
+            },
+          ])
+          .then(({ error }: any) => {
+            if (error) console.warn('Supabase token insert notice:', error.message);
+          });
+      }
+    } catch (e) {
+      console.warn('Supabase parcel persist exception:', e);
+    }
+
     return newParcel;
   }
 
@@ -925,6 +1039,32 @@ class AdminServiceStore {
         otp: cleanOtp,
         parcel: parcel.tracking_number,
       });
+
+      // Persist handover in Supabase
+      try {
+        (supabase.from('parcels') as any)
+          .update({
+            status: 'COMPLETED',
+            handover_at: parcel.handover_at,
+          })
+          .eq('tracking_number', parcel.tracking_number)
+          .then(({ error }: any) => {
+            if (error) console.warn('Supabase handover parcel update notice:', error.message);
+          });
+
+        (supabase.from('handover_tokens') as any)
+          .update({
+            status: 'USED',
+            verified_at: new Date().toISOString(),
+          })
+          .eq('otp_code', cleanOtp)
+          .then(({ error }: any) => {
+            if (error) console.warn('Supabase token update notice:', error.message);
+          });
+      } catch (e) {
+        console.warn('Supabase verify handover exception:', e);
+      }
+
       return { success: true, parcel, message: `OTP ${cleanOtp} Verified! Handover Authorized.` };
     }
 
@@ -977,6 +1117,28 @@ class AdminServiceStore {
     };
     this.notifications.unshift(notif);
     this.logAudit('notifications', notif.id, 'BROADCAST_ALERT', notif);
+
+    try {
+      (supabase.from('notifications') as any)
+        .insert([
+          {
+            id: notif.id,
+            society_id: notif.society_id,
+            type: notif.type,
+            title: notif.title,
+            body: notif.body,
+            channel: notif.channel,
+            status: notif.status,
+            created_at: notif.created_at,
+          },
+        ])
+        .then(({ error }: any) => {
+          if (error) console.warn('Supabase notification insert notice:', error.message);
+        });
+    } catch (e) {
+      console.warn('Supabase notification exception:', e);
+    }
+
     return notif;
   }
 
@@ -992,6 +1154,23 @@ class AdminServiceStore {
       iss.resolved_at = new Date().toISOString();
       iss.updated_at = new Date().toISOString();
       this.logAudit('issues', issueId, 'RESOLVE_ISSUE', { notes });
+
+      try {
+        (supabase.from('issues') as any)
+          .update({
+            status: 'RESOLVED',
+            resolution_notes: notes,
+            resolved_at: iss.resolved_at,
+            updated_at: iss.updated_at,
+          })
+          .eq('id', issueId)
+          .then(({ error }: any) => {
+            if (error) console.warn('Supabase resolve issue notice:', error.message);
+          });
+      } catch (e) {
+        console.warn('Supabase resolve issue exception:', e);
+      }
+
       return true;
     }
     return false;
@@ -1036,6 +1215,109 @@ class AdminServiceStore {
       created_at: new Date().toISOString(),
     };
     this.auditLogs.unshift(log);
+
+    try {
+      (supabase.from('audit_logs') as any)
+        .insert([
+          {
+            id: log.id,
+            society_id: log.society_id,
+            user_id: log.user_id,
+            entity_type: log.entity_type,
+            entity_id: log.entity_id,
+            action: log.action,
+            payload: log.payload,
+            ip_address: log.ip_address,
+            user_agent: log.user_agent,
+            created_at: log.created_at,
+          },
+        ])
+        .then(({ error }: any) => {
+          if (error) console.warn('Supabase audit log insert notice:', error.message);
+        });
+    } catch (e) {
+      console.warn('Supabase audit log insert exception:', e);
+    }
+  }
+
+  /**
+   * Synchronize real records from live Supabase tables
+   */
+  async syncFromSupabase(): Promise<{ success: boolean; syncedTables: string[]; error?: string }> {
+    const syncedTables: string[] = [];
+    try {
+      // 1. Societies
+      const { data: dbSocieties, error: socErr } = await (supabase.from('societies') as any)
+        .select('*')
+        .eq('is_active', true);
+      if (!socErr && dbSocieties && dbSocieties.length > 0) {
+        this.societies = dbSocieties as Society[];
+        syncedTables.push('societies');
+      }
+
+      // 2. Parcels with relations
+      const { data: dbParcels, error: pkgErr } = await (supabase.from('parcels') as any)
+        .select(`
+          *,
+          apartment:apartments(*),
+          resident:residents(*, user:users(*)),
+          storage_location:storage_locations(*),
+          active_token:handover_tokens(*)
+        `)
+        .eq('society_id', this.activeSociety.id);
+      if (!pkgErr && dbParcels && dbParcels.length > 0) {
+        this.parcels = dbParcels.map((p: any) => ({
+          ...p,
+          courier_company: p.carrier_name || 'Courier',
+          recipient_name_on_package: p.resident?.user?.full_name || 'Resident',
+          notes: p.description || '',
+        }));
+        syncedTables.push('parcels');
+      }
+
+      // 3. Residents
+      const { data: dbResidents, error: resErr } = await (supabase.from('residents') as any)
+        .select('*, user:users(*), apartment:apartments(*)')
+        .eq('society_id', this.activeSociety.id);
+      if (!resErr && dbResidents && dbResidents.length > 0) {
+        this.residents = dbResidents as AdminResident[];
+        syncedTables.push('residents');
+      }
+
+      // 4. Staff
+      const { data: dbStaff, error: stfErr } = await (supabase.from('staff') as any)
+        .select('*, user:users(*)')
+        .eq('society_id', this.activeSociety.id);
+      if (!stfErr && dbStaff && dbStaff.length > 0) {
+        this.staff = dbStaff as AdminStaff[];
+        syncedTables.push('staff');
+      }
+
+      // 5. Notifications
+      const { data: dbNotifs, error: notifErr } = await (supabase.from('notifications') as any)
+        .select('*')
+        .eq('society_id', this.activeSociety.id)
+        .order('created_at', { ascending: false });
+      if (!notifErr && dbNotifs && dbNotifs.length > 0) {
+        this.notifications = dbNotifs as Notification[];
+        syncedTables.push('notifications');
+      }
+
+      // 6. Issues
+      const { data: dbIssues, error: issueErr } = await (supabase.from('issues') as any)
+        .select('*')
+        .eq('society_id', this.activeSociety.id)
+        .order('created_at', { ascending: false });
+      if (!issueErr && dbIssues && dbIssues.length > 0) {
+        this.issues = dbIssues as Issue[];
+        syncedTables.push('issues');
+      }
+
+      return { success: true, syncedTables };
+    } catch (err: any) {
+      console.warn('Sync from Supabase notice:', err?.message || err);
+      return { success: false, syncedTables, error: err?.message };
+    }
   }
 }
 

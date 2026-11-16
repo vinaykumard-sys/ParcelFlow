@@ -14,12 +14,16 @@ import { FutureVision } from '../components/FutureVision';
 import { DownloadCTA } from '../components/DownloadCTA';
 import { FAQ } from '../components/FAQ';
 import { FinalCTA } from '../components/FinalCTA';
+import { useModal } from '../context/ModalContext';
 
 interface HomeProps {
   onOpenPilotModal?: () => void;
 }
 
 export const Home: React.FC<HomeProps> = ({ onOpenPilotModal }) => {
+  const { openModal } = useModal();
+  const handleOpenPilot = onOpenPilotModal || (() => openModal('pilot'));
+
   return (
     <div className="relative min-h-screen bg-[#FEF9F3] text-[#0A1128] selection:bg-amber-300 selection:text-[#0A1128]">
       {/* 1. Hero Section */}
@@ -59,13 +63,13 @@ export const Home: React.FC<HomeProps> = ({ onOpenPilotModal }) => {
       <FutureVision />
 
       {/* 13. High-Impact Download App Card */}
-      <DownloadCTA onOpenPilotModal={onOpenPilotModal} />
+      <DownloadCTA onOpenPilotModal={handleOpenPilot} />
 
       {/* 14. Expandable FAQ Accordion */}
       <FAQ limit={6} showCategories={false} showSearch={false} />
 
       {/* 15. Final Call-to-Action */}
-      <FinalCTA onOpenPilotModal={onOpenPilotModal} />
+      <FinalCTA onOpenPilotModal={handleOpenPilot} />
     </div>
   );
 };

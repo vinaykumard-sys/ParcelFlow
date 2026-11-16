@@ -448,12 +448,21 @@ export const PilotModal: React.FC<PilotModalProps> = ({ isOpen, type, onClose })
                     💡 <strong>Demo Mode:</strong> Leave blank or enter any password to view the simulated RWA Command Dashboard.
                   </div>
 
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 px-4 rounded-xl font-black text-sm bg-emerald-400 hover:bg-emerald-300 text-[#0F172A] border-[2.5px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
-                  >
-                    Enter RWA Command Center
-                  </button>
+                  <div className="flex flex-col gap-2 pt-1">
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 px-4 rounded-xl font-black text-sm bg-emerald-400 hover:bg-emerald-300 text-[#0F172A] border-[2.5px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+                    >
+                      Enter RWA Command Center (Demo)
+                    </button>
+                    <a
+                      href="/admin"
+                      className="w-full text-center py-2.5 px-4 rounded-xl font-black text-xs bg-blue-600 hover:bg-blue-500 text-white border-[2.5px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A] flex items-center justify-center gap-1.5 hover:-translate-y-0.5 transition-all"
+                    >
+                      <span>Launch Full Admin Console App (/admin)</span>
+                      <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                    </a>
+                  </div>
                 </form>
               </>
             ) : (
@@ -493,15 +502,24 @@ export const PilotModal: React.FC<PilotModalProps> = ({ isOpen, type, onClose })
                   </div>
                 </div>
 
-                <button
-                  onClick={() => {
-                    setSocietyLoggedIn(false);
-                    onClose();
-                  }}
-                  className="w-full py-2.5 bg-white hover:bg-slate-100 border-2 border-[#0F172A] shadow-[2.5px_2.5px_0px_#0F172A] text-xs font-black rounded-xl text-[#0F172A]"
-                >
-                  Close Console
-                </button>
+                <div className="flex flex-col gap-2 pt-1">
+                  <a
+                    href="/admin"
+                    className="w-full text-center py-2.5 px-4 rounded-xl font-black text-xs bg-blue-600 hover:bg-blue-500 text-white border-[2px] border-[#0F172A] shadow-[2.5px_2.5px_0px_#0F172A] flex items-center justify-center gap-1.5"
+                  >
+                    <span>Open Full Production Admin (/admin)</span>
+                    <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                  </a>
+                  <button
+                    onClick={() => {
+                      setSocietyLoggedIn(false);
+                      onClose();
+                    }}
+                    className="w-full py-2 bg-white hover:bg-slate-100 border-2 border-[#0F172A] shadow-[2px_2px_0px_#0F172A] text-xs font-black rounded-xl text-[#0F172A]"
+                  >
+                    Close Console
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -526,12 +544,30 @@ export const PilotModal: React.FC<PilotModalProps> = ({ isOpen, type, onClose })
                 <QrCode className="w-28 h-28 text-[#0F172A]" />
               </div>
               <p className="text-[11px] font-bold text-slate-600 mt-2">
-                Scan with your smartphone camera to install iOS & Android build
+                Scan with smartphone camera to open download link directly
               </p>
             </div>
 
+            <div className="flex flex-col gap-2">
+              <a
+                href="/downloads/android/ParcelFlow.apk"
+                download="ParcelFlow.apk"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-black text-xs sm:text-sm bg-blue-600 hover:bg-blue-500 text-white border-[2.5px] border-[#0F172A] shadow-[3px_3px_0px_#0F172A] hover:-translate-y-0.5 transition-all"
+              >
+                <span>Direct Download Android APK (2.0 MB)</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </a>
+              <a
+                href="/download"
+                onClick={onClose}
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 underline mt-1"
+              >
+                View APK Details, iOS Status & Checksum →
+              </a>
+            </div>
+
             {!smsSent ? (
-              <form onSubmit={handleSendSms} className="flex gap-2">
+              <form onSubmit={handleSendSms} className="flex gap-2 pt-2">
                 <input
                   type="tel"
                   required
@@ -542,7 +578,7 @@ export const PilotModal: React.FC<PilotModalProps> = ({ isOpen, type, onClose })
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white border-2 border-[#0F172A] shadow-[2.5px_2.5px_0px_#0F172A] rounded-xl text-xs font-black whitespace-nowrap hover:-translate-y-0.5 transition-all"
+                  className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-[#0F172A] border-2 border-[#0F172A] shadow-[2.5px_2.5px_0px_#0F172A] rounded-xl text-xs font-black whitespace-nowrap hover:-translate-y-0.5 transition-all"
                 >
                   Text Link
                 </button>

@@ -53,7 +53,9 @@ export const Hero: React.FC = () => {
     e.preventDefault();
     const formatted = `${customHour} – ${customHour.replace(/(\d+):(\d+)/, (_, h, m) => {
       const min = parseInt(m, 10) + 30;
-      return min >= 60 ? `${(parseInt(h, 10) % 12) + 1}:00` : `${h}:${min}`;
+      const nextHour = min >= 60 ? ((parseInt(h, 10) % 12) + 1) : parseInt(h, 10);
+      const nextMin = min >= 60 ? min - 60 : min;
+      return `${String(nextHour).padStart(2, '0')}:${String(nextMin).padStart(2, '0')}`;
     })}`;
     setSelectedSlot(formatted);
     setCustomTimeOpen(false);
