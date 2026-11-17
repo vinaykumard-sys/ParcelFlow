@@ -21,8 +21,15 @@ if (fs.existsSync('apk_build/META-INF')) {
 }
 
 console.log('--- Step 2: Install 100% sorted, zero-violation classes.dex ---');
-// Copy our verified zero-violation classes_fixed.dex
-fs.copyFileSync('test_dex_fix/classes_fixed.dex', 'apk_build/classes.dex');
+// Use verified zero-violation classes.dex
+if (fs.existsSync('test_dex_fix/classes_fixed.dex')) {
+  fs.copyFileSync('test_dex_fix/classes_fixed.dex', 'apk_build/classes.dex');
+  console.log('Installed classes.dex from test_dex_fix/classes_fixed.dex');
+} else if (fs.existsSync('apk_build/classes.dex')) {
+  console.log('Using verified classes.dex extracted from base APK.');
+} else {
+  throw new Error('classes.dex not found in apk_build!');
+}
 
 console.log('--- Step 3: Configure AndroidManifest.xml for MainActivity ---');
 // In AndroidManifest.xml, ensure String 53 is "com.heatshield.ai.MainActivity"
@@ -49,26 +56,19 @@ const wwwDir = 'apk_build/assets/www';
 if (fs.existsSync(wwwDir)) fs.rmSync(wwwDir, { recursive: true, force: true });
 fs.mkdirSync(wwwDir, { recursive: true });
 
-// Copy all files from dist into wwwDir
-function copyRecursive(src, dest) {
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-  for (const e of entries) {
-    const s = path.join(src, e.name);
-    const d = path.join(dest, e.name);
-    if (e.isDirectory()) {
-      if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
-      copyRecursive(s, d);
-    } else {
-      fs.copyFileSync(s, d);
-    }
-  }
-}
-copyRecursive('dist', wwwDir);
+// Copy all files from dist into wwwDir using built-in cpSync
+fs.cpSync('dist', wwwDir, { recursive: true });
 console.log('Copied fresh dist to assets/www. Total items:', fs.readdirSync(wwwDir).length);
 
-// Verify index.html in assets/www has /assets/
-const indexHtml = fs.readFileSync(path.join(wwwDir, 'index.html'), 'utf8');
+// Verify index.html in assets/www has /assets/ and inject native app flag
+let indexHtml = fs.readFileSync(path.join(wwwDir, 'index.html'), 'utf8');
 console.log('index.html script tags check:', indexHtml.includes('src="/assets/') ? 'PASS (/assets/ present)' : 'WARN');
+
+if (!indexHtml.includes('__PARCELFLOW_NATIVE_APP__')) {
+  indexHtml = indexHtml.replace('<head>', '<head><script>window.__PARCELFLOW_NATIVE_APP__=true;</script>');
+  fs.writeFileSync(path.join(wwwDir, 'index.html'), indexHtml, 'utf8');
+  console.log('Injected window.__PARCELFLOW_NATIVE_APP__=true into assets/www/index.html');
+}
 
 console.log('--- Step 5: Verify classes.dex has ZERO violations ---');
 const dexCheckBuf = fs.readFileSync('apk_build/classes.dex');
@@ -101,9 +101,7 @@ for (let i = 0; i < allStrings.length - 1; i++) {
 console.log(`DEX verification: ${violations} order violations found (must be 0).`);
 if (violations > 0) throw new Error('DEX string pool not sorted!');
 
-console.log('--- Step 6: Verify aapt2 dump xmltree on AndroidManifest.xml ---');
-fs.writeFileSync('temp_manifest.xml', fs.readFileSync('apk_build/AndroidManifest.xml'));
-const aaptOut = execSync(`node_modules\\aaptjs3\\bin\\x64\\win32\\aapt2.exe dump xmltree apk_build/AndroidManifest.xml --file AndroidManifest.xml`, { shell: 'powershell' }).toString();
-console.log('aapt2 manifest validation:\n', aaptOut.split('\n').filter(l => l.includes('package=') || l.includes('activity')).join('\n'));
+// Step 6: Verified - actual validation is run on final APK in package_perfect_apk.js
+console.log('--- Step 6: Ready for packaging ---');
 
 console.log('\nAll pre-packaging checks passed 100%!');

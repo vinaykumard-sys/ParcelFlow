@@ -12,7 +12,8 @@ import {
   Sparkles,
   Info,
   Calendar,
-  X
+  X,
+  Smartphone
 } from 'lucide-react';
 
 interface SlotOption {
@@ -122,25 +123,34 @@ export const Hero: React.FC = () => {
               Never miss a delivery again.
             </p>
 
-            {/* Buttons: Download App → and ▷ How It Works */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+            {/* Buttons: Launch App →, Download App → and ▷ How It Works */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
+              {/* Primary Mobile App Button */}
+              <a
+                href="/app"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 lg:px-7 py-3.5 lg:py-4 rounded-full bg-[#1E60F2] hover:bg-blue-600 text-white font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
+              >
+                <Smartphone className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span>Launch App</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+
               {/* Royal Blue Pill: Download App → */}
               <a
                 href="/download"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 lg:px-8 py-3.5 lg:py-4 rounded-full bg-[#1D4ED8] hover:bg-blue-600 text-white font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 lg:py-4 rounded-full bg-white hover:bg-slate-50 text-[#0A1128] font-bold text-base border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 transition-all group"
               >
-                <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
-                <span>Download App</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <Download className="w-4 h-4 text-[#1E60F2]" />
+                <span>APK (2.0 MB)</span>
               </a>
 
               {/* White Pill with Black Border: ▷ How It Works */}
               <a
                 href="#how-it-works"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 lg:px-7 py-3.5 lg:py-4 rounded-full bg-white hover:bg-amber-50 text-[#0A1128] font-extrabold text-base sm:text-lg border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0A1128] active:translate-y-0.5 active:shadow-[1px_1px_0px_#0A1128] transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 lg:py-4 rounded-full bg-white hover:bg-amber-50 text-[#0A1128] font-bold text-base border-2 border-[#0A1128] shadow-[3.5px_3.5px_0px_#0A1128] hover:-translate-y-0.5 transition-all group"
               >
-                <div className="w-6 h-6 rounded-full bg-slate-100 border border-[#0A1128] flex items-center justify-center group-hover:bg-amber-200 transition-colors">
-                  <Play className="w-3 h-3 fill-[#0A1128] text-[#0A1128] translate-x-0.5" />
+                <div className="w-5 h-5 rounded-full bg-slate-100 border border-[#0A1128] flex items-center justify-center group-hover:bg-amber-200 transition-colors">
+                  <Play className="w-2.5 h-2.5 fill-[#0A1128] text-[#0A1128] translate-x-0.5" />
                 </div>
                 <span>How It Works</span>
               </a>

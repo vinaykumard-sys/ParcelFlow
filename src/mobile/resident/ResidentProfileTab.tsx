@@ -1,0 +1,107 @@
+import React from 'react';
+import { User, Building, Phone, Mail, Shield, Bell, HelpCircle, LogOut, ChevronRight, Sparkles } from 'lucide-react';
+import { useMobileStore } from '../services/mobileState';
+
+interface ResidentProfileTabProps {
+  onLogout: () => void;
+  onSwitchRole: () => void;
+}
+
+export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout, onSwitchRole }) => {
+  const { selectedSociety } = useMobileStore();
+
+  return (
+    <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
+      <div className="px-5 pt-3 pb-3 border-b border-slate-200/60 bg-[#FEF9F3] sticky top-0 z-20">
+        <h1 className="text-base font-black text-[#060D1E] tracking-tight">Resident Profile</h1>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        {/* User Card */}
+        <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 flex items-center gap-3.5">
+          <div className="w-14 h-14 rounded-2xl bg-[#1E60F2] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center font-black text-white text-xl">
+            V
+          </div>
+          <div>
+            <h2 className="text-base font-black text-[#060D1E]">Vinay Kumar</h2>
+            <p className="text-xs font-bold text-slate-500">Flat B-402, {selectedSociety.name}</p>
+            <span className="inline-block mt-1 text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
+              Verified Resident
+            </span>
+          </div>
+        </div>
+
+        {/* Details List */}
+        <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] divide-y divide-slate-100 text-xs font-bold">
+          <div className="p-3 flex items-center justify-between">
+            <span className="text-slate-500 font-semibold flex items-center gap-2">
+              <Phone className="w-4 h-4 text-[#1E60F2]" /> Mobile
+            </span>
+            <span>+91 98765 00000</span>
+          </div>
+          <div className="p-3 flex items-center justify-between">
+            <span className="text-slate-500 font-semibold flex items-center gap-2">
+              <Mail className="w-4 h-4 text-[#1E60F2]" /> Email
+            </span>
+            <span className="truncate max-w-[180px]">vinaykumard45678@gmail.com</span>
+          </div>
+          <div className="p-3 flex items-center justify-between">
+            <span className="text-slate-500 font-semibold flex items-center gap-2">
+              <Building className="w-4 h-4 text-[#1E60F2]" /> Society
+            </span>
+            <span>{selectedSociety.name}</span>
+          </div>
+        </div>
+
+        {/* Role Switcher Action */}
+        <div className="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-[#1E60F2] shadow-[2px_2px_0px_#1E60F2]">
+          <div className="flex items-center gap-1.5 text-xs font-black text-[#1E60F2] mb-1">
+            <Sparkles className="w-4 h-4" />
+            <span>Switch Role Experience</span>
+          </div>
+          <p className="text-[11px] font-semibold text-slate-700 mb-2.5">
+            Test how ParcelFlow works from the Staff or Admin perspective.
+          </p>
+          <button
+            onClick={onSwitchRole}
+            className="w-full py-2.5 bg-[#1E60F2] hover:bg-blue-600 text-white font-black text-xs rounded-xl border border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+          >
+            <span>Open Staff & Admin Switcher</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Settings Links */}
+        <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] divide-y divide-slate-100 text-xs font-bold">
+          <button className="w-full p-3 flex items-center justify-between hover:bg-slate-50 text-left">
+            <span className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-slate-500" /> Notifications & Alerts
+            </span>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </button>
+          <button className="w-full p-3 flex items-center justify-between hover:bg-slate-50 text-left">
+            <span className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-slate-500" /> Security & Privacy
+            </span>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </button>
+          <button className="w-full p-3 flex items-center justify-between hover:bg-slate-50 text-left">
+            <span className="flex items-center gap-2">
+              <HelpCircle className="w-4 h-4 text-slate-500" /> Society Hub Help & FAQs
+            </span>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Logout */}
+        <button
+          onClick={onLogout}
+          className="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-black text-xs rounded-2xl border border-rose-300 flex items-center justify-center gap-2 transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Log Out</span>
+        </button>
+      </div>
+    </div>
+  );
+};

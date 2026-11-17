@@ -57,9 +57,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
             ))}
           </nav>
 
-          {/* Right Buttons: Portal Login (Pill Outline) & Download App (Royal Blue Pill) */}
-          <div className="hidden sm:flex items-center gap-3">
-            
+          {/* Right Buttons: Launch App, Portal Login & Download App */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            {/* Prominent Launch App Button */}
+            <a
+              href="/app"
+              className="flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-black text-white bg-[#1E60F2] hover:bg-blue-600 border-2 border-[#0A1128] rounded-full shadow-[2.5px_2.5px_0px_#0A1128] hover:-translate-y-0.5 active:translate-y-0.5 transition-all"
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>Launch App</span>
+            </a>
+
             {/* Portal Login (Pill Outline Button with User Icon) */}
             <div className="relative">
               <button
@@ -167,6 +175,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenModal }) => {
           </div>
 
           <div className="pt-2 flex flex-col gap-2.5">
+            <a
+              href="/app"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-black bg-[#1E60F2] text-white border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] rounded-full"
+            >
+              <Smartphone className="w-4 h-4 stroke-[2.5]" /> Launch Mobile App (Resident / Staff / Admin)
+            </a>
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
