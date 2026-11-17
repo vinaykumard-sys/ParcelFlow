@@ -13,8 +13,8 @@ export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
   onSwitchRole,
 }) => {
   const { selectedSociety, setSociety } = useMobileStore();
-  const [email, setEmail] = useState('staff@parcelflow.in');
-  const [password, setPassword] = useState('••••••••');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleLogin = (e?: React.FormEvent) => {
@@ -119,24 +119,7 @@ export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
             </button>
           </form>
 
-          {/* Quick Demo Staff Card */}
-          <div className="mt-5 p-3.5 bg-blue-50 rounded-2xl border-2 border-blue-400 shadow-[2px_2px_0px_#1E60F2]">
-            <div className="flex items-center gap-1.5 mb-1 text-xs font-black text-blue-950">
-              <Sparkles className="w-4 h-4 text-[#1E60F2]" />
-              <span>Quick One-Click Demo Staff</span>
-            </div>
-            <p className="text-[11px] text-blue-900 font-semibold mb-2.5">
-              Login as Ramesh K (Hub Security Operator, Greenview Heights).
-            </p>
-            <button
-              type="button"
-              onClick={() => handleLogin()}
-              className="w-full py-2.5 px-3 bg-[#060D1E] hover:bg-slate-800 text-white font-black text-xs rounded-xl border border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5"
-            >
-              <UserCheck className="w-3.5 h-3.5" />
-              <span>Launch as Ramesh K</span>
-            </button>
-          </div>
+          
         </div>
 
         <button

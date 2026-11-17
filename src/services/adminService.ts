@@ -65,83 +65,10 @@ const DEFAULT_PICKUP_SLOTS_CONFIG: PickupSlotConfigItem[] = [
 ];
 
 // Initial fallback residents
-const DEFAULT_RESIDENTS: AdminResidentView[] = [
-  {
-    id: 'res-001',
-    user_id: 'u-001',
-    society_id: 'a1111111-1111-1111-1111-111111111111',
-    apartment_id: 'apt-001',
-    flat_number: 'A-402',
-    tower: 'Tower A',
-    phone: '+91 98860 12345',
-    full_name: 'Arjun Kumar',
-    email: 'arjun.kumar@gmail.com',
-    is_primary: true,
-    is_active: true,
-    emergency_contact: '+91 98860 99991',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'res-002',
-    user_id: 'u-002',
-    society_id: 'a1111111-1111-1111-1111-111111111111',
-    apartment_id: 'apt-002',
-    flat_number: 'B-104',
-    tower: 'Tower B',
-    phone: '+91 98860 23456',
-    full_name: 'Priya Sharma',
-    email: 'priya.sharma@gmail.com',
-    is_primary: true,
-    is_active: true,
-    emergency_contact: '+91 98860 99992',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'res-003',
-    user_id: 'u-003',
-    society_id: 'a1111111-1111-1111-1111-111111111111',
-    apartment_id: 'apt-003',
-    flat_number: 'C-801',
-    tower: 'Tower C',
-    phone: '+91 98860 34567',
-    full_name: 'Rahul Verma',
-    email: 'rahul.verma@gmail.com',
-    is_primary: true,
-    is_active: true,
-    emergency_contact: '+91 98860 99993',
-    created_at: new Date().toISOString(),
-  },
-];
+const DEFAULT_RESIDENTS: AdminResidentView[] = [];
 
 // Initial fallback staff
-const DEFAULT_STAFF: AdminStaffView[] = [
-  {
-    id: 'stf-001',
-    user_id: 'u-s01',
-    society_id: 'a1111111-1111-1111-1111-111111111111',
-    badge_number: 'STAFF-LVR-01',
-    designation: 'Hub Supervisor',
-    shift: 'Evening (14:00 - 22:00)',
-    is_active: true,
-    full_name: 'Ramesh K',
-    email: 'ramesh.k@lakeview.org',
-    phone: '+91 97711 00101',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'stf-002',
-    user_id: 'u-s02',
-    society_id: 'a1111111-1111-1111-1111-111111111111',
-    badge_number: 'STAFF-LVR-02',
-    designation: 'Hub Operator',
-    shift: 'Evening (14:00 - 22:00)',
-    is_active: true,
-    full_name: 'Suresh P',
-    email: 'suresh.p@lakeview.org',
-    phone: '+91 97711 00102',
-    created_at: new Date().toISOString(),
-  },
-];
+const DEFAULT_STAFF: AdminStaffView[] = [];
 
 /**
  * Fetch list of all managed societies
@@ -242,39 +169,27 @@ export async function getSocietyStats(societyId: string): Promise<SocietyStats> 
       };
     }
 
-    // High fidelity default fallback matching system baseline
+    // Fresh empty baseline when no parcels exist in database
     return {
-      todayTotal: 87,
-      collectedCount: 61,
-      pendingCount: 8,
-      scheduledCount: 18,
-      collectionRate: 70.1,
-      storageCapacity: 112,
-      storageOccupied: 33,
-      hourlyDemand: [
-        { hour: '05:00 PM', intake: 12, pickups: 4 },
-        { hour: '06:00 PM', intake: 24, pickups: 18 },
-        { hour: '07:00 PM', intake: 19, pickups: 28 },
-        { hour: '08:00 PM', intake: 14, pickups: 35 },
-        { hour: '09:00 PM', intake: 8, pickups: 22 },
-        { hour: '10:00 PM', intake: 3, pickups: 5 },
-      ],
-      courierDistribution: [
-        { courier: 'Amazon', count: 33, percentage: 38 },
-        { courier: 'Blue Dart', count: 21, percentage: 24 },
-        { courier: 'Ekart', count: 17, percentage: 20 },
-        { courier: 'Delhivery', count: 16, percentage: 18 },
-      ],
+      todayTotal: 0,
+      collectedCount: 0,
+      pendingCount: 0,
+      scheduledCount: 0,
+      collectionRate: 0,
+      storageCapacity: storageCapacity,
+      storageOccupied: storageOccupied,
+      hourlyDemand: [],
+      courierDistribution: [],
     };
   } catch {
     return {
-      todayTotal: 87,
-      collectedCount: 61,
-      pendingCount: 8,
-      scheduledCount: 18,
-      collectionRate: 70.1,
+      todayTotal: 0,
+      collectedCount: 0,
+      pendingCount: 0,
+      scheduledCount: 0,
+      collectionRate: 0,
       storageCapacity: 112,
-      storageOccupied: 33,
+      storageOccupied: 0,
       hourlyDemand: [],
       courierDistribution: [],
     };

@@ -28,7 +28,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
             </div>
             <div>
               <h1 className="text-base font-black text-[#060D1E] leading-tight">
-                Good Morning, Ramesh 👋
+                Good Day, Hub Staff 👋
               </h1>
               <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
                 <span>{selectedSociety.name}</span>
@@ -53,7 +53,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-slate-500">Total Parcels</span>
               <Package className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">24</div>
+            <div className="text-2xl font-black text-[#060D1E]">{parcels.length}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">In Hub Today</div>
           </div>
 
@@ -62,7 +62,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-amber-600">Awaiting Storage</span>
               <Clock className="w-4 h-4 text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">12</div>
+            <div className="text-2xl font-black text-[#060D1E]">{parcels.filter(p => p.status === 'WAITING').length}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Needs Rack Assignment</div>
           </div>
 
@@ -71,7 +71,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-[#1E60F2]">Scheduled Today</span>
               <CheckCircle2 className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">8</div>
+            <div className="text-2xl font-black text-[#060D1E]">{parcels.filter(p => p.status === 'SCHEDULED').length}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Staged for Evening</div>
           </div>
 
@@ -80,7 +80,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-rose-600">Overdue (&gt;48h)</span>
               <AlertTriangle className="w-4 h-4 text-rose-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">4</div>
+            <div className="text-2xl font-black text-[#060D1E]">{parcels.filter(p => p.status === 'COLLECTED').length}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Reminder Triggered</div>
           </div>
         </div>
@@ -133,7 +133,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               <Package className="w-4 h-4 text-[#1E60F2]" />
               <div>
                 <p className="text-xs font-black">Parcel List</p>
-                <p className="text-[10px] text-slate-500 font-bold">24 in inventory</p>
+                <p className="text-[10px] text-slate-500 font-bold">{parcels.length} in inventory</p>
               </div>
             </button>
 

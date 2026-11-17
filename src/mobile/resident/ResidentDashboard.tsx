@@ -24,7 +24,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
 
   const waitingCount = residentParcels.filter((p) => p.status === 'WAITING').length;
   const scheduledCount = residentParcels.filter((p) => p.status === 'SCHEDULED').length;
-  const collectedCount = 12; // Matches prompt requirement "12 Collected"
+  const collectedCount = residentParcels.filter((p) => p.status === 'COLLECTED').length;
 
   const getCarrierColor = (carrier: string) => {
     switch (carrier.toLowerCase()) {
@@ -53,7 +53,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-base font-black text-[#060D1E] leading-tight">
-                  Good Evening, Vinay 👋
+                  Good Day 👋
                 </h1>
               </div>
               <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">

@@ -23,7 +23,7 @@ export const StaffProfileTab: React.FC<StaffProfileTabProps> = ({ onLogout, onSw
             R
           </div>
           <div>
-            <h2 className="text-base font-black text-[#060D1E]">Ramesh K</h2>
+            <h2 className="text-base font-black text-[#060D1E]">Hub Staff Operator</h2>
             <p className="text-xs font-bold text-slate-500">Security & Parcel Hub Operator</p>
             <span className="inline-block mt-1 text-[10px] font-black uppercase text-blue-800 bg-blue-100 border border-blue-300 px-2 py-0.5 rounded-full">
               {selectedSociety.name}
@@ -37,7 +37,7 @@ export const StaffProfileTab: React.FC<StaffProfileTabProps> = ({ onLogout, onSw
             <span className="text-slate-500 font-semibold flex items-center gap-2">
               <Phone className="w-4 h-4 text-[#1E60F2]" /> Mobile
             </span>
-            <span>+91 98450 12345</span>
+            <span>+91 98000 00000</span>
           </div>
           <div className="p-3 flex items-center justify-between">
             <span className="text-slate-500 font-semibold flex items-center gap-2">

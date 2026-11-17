@@ -17,10 +17,8 @@ export const StaffAssignResident: React.FC<StaffAssignResidentProps> = ({
   onNext,
 }) => {
   const { residents } = useMobileStore();
-  const [search, setSearch] = useState('Aarav');
-  const [selectedResident, setSelectedResident] = useState<ResidentUser | null>(
-    residents.find((r) => r.name.includes('Aarav')) || residents[0]
-  );
+  const [search, setSearch] = useState('');
+  const [selectedResident, setSelectedResident] = useState<ResidentUser | null>(null);
 
   const filtered = residents.filter((r) => {
     if (!search.trim()) return true;
@@ -73,7 +71,7 @@ export const StaffAssignResident: React.FC<StaffAssignResidentProps> = ({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="e.g. Aarav Mehta, Tower B - #704"
+              placeholder="Search by name, flat or phone..."
               className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 pl-9 pr-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none focus:border-[#1E60F2]"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
@@ -86,51 +84,61 @@ export const StaffAssignResident: React.FC<StaffAssignResidentProps> = ({
             Matching Directory Residents ({filtered.length})
           </p>
 
-          {filtered.map((resident) => {
-            const isSelected = selectedResident?.id === resident.id;
+          {filtered.length === 0 ? (
+            <div className="bg-white p-6 rounded-2xl border-2 border-dashed border-slate-300 text-center">
+              <User className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-xs font-bold text-slate-700">No matching residents in directory</p>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Add residents via Admin Portal or ask resident to sign up.
+              </p>
+            </div>
+          ) : (
+            filtered.map((resident) => {
+              const isSelected = selectedResident?.id === resident.id;
 
-            return (
-              <div
-                key={resident.id}
-                onClick={() => setSelectedResident(resident)}
-                className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
-                  isSelected
-                    ? 'bg-white border-[#1E60F2] ring-2 ring-[#1E60F2] shadow-[3px_3px_0px_#1E60F2]'
-                    : 'bg-white border-[#060D1E] shadow-[2px_2px_0px_#060D1E] hover:border-[#1E60F2]'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center font-black text-sm ${
-                      isSelected
-                        ? 'bg-[#1E60F2] text-white border-[#060D1E]'
-                        : 'bg-slate-100 text-slate-700 border-slate-300'
-                    }`}
-                  >
-                    {resident.name.charAt(0)}
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-black text-[#060D1E]">{resident.name}</h3>
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 font-bold mt-0.5">
-                      <span className="flex items-center gap-1">
-                        <Building className="w-3 h-3 text-[#1E60F2]" /> {resident.flat}
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-slate-400" /> {resident.phone}
-                      </span>
+              return (
+                <div
+                  key={resident.id}
+                  onClick={() => setSelectedResident(resident)}
+                  className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                    isSelected
+                      ? 'bg-white border-[#1E60F2] ring-2 ring-[#1E60F2] shadow-[3px_3px_0px_#1E60F2]'
+                      : 'bg-white border-[#060D1E] shadow-[2px_2px_0px_#060D1E] hover:border-[#1E60F2]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center font-black text-sm ${
+                        isSelected
+                          ? 'bg-[#1E60F2] text-white border-[#060D1E]'
+                          : 'bg-slate-100 text-slate-700 border-slate-300'
+                      }`}
+                    >
+                      {resident.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="text-xs font-black text-[#060D1E]">{resident.name}</h3>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 font-bold mt-0.5">
+                        <span className="flex items-center gap-1">
+                          <Building className="w-3.5 h-3.5 text-[#1E60F2]" /> {resident.flat}
+                        </span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Phone className="w-3.5 h-3.5 text-slate-400" /> {resident.phone}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {isSelected ? (
-                  <CheckCircle2 className="w-5 h-5 text-[#1E60F2] stroke-[2.5]" />
-                ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
-                )}
-              </div>
-            );
-          })}
+                  {isSelected ? (
+                    <CheckCircle2 className="w-5 h-5 text-[#1E60F2] stroke-[2.5]" />
+                  ) : (
+                    <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

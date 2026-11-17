@@ -11,10 +11,10 @@ interface ResidentLoginProps {
 export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, onBack }) => {
   const { selectedSociety, setSociety } = useMobileStore();
   const [tab, setTab] = useState<'phone' | 'email' | 'google'>('phone');
-  const [phone, setPhone] = useState('+91 98765 00000');
+  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
-  const [email, setEmail] = useState('vinaykumard45678@gmail.com');
-  const [password, setPassword] = useState('••••••••');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -233,24 +233,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           </div>
         )}
 
-        {/* Quick Demo Switcher Card */}
-        <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-500 shadow-[2px_2px_0px_#10B981]">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs font-black text-emerald-950">Quick One-Click Demo Resident</span>
-          </div>
-          <p className="text-[11px] text-emerald-800 mb-3 font-medium">
-            Pre-configured with Vinay (Flat B-402, 3 Active parcels ready to schedule/collect).
-          </p>
-          <button
-            type="button"
-            onClick={() => handleLogin()}
-            className="w-full py-2.5 px-3 bg-[#10B981] hover:bg-emerald-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5"
-          >
-            <User className="w-3.5 h-3.5" />
-            <span>Launch as Vinay Kumar</span>
-          </button>
-        </div>
+        
 
         <div className="mt-5 text-center">
           <p className="text-xs text-slate-600 font-semibold">

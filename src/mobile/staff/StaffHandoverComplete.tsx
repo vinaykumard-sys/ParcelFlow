@@ -66,7 +66,7 @@ export const StaffHandoverComplete: React.FC<StaffHandoverCompleteProps> = ({
           </div>
 
           <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-500">
-            <span>Verified By: Ramesh K (Security)</span>
+            <span>Verified By: On-Duty Hub Staff</span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
         </div>

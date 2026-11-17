@@ -67,7 +67,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-slate-500">Parcels Today</span>
               <Package className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">112</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.totalParcels}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Society Total</div>
           </div>
 
@@ -76,7 +76,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-emerald-600">Collected</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">61</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.collected}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">54.5% Rate</div>
           </div>
 
@@ -85,7 +85,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-[#1E60F2]">Scheduled</span>
               <Clock className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">18</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.scheduled}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Slots Booked</div>
           </div>
 
@@ -94,7 +94,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-amber-600">Pending</span>
               <AlertTriangle className="w-4 h-4 text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">33</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.pending}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">In Hub Storage</div>
           </div>
         </div>
