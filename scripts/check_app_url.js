@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const buf = fs.readFileSync('classes.dex');
+const buf = fs.readFileSync('apk_temp/classes.dex');
 let cur = '';
 const strings = [];
 for (let i = 0; i < buf.length; i++) {
