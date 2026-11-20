@@ -329,11 +329,47 @@ class MobileStateStore {
   }): { parcel?: MobileParcel; isDuplicate: boolean; existingParcel?: MobileParcel } {
     const cleanTracking = data.trackingNumber.trim().toUpperCase();
 
-    // Strict uniqueness check: reject if tracking number already exists
+    // Check if parcel already exists
     const existing = this.state.parcels.find(
       (p) => p.trackingNumber.toUpperCase() === cleanTracking
     );
+
     if (existing) {
+      // SCENARIO 10: MATCH PRE-REGISTERED / IMPORTED SHIPMENT
+      // If parcel was pre-registered or auto-imported awaiting physical intake, link and upgrade it
+      if (existing.storageLocation === 'Awaiting Hub Intake') {
+        const updatedParcel: MobileParcel = {
+          ...existing,
+          carrier: data.carrier || existing.carrier,
+          recipientName: data.recipientName || existing.recipientName,
+          recipientPhone: data.recipientPhone || existing.recipientPhone,
+          flat: data.flat || existing.flat,
+          tower: data.tower || existing.tower,
+          storageLocation: data.storageLocation,
+          status: 'WAITING',
+          receivedAt: 'Just now',
+          timeline: [
+            existing.timeline[0] || { label: 'Order Registered in App', completed: true },
+            {
+              label: 'Received at Society Hub',
+              sublabel: `Stored in ${data.storageLocation}`,
+              time: 'Just now',
+              completed: true,
+              current: true,
+            },
+            { label: 'Pickup Scheduled', sublabel: 'Awaiting resident booking', completed: false },
+            { label: 'Handover Completed', sublabel: 'Verify OTP or QR at hub counter', completed: false },
+          ],
+        };
+
+        this.state.parcels = this.state.parcels.map((p) =>
+          p.id === existing.id ? updatedParcel : p
+        );
+        this.saveState();
+        return { parcel: updatedParcel, isDuplicate: false };
+      }
+
+      // If already physically received and assigned a rack, reject duplicate
       return { isDuplicate: true, existingParcel: existing };
     }
 

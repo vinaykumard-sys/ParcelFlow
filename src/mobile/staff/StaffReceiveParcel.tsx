@@ -37,8 +37,13 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
         const slot = (data.storage_locations as any)?.rack
           ? `at ${(data.storage_locations as any)?.rack} - ${(data.storage_locations as any)?.shelf}`
           : '';
-        setDuplicateWarning(`Parcel already registered: Package ${clean} is active with status ${data.status} ${slot}.`);
-        return true;
+        if (slot) {
+          setDuplicateWarning(`Parcel already stored: Package ${clean} is active ${slot}.`);
+          return true;
+        }
+        // Matched pre-registered order: Allow intake and rack assignment
+        setDuplicateWarning(null);
+        return false;
       }
       setDuplicateWarning(null);
       return false;

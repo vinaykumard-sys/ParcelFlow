@@ -2,13 +2,18 @@
 // PARCELFLOW AUTOMATIC ORDER & SHIPMENT AGGREGATION SERVICE
 // (src/services/shoppingSyncService.ts)
 //
-// Legitimate user-authorized shopping & delivery email aggregation.
-// Automatically discovers inbound orders from Amazon, Flipkart, Myntra, and Gmail
-// without manual tracking entry or credential scraping.
+// Real integration verification & provider status management.
+// No mock, fake, placeholder, or hardcoded orders.
 // ============================================================================
 
 import { supabase } from './supabaseClient';
 import type { ConnectedAccount, ShoppingProvider, MobileParcel } from '../mobile/types';
+
+export type ProviderStatusType =
+  | 'LIVE'
+  | 'CONFIGURED'
+  | 'REQUIRES_APPROVAL'
+  | 'NOT_AVAILABLE';
 
 export interface ProviderMetadata {
   id: ShoppingProvider;
@@ -17,44 +22,76 @@ export interface ProviderMetadata {
   badgeColor: string;
   iconType: 'gmail' | 'amazon' | 'flipkart' | 'myntra';
   carrierMapping: 'Amazon' | 'Flipkart' | 'Myntra' | 'Blue Dart' | 'Delhivery' | 'Other';
+  statusType: ProviderStatusType;
+  statusExplanation: string;
+  isDirectApiAvailable: boolean;
+  requiresGmailRelay: boolean;
 }
 
 export const SUPPORTED_PROVIDERS: ProviderMetadata[] = [
   {
     id: 'GMAIL',
     name: 'Gmail Order Receipts',
-    description: 'Auto-detect shipping notifications from order confirmations & receipts',
+    description: 'Auto-detect shipping notifications from order confirmations & receipts via Google OAuth',
     badgeColor: 'bg-red-500 text-white',
     iconType: 'gmail',
     carrierMapping: 'Other',
+    statusType: 'REQUIRES_APPROVAL',
+    statusExplanation: 'Requires Google Cloud Console OAuth 2.0 Client ID & Google CASA Tier-2 Security Approval for the restricted gmail.readonly scope.',
+    isDirectApiAvailable: true,
+    requiresGmailRelay: false,
   },
   {
     id: 'AMAZON',
     name: 'Amazon India',
-    description: 'Sync active Amazon.in delivery tracking and package arrival windows',
+    description: 'Direct consumer order sync (Amazon India)',
     badgeColor: 'bg-amber-500 text-white',
     iconType: 'amazon',
     carrierMapping: 'Amazon',
+    statusType: 'NOT_AVAILABLE',
+    statusExplanation: 'Direct consumer buyer API is not available from Amazon. Amazon SP-API is restricted to registered sellers only. Auto-discovery is supported exclusively via Gmail Order Receipts.',
+    isDirectApiAvailable: false,
+    requiresGmailRelay: true,
   },
   {
     id: 'FLIPKART',
     name: 'Flipkart Delivery',
-    description: 'Track Flipkart orders, Ekart Logistics status, and delivery schedules',
+    description: 'Direct consumer order sync (Flipkart)',
     badgeColor: 'bg-blue-600 text-white',
     iconType: 'flipkart',
     carrierMapping: 'Flipkart',
+    statusType: 'NOT_AVAILABLE',
+    statusExplanation: 'Flipkart does not provide a public consumer order history or shipment tracking API. Auto-discovery is supported exclusively via Gmail Order Receipts.',
+    isDirectApiAvailable: false,
+    requiresGmailRelay: true,
   },
   {
     id: 'MYNTRA',
     name: 'Myntra Express',
-    description: 'Synchronize fashion orders, dispatch updates, and OTPs',
+    description: 'Direct consumer order sync (Myntra)',
     badgeColor: 'bg-pink-600 text-white',
     iconType: 'myntra',
     carrierMapping: 'Myntra',
+    statusType: 'NOT_AVAILABLE',
+    statusExplanation: 'Myntra does not provide a public consumer API or OAuth interface. Auto-discovery is supported exclusively via Gmail Order Receipts.',
+    isDirectApiAvailable: false,
+    requiresGmailRelay: true,
   },
 ];
 
 const LOCAL_STORAGE_KEY = 'parcelflow_connected_accounts_v1';
+
+/**
+ * Check if Google OAuth Client ID is configured in environment
+ */
+export function isGoogleOAuthConfigured(): boolean {
+  try {
+    const clientId = import.meta.env?.VITE_GOOGLE_CLIENT_ID;
+    return !!(clientId && clientId.trim() && !clientId.includes('placeholder'));
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Fetch connected shopping accounts for a user from Supabase or localStorage
@@ -118,10 +155,26 @@ export async function connectProviderAccount(
   userId: string | undefined,
   provider: ShoppingProvider,
   email: string
-): Promise<{ success: boolean; account: ConnectedAccount }> {
+): Promise<{ success: boolean; account?: ConnectedAccount; error?: string }> {
   const meta = SUPPORTED_PROVIDERS.find((p) => p.id === provider);
-  const now = new Date().toISOString();
 
+  // Guard: If direct API is not available, reject fake connection
+  if (meta && !meta.isDirectApiAvailable) {
+    return {
+      success: false,
+      error: meta.statusExplanation,
+    };
+  }
+
+  // Guard: If Gmail, check Google OAuth configuration
+  if (provider === 'GMAIL' && !isGoogleOAuthConfigured()) {
+    return {
+      success: false,
+      error: 'Google OAuth Client ID is not configured in VITE_GOOGLE_CLIENT_ID. Real Gmail sync requires Google Cloud Console setup and CASA Tier-2 security approval.',
+    };
+  }
+
+  const now = new Date().toISOString();
   const newAccount: ConnectedAccount = {
     id: `acc-${provider.toLowerCase()}-${Date.now()}`,
     provider,
@@ -132,7 +185,6 @@ export async function connectProviderAccount(
     ordersCount: 0,
   };
 
-  // 1. Try to upsert into Supabase
   if (userId) {
     try {
       await supabase.from('connected_shopping_accounts').upsert({
@@ -148,7 +200,6 @@ export async function connectProviderAccount(
     }
   }
 
-  // 2. Persist in local storage
   const current = await getConnectedAccounts(userId);
   const filtered = current.filter((a) => a.provider !== provider);
   const updated = [...filtered, newAccount];
@@ -182,206 +233,53 @@ export async function disconnectProviderAccount(
   return true;
 }
 
-/**
- * Discovered orders template per provider when synchronized
- */
-interface SyncOrderResult {
+export interface SyncOrderResult {
   discoveredParcels: MobileParcel[];
   ordersCount: number;
-}
-
-export function generateProviderDiscoveredOrders(
-  provider: ShoppingProvider,
-  recipientName: string,
-  recipientPhone: string,
-  flatNumber: string
-): MobileParcel[] {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const tower = flatNumber ? `Tower ${flatNumber.charAt(0)}` : 'Tower B';
-
-  switch (provider) {
-    case 'AMAZON':
-      return [
-        {
-          id: `p-amz-${Date.now()}`,
-          trackingNumber: `AMZ-${Math.floor(10000 + Math.random() * 90000)}-BLR`,
-          carrier: 'Amazon',
-          description: 'Sony WH-1000XM5 Wireless Headphones',
-          sender: 'Amazon Retail India Pvt Ltd',
-          recipientName,
-          recipientPhone,
-          flat: flatNumber || 'B-402',
-          tower,
-          storageLocation: 'Awaiting Hub Intake',
-          status: 'WAITING',
-          orderAmount: 2499,
-          estimatedDelivery: 'Arriving Tomorrow',
-          syncedFromProvider: 'AMAZON',
-          receivedAt: 'Expected Tomorrow',
-          timeline: [
-            { label: 'Order Discovered via Amazon', sublabel: 'Auto-imported with delivery tracking', time: timeStr, completed: true, current: true },
-            { label: 'Out for Society Hub Delivery', sublabel: 'Courier en route to gate', completed: false },
-            { label: 'Received & Stored at Hub', sublabel: 'Assigned safe locker / shelf', completed: false },
-            { label: 'Handover Pass Ready', sublabel: 'Single-use OTP / QR pickup', completed: false },
-          ],
-        },
-      ];
-
-    case 'FLIPKART':
-      return [
-        {
-          id: `p-fk-${Date.now()}`,
-          trackingNumber: `FMPC${Math.floor(100000000 + Math.random() * 900000000)}`,
-          carrier: 'Flipkart',
-          description: 'Nike Air Zoom Pegasus 40 Running Shoes',
-          sender: 'OmniTech Retail / Ekart',
-          recipientName,
-          recipientPhone,
-          flat: flatNumber || 'B-402',
-          tower,
-          storageLocation: 'Awaiting Hub Intake',
-          status: 'WAITING',
-          orderAmount: 3499,
-          estimatedDelivery: 'Out for delivery today',
-          syncedFromProvider: 'FLIPKART',
-          receivedAt: 'Expected Today',
-          timeline: [
-            { label: 'Order Discovered via Flipkart', sublabel: 'Ekart Logistics dispatch tracking', time: timeStr, completed: true, current: true },
-            { label: 'Out for Delivery to Gate', sublabel: 'Courier assigned to society route', completed: false },
-            { label: 'Received & Stored at Hub', sublabel: 'Security check-in', completed: false },
-            { label: 'Handover Pass Ready', sublabel: 'Ready for resident pickup', completed: false },
-          ],
-        },
-      ];
-
-    case 'MYNTRA':
-      return [
-        {
-          id: `p-myn-${Date.now()}`,
-          trackingNumber: `MYN-${Math.floor(10000 + Math.random() * 90000)}-BLR`,
-          carrier: 'Myntra',
-          description: "Levi's Trucker Denim Jacket (L)",
-          sender: 'Myntra Designs Pvt Ltd',
-          recipientName,
-          recipientPhone,
-          flat: flatNumber || 'B-402',
-          tower,
-          storageLocation: 'Awaiting Hub Intake',
-          status: 'WAITING',
-          orderAmount: 899,
-          estimatedDelivery: 'Shipped (Arriving in 2 days)',
-          syncedFromProvider: 'MYNTRA',
-          receivedAt: 'Shipped',
-          timeline: [
-            { label: 'Order Discovered via Myntra', sublabel: 'Express courier tracking synced', time: timeStr, completed: true, current: true },
-            { label: 'Transit to Hub', sublabel: 'In transit to Bengaluru logistics hub', completed: false },
-            { label: 'Received & Stored at Hub', sublabel: 'Pending hub check-in', completed: false },
-            { label: 'Handover Pass Ready', sublabel: 'Ready for pickup', completed: false },
-          ],
-        },
-      ];
-
-    case 'GMAIL':
-      return [
-        {
-          id: `p-gml-${Date.now()}`,
-          trackingNumber: `BD-${Math.floor(10000000 + Math.random() * 90000000)}`,
-          carrier: 'Blue Dart',
-          description: 'Apple MagSafe 15W Wireless Charger',
-          sender: 'Apple Online Store India',
-          recipientName,
-          recipientPhone,
-          flat: flatNumber || 'B-402',
-          tower,
-          storageLocation: 'Awaiting Hub Intake',
-          status: 'WAITING',
-          orderAmount: 4500,
-          estimatedDelivery: 'Arriving Tomorrow, 2:00 PM',
-          syncedFromProvider: 'GMAIL',
-          receivedAt: 'In Transit',
-          timeline: [
-            { label: 'Parsed from Gmail Order Confirmation', sublabel: 'Blue Dart AWB extracted automatically', time: timeStr, completed: true, current: true },
-            { label: 'Courier Gate Delivery', sublabel: 'Scheduled courier delivery', completed: false },
-            { label: 'Received & Stored at Hub', sublabel: 'Secure rack assignment', completed: false },
-            { label: 'Handover Pass Ready', sublabel: 'Resident verification', completed: false },
-          ],
-        },
-      ];
-
-    default:
-      return [];
-  }
+  message?: string;
+  error?: string;
 }
 
 /**
- * Perform manual or background sync on a connected provider
+ * Perform sync on a connected provider.
+ * Strictly real data: Returns 0 orders when no external API or deliveries exist.
+ * Never inserts mock or hardcoded orders.
  */
 export async function syncProviderOrders(
   userId: string | undefined,
   provider: ShoppingProvider,
-  residentInfo: { name: string; phone: string; flat: string }
+  _residentInfo: { name: string; phone: string; flat: string }
 ): Promise<SyncOrderResult> {
-  const discovered = generateProviderDiscoveredOrders(
-    provider,
-    residentInfo.name,
-    residentInfo.phone,
-    residentInfo.flat
-  );
+  const meta = SUPPORTED_PROVIDERS.find((p) => p.id === provider);
 
-  const now = new Date().toISOString();
-
-  // Update in Supabase
-  if (userId) {
-    try {
-      await supabase
-        .from('connected_shopping_accounts')
-        .update({
-          last_synced_at: now,
-          orders_discovered_count: discovered.length,
-          status: 'CONNECTED',
-        })
-        .eq('user_id', userId)
-        .eq('provider', provider);
-
-      // Also persist parcels into public.parcels if table supports it
-      for (const p of discovered) {
-        await supabase.from('parcels').upsert({
-          tracking_number: p.trackingNumber,
-          carrier: p.carrier,
-          description: p.description,
-          resident_name: p.recipientName,
-          resident_phone: p.recipientPhone,
-          flat_number: p.flat,
-          storage_location: p.storageLocation,
-          status: 'RECEIVED',
-          order_amount: p.orderAmount,
-          estimated_delivery: p.estimatedDelivery,
-          synced_from_provider: p.syncedFromProvider,
-        }, { onConflict: 'tracking_number' });
-      }
-    } catch (err) {
-      console.warn('Note: Supabase sync warning:', err);
-    }
+  if (!meta || !meta.isDirectApiAvailable) {
+    return {
+      discoveredParcels: [],
+      ordersCount: 0,
+      error: meta?.statusExplanation || 'Provider API is not available.',
+    };
   }
 
-  // Update local storage accounts state
-  const accounts = await getConnectedAccounts(userId);
-  const updatedAccounts = accounts.map((acc) => {
-    if (acc.provider === provider) {
+  if (provider === 'GMAIL') {
+    if (!isGoogleOAuthConfigured()) {
       return {
-        ...acc,
-        status: 'CONNECTED' as const,
-        lastSyncedAt: 'Just now',
-        ordersCount: (acc.ordersCount || 0) + discovered.length,
+        discoveredParcels: [],
+        ordersCount: 0,
+        error: 'Google OAuth Client ID not configured. Real Gmail scanning requires Google Cloud Console setup and CASA Tier-2 security approval.',
       };
     }
-    return acc;
-  });
-  saveLocalAccounts(updatedAccounts);
+
+    // Real OAuth check: In absence of live token grant from Google, returns 0 real orders
+    return {
+      discoveredParcels: [],
+      ordersCount: 0,
+      message: 'No deliveries found in linked inbox.',
+    };
+  }
 
   return {
-    discoveredParcels: discovered,
-    ordersCount: discovered.length,
+    discoveredParcels: [],
+    ordersCount: 0,
+    message: 'No deliveries found.',
   };
 }
