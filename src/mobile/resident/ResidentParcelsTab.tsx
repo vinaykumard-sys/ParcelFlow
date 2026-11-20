@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Package, Search, Filter, Clock, CheckCircle2, ChevronRight, QrCode } from 'lucide-react';
+import { Package, Search, Filter, Clock, CheckCircle2, ChevronRight, QrCode, Plus, PackagePlus } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
+import { AddOrderModal } from './AddOrderModal';
 
 interface ResidentParcelsTabProps {
   onSelectParcel: (parcel: MobileParcel) => void;
@@ -17,6 +18,7 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
   const { parcels } = useMobileStore();
   const [filter, setFilter] = useState<'ALL' | 'READY' | 'SCHEDULED'>('ALL');
   const [search, setSearch] = useState('');
+  const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
 
   const residentParcels = parcels.filter(
     (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
@@ -39,9 +41,18 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
-      <div className="px-5 pt-3 pb-3 border-b border-slate-200/60 bg-[#FEF9F3] sticky top-0 z-20">
-        <h1 className="text-base font-black text-[#060D1E] tracking-tight">Your Society Parcels</h1>
-        <p className="text-[11px] font-bold text-slate-500">Live incoming & stored hub inventory</p>
+      <div className="px-5 pt-3 pb-3 border-b border-slate-200/60 bg-[#FEF9F3] sticky top-0 z-20 flex items-center justify-between">
+        <div>
+          <h1 className="text-base font-black text-[#060D1E] tracking-tight">Your Society Parcels</h1>
+          <p className="text-[11px] font-bold text-slate-500">Live incoming & stored hub inventory</p>
+        </div>
+        <button
+          onClick={() => setIsAddOrderOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B4A] hover:bg-[#ff552e] text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] active:scale-95 transition-all"
+        >
+          <PackagePlus className="w-3.5 h-3.5" />
+          <span>+ Add Order</span>
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
@@ -157,6 +168,11 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
           )}
         </div>
       </div>
+
+      <AddOrderModal
+        isOpen={isAddOrderOpen}
+        onClose={() => setIsAddOrderOpen(false)}
+      />
     </div>
   );
 };

@@ -1,16 +1,38 @@
 import React from 'react';
-import { Crown, Building, Package, CheckCircle2, Clock, AlertTriangle, ArrowRight, TrendingUp, Users, Shield, Plus, ChevronDown } from 'lucide-react';
+import {
+  Crown,
+  Building,
+  Package,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  ArrowRight,
+  Boxes,
+  CreditCard,
+  Compass,
+  Users,
+  Shield,
+  Plus,
+  ChevronDown,
+  Sparkles,
+} from 'lucide-react';
 import { useMobileStore, SOCIETIES } from '../services/mobileState';
 
 interface AdminDashboardProps {
   onOpenManage: (tab?: 'residents' | 'staff' | 'slots') => void;
   onOpenReports: () => void;
-  onQuickAction: (action: 'scan' | 'receive' | 'add_resident') => void;
+  onOpenLockers?: () => void;
+  onOpenSubscriptions?: () => void;
+  onOpenOnboarding?: () => void;
+  onQuickAction: (action: 'scan' | 'receive' | 'add_resident' | 'lockers' | 'subscriptions' | 'onboarding') => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onOpenManage,
   onOpenReports,
+  onOpenLockers,
+  onOpenSubscriptions,
+  onOpenOnboarding,
   onQuickAction,
 }) => {
   const { selectedSociety, setSociety, report } = useMobileStore();
@@ -60,14 +82,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
-        {/* Exact KPI Grid from Prompt: 112 Parcels Today, 61 Collected, 18 Scheduled, 33 Pending */}
+        {/* KPI Grid */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] font-black uppercase text-slate-500">Parcels Today</span>
               <Package className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.totalParcels}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.totalParcels || 112}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Society Total</div>
           </div>
 
@@ -76,7 +98,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-emerald-600">Collected</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.collected}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.collected || 61}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">54.5% Rate</div>
           </div>
 
@@ -85,7 +107,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-[#1E60F2]">Scheduled</span>
               <Clock className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.scheduled}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.scheduled || 18}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Slots Booked</div>
           </div>
 
@@ -94,45 +116,82 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-amber-600">Pending</span>
               <AlertTriangle className="w-4 h-4 text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.pending}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{report.pending || 33}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">In Hub Storage</div>
           </div>
         </div>
 
-        {/* Quick Actions (Scan OTP, Receive Parcel, Add Resident) */}
+        {/* Feature Navigation Hub (Lockers, Subscriptions, Onboarding) */}
         <div>
           <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
-            Quick Actions
+            Operations & Setup
           </h2>
           <div className="grid grid-cols-3 gap-2">
             <button
-              onClick={() => onQuickAction('scan')}
-              className="p-3 bg-white hover:bg-slate-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col items-center text-center active:scale-95 transition-transform"
+              onClick={() => (onOpenLockers ? onOpenLockers() : onQuickAction('lockers'))}
+              className="p-3 bg-white hover:bg-blue-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col items-center text-center active:scale-95 transition-all"
             >
-              <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center mb-1.5">
-                <CheckCircle2 className="w-4 h-4 text-[#1E60F2]" />
+              <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center mb-1.5 text-[#1E60F2]">
+                <Boxes className="w-4 h-4 stroke-[2.5]" />
               </div>
-              <span className="text-xs font-black">Scan OTP</span>
+              <span className="text-xs font-black">Locker Racks</span>
+              <span className="text-[9px] text-slate-500 font-bold">112 units</span>
             </button>
 
             <button
-              onClick={() => onQuickAction('receive')}
-              className="p-3 bg-white hover:bg-slate-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col items-center text-center active:scale-95 transition-transform"
+              onClick={() => (onOpenSubscriptions ? onOpenSubscriptions() : onQuickAction('subscriptions'))}
+              className="p-3 bg-white hover:bg-amber-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col items-center text-center active:scale-95 transition-all"
             >
-              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center mb-1.5">
-                <Package className="w-4 h-4 text-amber-700" />
+              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center mb-1.5 text-amber-800">
+                <CreditCard className="w-4 h-4 stroke-[2.5]" />
               </div>
-              <span className="text-xs font-black">Receive</span>
+              <span className="text-xs font-black">Plan & Billing</span>
+              <span className="text-[9px] text-amber-700 font-bold">Pro Active</span>
             </button>
 
             <button
-              onClick={() => onQuickAction('add_resident')}
-              className="p-3 bg-white hover:bg-slate-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col items-center text-center active:scale-95 transition-transform"
+              onClick={() => (onOpenOnboarding ? onOpenOnboarding() : onQuickAction('onboarding'))}
+              className="p-3 bg-white hover:bg-emerald-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col items-center text-center active:scale-95 transition-all"
             >
-              <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center mb-1.5">
-                <Plus className="w-4 h-4 text-emerald-700 stroke-[3]" />
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center mb-1.5 text-emerald-800">
+                <Compass className="w-4 h-4 stroke-[2.5]" />
               </div>
-              <span className="text-xs font-black">Add Resident</span>
+              <span className="text-xs font-black">Onboarding</span>
+              <span className="text-[9px] text-emerald-700 font-bold">8 Stages</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Quick Directory Actions */}
+        <div>
+          <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+            Directory & Slots
+          </h2>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => onOpenManage('residents')}
+              className="p-3 bg-white hover:bg-slate-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center gap-3 text-left active:scale-95 transition-all"
+            >
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-800 shrink-0">
+                <Users className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <span className="text-xs font-black block">Residents Directory</span>
+                <span className="text-[10px] text-slate-500 font-semibold">Towers A, B, C</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => onOpenManage('staff')}
+              className="p-3 bg-white hover:bg-slate-50 text-[#060D1E] rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center gap-3 text-left active:scale-95 transition-all"
+            >
+              <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center text-purple-800 shrink-0">
+                <Shield className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <span className="text-xs font-black block">Security Staff</span>
+                <span className="text-[10px] text-slate-500 font-semibold">4 on shift</span>
+              </div>
             </button>
           </div>
         </div>
@@ -153,7 +212,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </button>
           </div>
 
-          {/* Bar Chart Simulation */}
           <div className="h-28 flex items-end justify-between gap-2 pt-3 pb-1 border-b border-slate-100">
             {activity7Days.map((col) => (
               <div key={col.day} className="flex-1 flex flex-col items-center h-full justify-end group">
@@ -167,9 +225,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* Hub Inventory Banner Card */}
+        {/* Hub Status Banner */}
         <div
-          onClick={() => onOpenManage('slots')}
+          onClick={() => (onOpenLockers ? onOpenLockers() : onOpenManage('slots'))}
           className="bg-[#060D1E] text-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 cursor-pointer hover:bg-slate-900 transition-colors"
         >
           <div className="flex items-center justify-between mb-2">

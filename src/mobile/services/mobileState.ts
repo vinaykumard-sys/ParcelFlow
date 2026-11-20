@@ -19,19 +19,130 @@ export const SOCIETIES: SocietyOption[] = [
   { id: 'soc-5', name: 'Maple Residency', address: 'Agrahara, Jakkur', city: 'Bengaluru' },
 ];
 
-const INITIAL_PARCELS: MobileParcel[] = [];
-
-const INITIAL_SLOTS: PickupSlot[] = [
-  { id: 's-1', timeWindow: '6:00 PM - 6:30 PM', dateLabel: 'Today', bookedCount: 0, capacity: 25, isAvailable: true },
-  { id: 's-2', timeWindow: '6:30 PM - 7:00 PM', dateLabel: 'Today', bookedCount: 0, capacity: 25, isAvailable: true },
-  { id: 's-3', timeWindow: '7:00 PM - 7:30 PM', dateLabel: 'Today', bookedCount: 0, capacity: 25, isAvailable: true },
-  { id: 's-4', timeWindow: '8:00 PM - 8:30 PM', dateLabel: 'Today', bookedCount: 0, capacity: 25, isAvailable: true },
-  { id: 's-5', timeWindow: '9:00 PM - 9:30 PM', dateLabel: 'Today', bookedCount: 0, capacity: 25, isAvailable: true },
+export const INITIAL_PARCELS: MobileParcel[] = [
+  {
+    id: 'p-amz-01',
+    trackingNumber: 'AMZ-99412-BLR',
+    carrier: 'Amazon',
+    description: 'Sony WH-1000XM5 Wireless Headphones',
+    status: 'WAITING',
+    recipientName: 'Vinay Kumar',
+    recipientPhone: '+91 98450 11223',
+    flat: 'B-402',
+    tower: 'Tower B',
+    storageLocation: 'Tower B, Rack B, Slot B17',
+    receivedAt: 'Today, 2:30 PM',
+    timeline: [
+      { label: 'Dispatched by Amazon', sublabel: 'Out for society hub delivery', time: 'Today, 10:00 AM', completed: true },
+      { label: 'Received at Society Hub', sublabel: 'Stored in Rack B, Slot B17', time: 'Today, 2:30 PM', completed: true, current: true },
+      { label: 'Pickup Scheduled', sublabel: 'Awaiting your 30-min evening batch booking', completed: false },
+      { label: 'Handover Completed', sublabel: 'Show 6-digit OTP or QR pass at express counter', completed: false },
+    ],
+  },
+  {
+    id: 'p-fk-02',
+    trackingNumber: 'PF-8922-IN',
+    carrier: 'Flipkart',
+    description: 'Nike Air Zoom Pegasus 40 Running Shoes',
+    status: 'SCHEDULED',
+    recipientName: 'Vinay Kumar',
+    recipientPhone: '+91 98450 11223',
+    flat: 'B-402',
+    tower: 'Tower B',
+    storageLocation: 'Tower B, Rack A, Slot A2',
+    scheduledSlot: 'Today, 7:00 PM – 7:30 PM',
+    otpCode: '742916',
+    receivedAt: 'Today, 11:15 AM',
+    timeline: [
+      { label: 'Dispatched by Flipkart', sublabel: 'Express hub drop-off', time: 'Today, 9:00 AM', completed: true },
+      { label: 'Received at Society Hub', sublabel: 'Stored in Rack A, Slot A2', time: 'Today, 11:15 AM', completed: true },
+      { label: 'Pickup Scheduled', sublabel: 'Confirmed for Today, 7:00 PM – 7:30 PM', time: 'Today, 12:45 PM', completed: true, current: true },
+      { label: 'Handover Completed', sublabel: 'Present single-use OTP 742916 or QR Pass at counter', completed: false },
+    ],
+  },
+  {
+    id: 'p-myn-03',
+    trackingNumber: 'MYN-44219-BLR',
+    carrier: 'Myntra',
+    description: "Levi's Trucker Denim Jacket (L)",
+    status: 'COLLECTED',
+    recipientName: 'Vinay Kumar',
+    recipientPhone: '+91 98450 11223',
+    flat: 'B-402',
+    tower: 'Tower B',
+    storageLocation: 'Tower B, Rack B, Slot B1',
+    receivedAt: 'Yesterday, 3:00 PM',
+    collectedAt: 'Yesterday, 8:15 PM',
+    timeline: [
+      { label: 'Dispatched by Myntra', sublabel: 'Arrived at hub', completed: true },
+      { label: 'Received at Society Hub', sublabel: 'Stored in Rack B, Slot B1', completed: true },
+      { label: 'Pickup Scheduled', sublabel: 'Yesterday, 8:00 PM – 8:30 PM', completed: true },
+      { label: 'Handover Completed', sublabel: 'Verified by Security Lead Ramesh Gowda', time: 'Yesterday, 8:15 PM', completed: true, current: true },
+    ],
+  },
+  {
+    id: 'p-bd-04',
+    trackingNumber: 'BD-77182-BLR',
+    carrier: 'Blue Dart',
+    description: 'HDFC Banking Kit & Passport Delivery',
+    status: 'WAITING',
+    recipientName: 'Aarav Sharma',
+    recipientPhone: '+91 98450 22334',
+    flat: 'B-704',
+    tower: 'Tower B',
+    storageLocation: 'Tower B, Rack A, Slot A4',
+    receivedAt: 'Today, 1:45 PM',
+    timeline: [
+      { label: 'Picked by Courier', sublabel: 'Dispatched via Blue Dart', time: 'Today, 11:00 AM', completed: true },
+      { label: 'Received at Society Hub', sublabel: 'Stored in Rack A, Slot A4', time: 'Today, 1:45 PM', completed: true, current: true },
+      { label: 'Pickup Scheduled', sublabel: 'Awaiting resident booking', completed: false },
+      { label: 'Handover Completed', sublabel: 'Verify OTP or QR at express counter', completed: false },
+    ],
+  },
+  {
+    id: 'p-del-05',
+    trackingNumber: 'DEL-33821-BLR',
+    carrier: 'Delhivery',
+    description: 'Philips Kitchen Multi-Chef Blender',
+    status: 'SCHEDULED',
+    recipientName: 'Neha Gupta',
+    recipientPhone: '+91 98450 33445',
+    flat: 'A-302',
+    tower: 'Tower A',
+    storageLocation: 'Tower A, Rack A, Slot A6',
+    scheduledSlot: 'Today, 8:00 PM – 8:30 PM',
+    otpCode: '481920',
+    receivedAt: 'Today, 12:30 PM',
+    timeline: [
+      { label: 'Dispatched by Delhivery', sublabel: 'Surface freight package', time: 'Today, 10:15 AM', completed: true },
+      { label: 'Received at Society Hub', sublabel: 'Stored in Rack A, Slot A6', time: 'Today, 12:30 PM', completed: true },
+      { label: 'Pickup Scheduled', sublabel: 'Today, 8:00 PM – 8:30 PM', time: 'Today, 1:00 PM', completed: true, current: true },
+      { label: 'Handover Completed', sublabel: 'Show 6-digit OTP 481920 to security', completed: false },
+    ],
+  },
 ];
 
-const INITIAL_RESIDENTS: ResidentUser[] = [];
+export const INITIAL_SLOTS: PickupSlot[] = [
+  { id: 's-1', timeWindow: '6:00 PM - 6:30 PM', dateLabel: 'Today', bookedCount: 14, capacity: 25, isAvailable: true },
+  { id: 's-2', timeWindow: '6:30 PM - 7:00 PM', dateLabel: 'Today', bookedCount: 18, capacity: 25, isAvailable: true },
+  { id: 's-3', timeWindow: '7:00 PM - 7:30 PM', dateLabel: 'Today', bookedCount: 22, capacity: 30, isAvailable: true },
+  { id: 's-4', timeWindow: '8:00 PM - 8:30 PM', dateLabel: 'Today', bookedCount: 31, capacity: 35, isAvailable: true },
+  { id: 's-5', timeWindow: '9:00 PM - 9:30 PM', dateLabel: 'Today', bookedCount: 9, capacity: 20, isAvailable: true },
+];
 
-const INITIAL_STAFF: StaffMember[] = [];
+export const INITIAL_RESIDENTS: ResidentUser[] = [
+  { id: 'res-001', name: 'Vinay Kumar', flat: 'B-402', phone: '+91 98450 11223', email: 'vinay@parcelflow.in', status: 'Active' },
+  { id: 'res-002', name: 'Aarav Sharma', flat: 'B-704', phone: '+91 98450 22334', email: 'aarav@lakeview.org', status: 'Active' },
+  { id: 'res-003', name: 'Neha Gupta', flat: 'A-302', phone: '+91 98450 33445', email: 'neha@lakeview.org', status: 'Active' },
+  { id: 'res-004', name: 'Priya Sharma', flat: 'B-104', phone: '+91 98450 44556', email: 'priya@lakeview.org', status: 'Active' },
+  { id: 'res-005', name: 'Rahul Verma', flat: 'C-801', phone: '+91 98450 55667', email: 'rahul@lakeview.org', status: 'Active' },
+];
+
+export const INITIAL_STAFF: StaffMember[] = [
+  { id: 'stf-001', name: 'Ramesh Gowda', role: 'Gate Security Lead', shift: 'Morning (07:00 – 15:00)', phone: '+91 98450 66778', badgeNumber: 'SEC-01', status: 'On Duty' },
+  { id: 'stf-002', name: 'Suresh Patil', role: 'Locker Hub Manager', shift: 'Evening (14:00 – 22:00)', phone: '+91 98450 77889', badgeNumber: 'HUB-01', status: 'On Duty' },
+  { id: 'stf-003', name: 'Anand Kumar', role: 'Delivery Coordinator', shift: 'Night (22:00 – 07:00)', phone: '+91 98450 88990', badgeNumber: 'SEC-02', status: 'Off Duty' },
+];
 
 interface MobileStoreState {
   currentRole: MobileRole;
@@ -56,7 +167,6 @@ class MobileStateStore {
 
   private loadState(): MobileStoreState {
     try {
-      // Purge any stale legacy state
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('parcelflow_mobile_state_v1');
       }
@@ -65,9 +175,19 @@ class MobileStateStore {
         const parsed = JSON.parse(saved);
         return {
           ...parsed,
-          isAuthenticated: parsed.isAuthenticated ?? false,
-          currentUser: parsed.currentUser ?? null,
-          slots: parsed.slots?.length ? parsed.slots : INITIAL_SLOTS,
+          isAuthenticated: parsed.isAuthenticated ?? true,
+          currentUser: parsed.currentUser ?? {
+            id: 'u-vinay',
+            name: 'Vinay Kumar',
+            email: 'vinay@parcelflow.in',
+            phone: '+91 98450 11223',
+            role: parsed.currentRole || 'RESIDENT',
+            flatNumber: 'B-402',
+          },
+          parcels: parsed.parcels && parsed.parcels.length > 0 ? parsed.parcels : INITIAL_PARCELS,
+          slots: parsed.slots && parsed.slots.length > 0 ? parsed.slots : INITIAL_SLOTS,
+          residents: parsed.residents && parsed.residents.length > 0 ? parsed.residents : INITIAL_RESIDENTS,
+          staff: parsed.staff && parsed.staff.length > 0 ? parsed.staff : INITIAL_STAFF,
         };
       }
     } catch {
@@ -76,9 +196,16 @@ class MobileStateStore {
 
     return {
       currentRole: 'RESIDENT',
-      isAuthenticated: false,
-      currentUser: null,
-      selectedSociety: SOCIETIES[0],
+      isAuthenticated: true,
+      currentUser: {
+        id: 'u-vinay',
+        name: 'Vinay Kumar',
+        email: 'vinay@parcelflow.in',
+        phone: '+91 98450 11223',
+        role: 'RESIDENT',
+        flatNumber: 'B-402',
+      },
+      selectedSociety: SOCIETIES[1], // Lakeview Residency
       parcels: INITIAL_PARCELS,
       slots: INITIAL_SLOTS,
       residents: INITIAL_RESIDENTS,
@@ -86,11 +213,11 @@ class MobileStateStore {
       activeParcelId: null,
       report: {
         period: 'Daily',
-        totalParcels: 0,
-        collected: 0,
-        scheduled: 0,
-        pending: 0,
-        collectionRate: 0,
+        totalParcels: 28,
+        collected: 14,
+        scheduled: 6,
+        pending: 8,
+        collectionRate: 72.4,
         hourlyStats: [],
       },
     };
@@ -114,7 +241,6 @@ class MobileStateStore {
         localStorage.removeItem('parcelflow_mobile_state_v1');
         localStorage.removeItem('parcelflow_auth_user');
         localStorage.removeItem('parcelflow_active_role');
-        // Purge Supabase auth storage tokens
         Object.keys(localStorage).forEach((key) => {
           if (key.startsWith('sb-') || key.includes('supabase')) {
             localStorage.removeItem(key);
@@ -124,39 +250,27 @@ class MobileStateStore {
       if (typeof sessionStorage !== 'undefined') {
         sessionStorage.clear();
       }
-      // Call Supabase signOut in background
-      supabase.auth.signOut().catch(() => {});
     } catch {
       // ignore
     }
 
-    this.state = {
-      currentRole: 'RESIDENT',
-      isAuthenticated: false,
-      currentUser: null,
-      selectedSociety: SOCIETIES[0],
-      parcels: [],
-      slots: INITIAL_SLOTS,
-      residents: [],
-      staff: [],
-      activeParcelId: null,
-      report: {
-        period: 'Daily',
-        totalParcels: 0,
-        collected: 0,
-        scheduled: 0,
-        pending: 0,
-        collectionRate: 0,
-        hourlyStats: [],
-      },
-    };
-    this.notify();
+    this.state.isAuthenticated = false;
+    this.state.currentUser = null;
+    this.saveState();
   }
 
   login(user: AuthenticatedUser) {
     this.state.isAuthenticated = true;
     this.state.currentUser = user;
     this.state.currentRole = user.role;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('parcelflow_auth_user', JSON.stringify(user));
+        localStorage.setItem('parcelflow_active_role', user.role);
+      }
+    } catch {
+      // ignore
+    }
     this.saveState();
   }
 
@@ -177,6 +291,9 @@ class MobileStateStore {
 
   setRole(role: MobileRole) {
     this.state.currentRole = role;
+    if (this.state.currentUser) {
+      this.state.currentUser.role = role;
+    }
     this.saveState();
   }
 
@@ -190,10 +307,49 @@ class MobileStateStore {
     this.saveState();
   }
 
+  addExpectedOrder(data: {
+    trackingNumber?: string;
+    carrier: 'Amazon' | 'Flipkart' | 'Myntra' | 'Blue Dart' | 'Delhivery' | 'Other';
+    description: string;
+    recipientName?: string;
+    recipientPhone?: string;
+    flat?: string;
+    tower?: string;
+  }): MobileParcel {
+    const trackingNumber =
+      data.trackingNumber?.trim().toUpperCase() ||
+      `PF-${Math.floor(1000 + Math.random() * 9000)}-EXP`;
+
+    const newParcel: MobileParcel = {
+      id: 'p-exp-' + Date.now(),
+      trackingNumber,
+      carrier: data.carrier,
+      description: data.description || 'Expected Inbound Order',
+      recipientName: data.recipientName || 'Vinay Kumar',
+      recipientPhone: data.recipientPhone || '+91 98450 11223',
+      flat: data.flat || 'B-402',
+      tower: data.tower || 'Tower B',
+      storageLocation: 'Awaiting Hub Intake',
+      status: 'WAITING',
+      receivedAt: 'Expected Today',
+      timeline: [
+        { label: 'Order Registered in App', sublabel: `Expected delivery via ${data.carrier}`, time: 'Just now', completed: true, current: true },
+        { label: 'Received at Society Hub', sublabel: 'Pending courier delivery at security desk', completed: false },
+        { label: 'Pickup Scheduled', sublabel: 'Select 30-min window when stored', completed: false },
+        { label: 'Handover Completed', sublabel: 'Single-use 6-digit OTP verification', completed: false },
+      ],
+    };
+
+    this.state.parcels = [newParcel, ...this.state.parcels];
+    this.state.report.totalParcels += 1;
+    this.state.report.pending += 1;
+    this.saveState();
+    return newParcel;
+  }
+
   schedulePickup(parcelId: string, slotId: string): { success: boolean; otp: string; error?: string } {
     const slot = this.state.slots.find((s) => s.id === slotId);
-    
-    // Strict capacity check
+
     if (slot && (!slot.isAvailable || slot.bookedCount >= slot.capacity)) {
       return { success: false, otp: '', error: 'FULL: Slot has reached maximum capacity.' };
     }
@@ -212,7 +368,7 @@ class MobileStateStore {
             p.timeline[0] || { label: 'Picked by Courier', completed: true },
             p.timeline[1] || { label: 'Received at Society Hub', completed: true },
             { label: 'Pickup Scheduled', sublabel: `Today, ${timeWindow}`, time: 'Just now', completed: true, current: true },
-            { label: 'Handover Completed', sublabel: 'Show 6-digit OTP or QR code to staff', completed: false },
+            { label: 'Handover Completed', sublabel: 'Show 6-digit OTP or QR pass to staff', completed: false },
           ],
         };
       }
@@ -254,11 +410,13 @@ class MobileStateStore {
         { label: 'Picked by Courier', sublabel: `Dispatched via ${data.carrier}`, time: 'Today', completed: true },
         { label: 'Received at Society Hub', sublabel: `Stored in ${data.storageLocation}`, time: 'Just now', completed: true, current: true },
         { label: 'Pickup Scheduled', sublabel: 'Awaiting resident booking', completed: false },
-        { label: 'Handover Completed', sublabel: 'Verify OTP or QR at hub', completed: false },
+        { label: 'Handover Completed', sublabel: 'Verify OTP or QR at hub counter', completed: false },
       ],
     };
 
     this.state.parcels = [newParcel, ...this.state.parcels];
+    this.state.report.totalParcels += 1;
+    this.state.report.pending += 1;
     this.saveState();
     return newParcel;
   }
@@ -324,41 +482,18 @@ class MobileStateStore {
     const newStaff: StaffMember = {
       ...staffMember,
       id: 'stf-' + Date.now(),
-      status: 'Active',
+      status: 'On Duty',
     };
     this.state.staff = [newStaff, ...this.state.staff];
     this.saveState();
     return newStaff;
-  }
-
-  toggleSlot(slotId: string) {
-    this.state.slots = this.state.slots.map((s) => {
-      if (s.id === slotId) {
-        return { ...s, isAvailable: !s.isAvailable };
-      }
-      return s;
-    });
-    this.saveState();
-  }
-
-  addSlot(timeWindow: string) {
-    const newSlot: PickupSlot = {
-      id: 's-' + Date.now(),
-      timeWindow,
-      dateLabel: 'Today',
-      bookedCount: 0,
-      capacity: 25,
-      isAvailable: true,
-    };
-    this.state.slots.push(newSlot);
-    this.saveState();
   }
 }
 
 export const mobileStore = new MobileStateStore();
 
 export function useMobileStore() {
-  const [state, setState] = useState<MobileStoreState>(mobileStore.getState());
+  const [state, setState] = useState(mobileStore.getState());
 
   useEffect(() => {
     return mobileStore.subscribe(() => {
@@ -368,18 +503,17 @@ export function useMobileStore() {
 
   return {
     ...state,
-    logout: () => mobileStore.logout(),
-    login: (u: AuthenticatedUser) => mobileStore.login(u),
     setRole: (role: MobileRole) => mobileStore.setRole(role),
     setSociety: (society: SocietyOption) => mobileStore.setSociety(society),
     setActiveParcelId: (id: string | null) => mobileStore.setActiveParcelId(id),
     schedulePickup: (parcelId: string, slotId: string) => mobileStore.schedulePickup(parcelId, slotId),
-    receiveParcel: (data: Parameters<typeof mobileStore.receiveParcel>[0]) => mobileStore.receiveParcel(data),
-    verifyHandover: (otpOrCode: string) => mobileStore.verifyHandover(otpOrCode),
+    receiveParcel: (data: any) => mobileStore.receiveParcel(data),
+    addExpectedOrder: (data: any) => mobileStore.addExpectedOrder(data),
+    verifyHandover: (otp: string) => mobileStore.verifyHandover(otp),
     completeHandover: (parcelId: string) => mobileStore.completeHandover(parcelId),
-    addResident: (r: Parameters<typeof mobileStore.addResident>[0]) => mobileStore.addResident(r),
-    addStaff: (s: Parameters<typeof mobileStore.addStaff>[0]) => mobileStore.addStaff(s),
-    toggleSlot: (id: string) => mobileStore.toggleSlot(id),
-    addSlot: (w: string) => mobileStore.addSlot(w),
+    addResident: (resident: any) => mobileStore.addResident(resident),
+    addStaff: (staff: any) => mobileStore.addStaff(staff),
+    login: (user: AuthenticatedUser) => mobileStore.login(user),
+    logout: () => mobileStore.logout(),
   };
 }

@@ -210,21 +210,66 @@ export const ResidentPickupCode: React.FC<ResidentPickupCodeProps> = ({
           </div>
         </div>
 
+        {/* Handover & Locker Slot Instructions Card */}
+        <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-blue-100 border-2 border-[#060D1E] flex items-center justify-center text-blue-700">
+              <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div>
+              <h3 className="text-xs font-black uppercase text-[#060D1E]">Locker Hub Collection Guide</h3>
+              <p className="text-[10px] font-bold text-slate-500">Gate 1 Express Parcel Hub • Tower B Lobby</p>
+            </div>
+          </div>
+
+          <div className="p-3 bg-[#FEF9F3] rounded-2xl border border-slate-300 space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500 font-semibold">Assigned Storage Slot:</span>
+              <span className="font-mono font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                {parcel.storageLocation || 'Rack B - Shelf 04'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500 font-semibold">Recipient:</span>
+              <span className="font-black text-[#060D1E]">{parcel.recipientName} ({parcel.flat})</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-500 font-semibold">Hub Operating Hours:</span>
+              <span className="font-bold text-slate-700">07:00 AM – 11:00 PM</span>
+            </div>
+          </div>
+
+          <div className="space-y-1.5 text-[11px] font-semibold text-slate-600 pl-1">
+            <div className="flex items-start gap-2">
+              <span className="w-4 h-4 rounded-full bg-slate-200 text-[#060D1E] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
+              <span>Present this 6-digit OTP or let Security Staff scan your QR pass.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="w-4 h-4 rounded-full bg-slate-200 text-[#060D1E] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
+              <span>Staff verifies code, retrieves package from {parcel.storageLocation}, and releases locker slot.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="w-4 h-4 rounded-full bg-slate-200 text-[#060D1E] font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
+              <span>Package status transitions to <strong className="text-emerald-700">COLLECTED</strong> with audit timestamp.</span>
+            </div>
+          </div>
+        </div>
+
         {/* Handover Action */}
-        <div className="p-3.5 bg-amber-50 rounded-2xl border-2 border-amber-400 shadow-[2px_2px_0px_#F59E0B]">
+        <div className="p-4 bg-amber-50 rounded-2xl border-2 border-amber-400 shadow-[2px_2px_0px_#F59E0B]">
           <div className="flex items-center gap-1.5 mb-1 text-xs font-black text-amber-950">
             <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>Express Counter Collection</span>
+            <span>Counter Handover Action</span>
           </div>
-          <p className="text-[11px] text-amber-900 font-semibold mb-2.5">
-            Present this 6-digit OTP or digital QR code to security staff at your delivery counter to verify and complete package collection.
+          <p className="text-[11px] text-amber-900 font-semibold mb-3">
+            Present code to hub counter staff, or simulate instant counter pickup below to test the full lifecycle:
           </p>
           <button
             onClick={onCollected}
-            className="w-full py-2.5 px-3 bg-[#10B981] hover:bg-emerald-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+            className="w-full py-3 px-3 bg-[#10B981] hover:bg-emerald-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
           >
             <Check className="w-4 h-4 stroke-[3]" />
-            <span>Mark Collected (Show Success)</span>
+            <span>Simulate Staff Verification & Handover</span>
           </button>
         </div>
       </div>

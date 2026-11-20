@@ -30,11 +30,30 @@ export type ResidentView =
 export type ResidentTab = 'home' | 'parcels' | 'history' | 'profile';
 
 export const ResidentApp: React.FC<ResidentAppProps> = ({ onLogoutSession }) => {
-  const { parcels, completeHandover, isAuthenticated, logout } = useMobileStore();
+  const { parcels, completeHandover, logout } = useMobileStore();
 
-  const [view, setView] = useState<ResidentView>(isAuthenticated ? 'dashboard' : 'login');
+  const [view, setView] = useState<ResidentView>('dashboard');
   const [activeTab, setActiveTab] = useState<ResidentTab>('home');
-  const [selectedParcel, setSelectedParcel] = useState<MobileParcel>(parcels[0]);
+  const [selectedParcel, setSelectedParcel] = useState<MobileParcel>(parcels[0] || {
+    id: 'p-default',
+    trackingNumber: 'AMZ-99412-BLR',
+    carrier: 'Amazon',
+    description: 'Sony WH-1000XM5 Headphones',
+    status: 'WAITING',
+    recipientName: 'Vinay Kumar',
+    recipientPhone: '+91 98450 11223',
+    flat: 'B-402',
+    tower: 'Tower B',
+    storageLocation: 'Tower B, Rack B, Slot B17',
+    receivedAt: 'Today, 2:30 PM',
+    otpCode: '742916',
+    timeline: [
+      { label: 'Dispatched by Amazon', completed: true },
+      { label: 'Received at Society Hub', sublabel: 'Rack B, Slot B17', completed: true, current: true },
+      { label: 'Pickup Scheduled', completed: false },
+      { label: 'Handover Completed', completed: false },
+    ],
+  });
   const [generatedOtp, setGeneratedOtp] = useState<string>('742916');
 
   const handleSelectParcel = (p: MobileParcel) => {

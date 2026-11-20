@@ -1,13 +1,34 @@
 import React from 'react';
-import { Crown, Building, Users, Clock, Bell, Shield, KeyRound, Database, Info, LogOut, ChevronRight, Sparkles } from 'lucide-react';
+import {
+  Crown,
+  Building,
+  Users,
+  Clock,
+  Bell,
+  Shield,
+  KeyRound,
+  Database,
+  Info,
+  LogOut,
+  ChevronRight,
+  Boxes,
+  CreditCard,
+  Compass,
+} from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 
 interface AdminSettingsTabProps {
   onLogout: () => void;
+  onOpenSubscriptions?: () => void;
+  onOpenOnboarding?: () => void;
+  onOpenLockers?: () => void;
 }
 
 export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
   onLogout,
+  onOpenSubscriptions,
+  onOpenOnboarding,
+  onOpenLockers,
 }) => {
   const { selectedSociety, logout } = useMobileStore();
 
@@ -15,6 +36,27 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
     logout();
     onLogout();
   };
+
+  const operationalModules = [
+    {
+      label: 'Storage Locker Units',
+      desc: 'Visual rack occupancy & release slots',
+      icon: Boxes,
+      action: onOpenLockers,
+    },
+    {
+      label: 'Society Subscription & Billing',
+      desc: 'Starter, Professional & Enterprise tiers',
+      icon: CreditCard,
+      action: onOpenSubscriptions,
+    },
+    {
+      label: 'Society Setup & Onboarding Wizard',
+      desc: '8-stage end-to-end community configuration',
+      icon: Compass,
+      action: onOpenOnboarding,
+    },
+  ];
 
   const settingsItems = [
     { label: 'Society Details', icon: Building, desc: 'Address, towers & gates' },
@@ -48,28 +90,63 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
           </div>
         </div>
 
-        {/* Settings Links matching reference */}
-        <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] divide-y divide-slate-100">
-          {settingsItems.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={idx}
-                className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
-                    <Icon className="w-4 h-4 text-[#1E60F2]" />
+        {/* Operational Modules (Lockers, Subscriptions, Onboarding) */}
+        <div className="space-y-1.5">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">
+            Society Modules
+          </h3>
+          <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] divide-y divide-slate-100 overflow-hidden">
+            {operationalModules.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={idx}
+                  onClick={item.action}
+                  className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#1E60F2]">
+                      <Icon className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-[#060D1E]">{item.label}</p>
+                      <p className="text-[10px] font-semibold text-slate-500">{item.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-black text-[#060D1E]">{item.label}</p>
-                    <p className="text-[10px] font-semibold text-slate-500">{item.desc}</p>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* General Settings Links */}
+        <div className="space-y-1.5">
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">
+            General Configuration
+          </h3>
+          <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] divide-y divide-slate-100 overflow-hidden">
+            {settingsItems.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={idx}
+                  className="w-full p-3.5 flex items-center justify-between hover:bg-slate-50 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-slate-700" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-[#060D1E]">{item.label}</p>
+                      <p className="text-[10px] font-semibold text-slate-500">{item.desc}</p>
+                    </div>
                   </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-slate-400" />
-              </button>
-            );
-          })}
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Logout */}

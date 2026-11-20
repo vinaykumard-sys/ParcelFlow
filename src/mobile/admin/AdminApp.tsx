@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Users, BarChart3, Settings, Crown } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Boxes,
+  Users,
+  CreditCard,
+  Settings,
+  BarChart3,
+  Compass,
+} from 'lucide-react';
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { AdminLogin } from './AdminLogin';
 import { AdminDashboard } from './AdminDashboard';
 import { AdminManageTab } from './AdminManageTab';
+import { AdminLockersTab } from './AdminLockersTab';
+import { AdminSubscriptionsTab } from './AdminSubscriptionsTab';
+import { AdminOnboardingTab } from './AdminOnboardingTab';
 import { AdminReportsTab } from './AdminReportsTab';
 import { AdminSettingsTab } from './AdminSettingsTab';
 import { Forbidden403 } from '../components/Forbidden403';
@@ -14,7 +25,14 @@ interface AdminAppProps {
   onReturnToPortal?: () => void;
 }
 
-export type AdminTab = 'dashboard' | 'manage' | 'reports' | 'settings';
+export type AdminTab =
+  | 'dashboard'
+  | 'lockers'
+  | 'manage'
+  | 'subscriptions'
+  | 'onboarding'
+  | 'reports'
+  | 'settings';
 
 export const AdminApp: React.FC<AdminAppProps> = ({
   onLogoutSession,
@@ -26,7 +44,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({
     currentRole === 'SOCIETY_ADMIN' ||
     currentRole === 'SUPER_ADMIN';
 
-  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated && isAdminRole);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [manageSubtab, setManageSubtab] = useState<'residents' | 'staff' | 'slots'>('residents');
 
@@ -55,9 +73,17 @@ export const AdminApp: React.FC<AdminAppProps> = ({
     );
   }
 
-  const handleQuickAction = (_action: 'scan' | 'receive' | 'add_resident') => {
-    setManageSubtab('residents');
-    setActiveTab('manage');
+  const handleQuickAction = (action: 'scan' | 'receive' | 'add_resident' | 'lockers' | 'subscriptions' | 'onboarding') => {
+    if (action === 'lockers') {
+      setActiveTab('lockers');
+    } else if (action === 'subscriptions') {
+      setActiveTab('subscriptions');
+    } else if (action === 'onboarding') {
+      setActiveTab('onboarding');
+    } else {
+      setManageSubtab('residents');
+      setActiveTab('manage');
+    }
   };
 
   return (
@@ -71,19 +97,31 @@ export const AdminApp: React.FC<AdminAppProps> = ({
               if (sub) setManageSubtab(sub);
               setActiveTab('manage');
             }}
+            onOpenLockers={() => setActiveTab('lockers')}
+            onOpenSubscriptions={() => setActiveTab('subscriptions')}
+            onOpenOnboarding={() => setActiveTab('onboarding')}
             onOpenReports={() => setActiveTab('reports')}
             onQuickAction={handleQuickAction}
           />
         )}
 
+        {activeTab === 'lockers' && <AdminLockersTab />}
+
         {activeTab === 'manage' && (
           <AdminManageTab initialSubtab={manageSubtab} />
         )}
+
+        {activeTab === 'subscriptions' && <AdminSubscriptionsTab />}
+
+        {activeTab === 'onboarding' && <AdminOnboardingTab />}
 
         {activeTab === 'reports' && <AdminReportsTab />}
 
         {activeTab === 'settings' && (
           <AdminSettingsTab
+            onOpenSubscriptions={() => setActiveTab('subscriptions')}
+            onOpenOnboarding={() => setActiveTab('onboarding')}
+            onOpenLockers={() => setActiveTab('lockers')}
             onLogout={() => {
               logout();
               if (onLogoutSession) onLogoutSession();
@@ -93,8 +131,9 @@ export const AdminApp: React.FC<AdminAppProps> = ({
         )}
       </div>
 
-      {/* Admin Bottom Nav: Dashboard, Manage, Reports, Settings */}
-      <div className="w-full bg-white border-t-2 border-[#060D1E] px-4 py-2 flex items-center justify-around z-30 shadow-[0px_-2px_10px_rgba(0,0,0,0.04)]">
+      {/* Admin Bottom Navigation Bar */}
+      <div className="w-full bg-white border-t-2 border-[#060D1E] px-2 py-2 flex items-center justify-around z-30 shadow-[0px_-2px_10px_rgba(0,0,0,0.04)]">
+        {/* Dashboard */}
         <button
           onClick={() => setActiveTab('dashboard')}
           className={`flex flex-col items-center gap-1 transition-all ${
@@ -106,11 +145,29 @@ export const AdminApp: React.FC<AdminAppProps> = ({
               activeTab === 'dashboard' ? 'bg-blue-50 border border-blue-200' : ''
             }`}
           >
-            <LayoutDashboard className="w-5 h-5 stroke-[2.5]" />
+            <LayoutDashboard className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[10px] font-black">Dashboard</span>
+          <span className="text-[9px] font-black">Home</span>
         </button>
 
+        {/* Lockers */}
+        <button
+          onClick={() => setActiveTab('lockers')}
+          className={`flex flex-col items-center gap-1 transition-all ${
+            activeTab === 'lockers' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
+          }`}
+        >
+          <div
+            className={`p-1 rounded-xl ${
+              activeTab === 'lockers' ? 'bg-blue-50 border border-blue-200' : ''
+            }`}
+          >
+            <Boxes className="w-4 h-4 stroke-[2.5]" />
+          </div>
+          <span className="text-[9px] font-black">Lockers</span>
+        </button>
+
+        {/* Directory (Manage) */}
         <button
           onClick={() => setActiveTab('manage')}
           className={`flex flex-col items-center gap-1 transition-all ${
@@ -122,41 +179,47 @@ export const AdminApp: React.FC<AdminAppProps> = ({
               activeTab === 'manage' ? 'bg-blue-50 border border-blue-200' : ''
             }`}
           >
-            <Users className="w-5 h-5 stroke-[2.5]" />
+            <Users className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[10px] font-black">Manage</span>
+          <span className="text-[9px] font-black">Directory</span>
         </button>
 
+        {/* Subscriptions */}
         <button
-          onClick={() => setActiveTab('reports')}
+          onClick={() => setActiveTab('subscriptions')}
           className={`flex flex-col items-center gap-1 transition-all ${
-            activeTab === 'reports' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
+            activeTab === 'subscriptions' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           <div
             className={`p-1 rounded-xl ${
-              activeTab === 'reports' ? 'bg-blue-50 border border-blue-200' : ''
+              activeTab === 'subscriptions' ? 'bg-blue-50 border border-blue-200' : ''
             }`}
           >
-            <BarChart3 className="w-5 h-5 stroke-[2.5]" />
+            <CreditCard className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[10px] font-black">Reports</span>
+          <span className="text-[9px] font-black">Plan</span>
         </button>
 
+        {/* Settings */}
         <button
           onClick={() => setActiveTab('settings')}
           className={`flex flex-col items-center gap-1 transition-all ${
-            activeTab === 'settings' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
+            activeTab === 'settings' || activeTab === 'onboarding' || activeTab === 'reports'
+              ? 'text-[#1E60F2] scale-105'
+              : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           <div
             className={`p-1 rounded-xl ${
-              activeTab === 'settings' ? 'bg-blue-50 border border-blue-200' : ''
+              activeTab === 'settings' || activeTab === 'onboarding' || activeTab === 'reports'
+                ? 'bg-blue-50 border border-blue-200'
+                : ''
             }`}
           >
-            <Settings className="w-5 h-5 stroke-[2.5]" />
+            <Settings className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[10px] font-black">Settings</span>
+          <span className="text-[9px] font-black">Settings</span>
         </button>
       </div>
     </div>

@@ -52,9 +52,14 @@ export const StaffHandoverComplete: React.FC<StaffHandoverCompleteProps> = ({
 
             <div className="flex items-center justify-between">
               <span className="text-slate-500 font-semibold flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#1E60F2]" /> Storage Slot:
+                <MapPin className="w-3.5 h-3.5 text-[#1E60F2]" /> Released Storage Slot:
               </span>
-              <span className="text-[#060D1E] font-extrabold">{parcel.storageLocation}</span>
+              <span className="text-emerald-700 font-black flex items-center gap-1">
+                <span>{parcel.storageLocation}</span>
+                <span className="text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-1.5 py-0.2 rounded">
+                  VACATED
+                </span>
+              </span>
             </div>
 
             <div className="flex items-center justify-between">

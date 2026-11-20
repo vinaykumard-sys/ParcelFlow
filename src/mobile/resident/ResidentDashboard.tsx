@@ -1,7 +1,8 @@
-import React from 'react';
-import { Package, Clock, CheckCircle2, ChevronRight, Calendar, QrCode, Shield, Bell, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Package, Clock, CheckCircle2, ChevronRight, Calendar, QrCode, Shield, Bell, Sparkles, Plus, PackagePlus } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
+import { AddOrderModal } from './AddOrderModal';
 
 interface ResidentDashboardProps {
   onSelectParcel: (parcel: MobileParcel) => void;
@@ -17,6 +18,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
   onOpenNotifications,
 }) => {
   const { parcels, selectedSociety } = useMobileStore();
+  const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
 
   const residentParcels = parcels.filter(
     (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
@@ -124,14 +126,20 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
           </div>
         </div>
 
-        {/* "Your Parcels" Section */}
+        {/* "Your Parcels" Section Header with Action */}
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-black text-[#060D1E] uppercase tracking-wider flex items-center gap-1.5">
               <Package className="w-4 h-4 text-[#1E60F2]" />
               Your Parcels ({activeParcels.filter((p) => p.status !== 'COLLECTED').length})
             </h2>
-            <span className="text-[11px] font-bold text-[#1E60F2]">Tower B Hub</span>
+            <button
+              onClick={() => setIsAddOrderOpen(true)}
+              className="px-2.5 py-1 bg-[#1E60F2] hover:bg-blue-600 text-white text-[11px] font-black rounded-xl border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] flex items-center gap-1 active:scale-95 transition-all"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              <span>Add Order</span>
+            </button>
           </div>
 
           <div className="space-y-3">
@@ -243,6 +251,12 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Add Expected Delivery Modal */}
+      <AddOrderModal
+        isOpen={isAddOrderOpen}
+        onClose={() => setIsAddOrderOpen(false)}
+      />
     </div>
   );
 };

@@ -32,8 +32,8 @@ export type StaffView =
 export type StaffTab = 'home' | 'parcels' | 'scan' | 'history' | 'profile';
 
 export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
-  const { parcels, isAuthenticated, logout } = useMobileStore();
-  const [view, setView] = useState<StaffView>(isAuthenticated ? 'dashboard' : 'login');
+  const { parcels, logout } = useMobileStore();
+  const [view, setView] = useState<StaffView>('dashboard');
   const [activeTab, setActiveTab] = useState<StaffTab>('home');
 
   // Multi-step intake flow state
