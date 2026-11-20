@@ -6,6 +6,7 @@ import { AdminApp } from './admin/AdminApp';
 import { Forbidden403 } from './components/Forbidden403';
 import { AppUpdateModal } from './components/AppUpdateModal';
 import { checkForAppUpdate, type RemoteAppUpdateMetadata } from '../services/appUpdateService';
+import { initializePushNotifications } from '../services/fcmClient';
 import {
   Smartphone,
   Monitor,
@@ -21,7 +22,7 @@ import {
 // ============================================================================
 
 export const MobileApp: React.FC = () => {
-  const { currentRole } = useMobileStore();
+  const { currentRole, currentUser } = useMobileStore();
   const [deviceFrameMode, setDeviceFrameMode] = useState<boolean>(true);
   const [isNativeApp, setIsNativeApp] = useState(false);
   const [showTourGuide, setShowTourGuide] = useState(true);
@@ -85,7 +86,13 @@ export const MobileApp: React.FC = () => {
     };
 
     runUpdateCheck();
-  }, []);
+
+    // Register Device for Push Notifications & Handle Notification Tap Routing
+    initializePushNotifications(currentUser?.id, () => {
+      runUpdateCheck();
+      setIsUpdateModalOpen(true);
+    });
+  }, [currentUser?.id]);
 
   return (
     <div className="w-full min-h-screen bg-[#F7F2EB] flex flex-col items-center justify-center font-sans antialiased py-2 sm:py-4">

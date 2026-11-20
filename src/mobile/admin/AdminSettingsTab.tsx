@@ -14,6 +14,8 @@ import {
   Boxes,
   CreditCard,
   Compass,
+  UploadCloud,
+  Smartphone,
 } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 
@@ -22,6 +24,7 @@ interface AdminSettingsTabProps {
   onOpenSubscriptions?: () => void;
   onOpenOnboarding?: () => void;
   onOpenLockers?: () => void;
+  onOpenReleases?: () => void;
 }
 
 export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
@@ -29,8 +32,13 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
   onOpenSubscriptions,
   onOpenOnboarding,
   onOpenLockers,
+  onOpenReleases,
 }) => {
-  const { selectedSociety, logout } = useMobileStore();
+  const { selectedSociety, currentUser, currentRole, logout } = useMobileStore();
+
+  const isPlatformOwner =
+    currentRole === 'SUPER_ADMIN' ||
+    (currentUser?.email && currentUser.email.toLowerCase() === 'vinaykumard45678@gmail.com');
 
   const handleLogout = () => {
     logout();
@@ -89,6 +97,32 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Platform Owner Releases & Push Notification Action (Requirement #9) */}
+        {isPlatformOwner && (
+          <div
+            onClick={onOpenReleases}
+            className="bg-blue-50 hover:bg-blue-100/70 rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 flex items-center justify-between cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#1E60F2] border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] flex items-center justify-center text-white">
+                <UploadCloud className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="text-xs font-black text-[#060D1E]">App Updates & FCM Push</h3>
+                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 border border-amber-400">
+                    Platform Owner
+                  </span>
+                </div>
+                <p className="text-[10px] font-bold text-blue-900/80 mt-0.5">
+                  Publish APK releases & broadcast update notifications to devices
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[#1E60F2]" />
+          </div>
+        )}
 
         {/* Resident Society Join Code Card (Requirement #6) */}
         <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 space-y-2.5">

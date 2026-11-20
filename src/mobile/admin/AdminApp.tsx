@@ -17,6 +17,7 @@ import { AdminSubscriptionsTab } from './AdminSubscriptionsTab';
 import { AdminOnboardingTab } from './AdminOnboardingTab';
 import { AdminReportsTab } from './AdminReportsTab';
 import { AdminSettingsTab } from './AdminSettingsTab';
+import { PlatformOwnerReleaseTab } from './PlatformOwnerReleaseTab';
 import { Forbidden403 } from '../components/Forbidden403';
 import { useMobileStore } from '../services/mobileState';
 
@@ -32,7 +33,8 @@ export type AdminTab =
   | 'subscriptions'
   | 'onboarding'
   | 'reports'
-  | 'settings';
+  | 'settings'
+  | 'releases';
 
 export const AdminApp: React.FC<AdminAppProps> = ({
   onLogoutSession,
@@ -122,12 +124,17 @@ export const AdminApp: React.FC<AdminAppProps> = ({
             onOpenSubscriptions={() => setActiveTab('subscriptions')}
             onOpenOnboarding={() => setActiveTab('onboarding')}
             onOpenLockers={() => setActiveTab('lockers')}
+            onOpenReleases={() => setActiveTab('releases')}
             onLogout={() => {
               logout();
               if (onLogoutSession) onLogoutSession();
               setIsLoggedIn(false);
             }}
           />
+        )}
+
+        {activeTab === 'releases' && (
+          <PlatformOwnerReleaseTab onBack={() => setActiveTab('settings')} />
         )}
       </div>
 
