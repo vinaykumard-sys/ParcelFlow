@@ -14,3 +14,4 @@ export * from './adminService.ts';
 export * from './auditService.ts';
 export * from './subscriptionService.ts';
 export * from './onboardingService.ts';
+export * from './shoppingSyncService.ts';

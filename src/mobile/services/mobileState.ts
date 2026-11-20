@@ -8,8 +8,11 @@ import type {
   SocietyOption,
   SocietyReport,
   AuthenticatedUser,
+  ConnectedAccount,
+  ShoppingProvider,
 } from '../types';
 import { supabase } from '../../services/supabaseClient';
+import { getConnectedAccounts, syncProviderOrders, disconnectProviderAccount } from '../../services/shoppingSyncService';
 
 export const SOCIETIES: SocietyOption[] = [
   { id: 'soc-1', name: 'Greenview Heights', address: 'Hebbal, Outer Ring Rd', city: 'Bengaluru' },
@@ -45,6 +48,7 @@ interface MobileStoreState {
   staff: StaffMember[];
   report: SocietyReport;
   activeParcelId: string | null;
+  connectedAccounts: ConnectedAccount[];
 }
 
 class MobileStateStore {
@@ -79,6 +83,7 @@ class MobileStateStore {
         const rawResidents: ResidentUser[] = Array.isArray(parsed.residents) ? parsed.residents : [];
         const rawStaff: StaffMember[] = Array.isArray(parsed.staff) ? parsed.staff : [];
         const rawSlots: PickupSlot[] = Array.isArray(parsed.slots) && parsed.slots.length > 0 ? parsed.slots : INITIAL_SLOTS;
+        const rawConnected: ConnectedAccount[] = Array.isArray(parsed.connectedAccounts) ? parsed.connectedAccounts : [];
         const user = parsed.currentUser || null;
         return {
           ...parsed,
@@ -90,6 +95,7 @@ class MobileStateStore {
           slots: this.dedup(rawSlots, (s) => s.id),
           residents: this.dedup(rawResidents, (r) => r.id),
           staff: this.dedup(rawStaff, (s) => s.id),
+          connectedAccounts: this.dedup(rawConnected, (a) => a.provider),
           report: parsed.report || {
             period: 'Daily',
             totalParcels: rawParcels.length,
@@ -114,6 +120,7 @@ class MobileStateStore {
       slots: INITIAL_SLOTS,
       residents: [],
       staff: [],
+      connectedAccounts: [],
       activeParcelId: null,
       report: {
         period: 'Daily',
@@ -137,6 +144,7 @@ class MobileStateStore {
           slots: this.dedup(this.state.slots, (s) => s.id),
           residents: this.dedup(this.state.residents, (r) => r.id),
           staff: this.dedup(this.state.staff, (s) => s.id),
+          connectedAccounts: this.dedup(this.state.connectedAccounts, (a) => a.provider),
         };
         this.state = cleanState;
         localStorage.setItem('parcelflow_mobile_state_v3', JSON.stringify(cleanState));
@@ -462,6 +470,73 @@ class MobileStateStore {
     this.saveState();
     return true;
   }
+
+  setConnectedAccounts(accounts: ConnectedAccount[]) {
+    this.state.connectedAccounts = this.dedup(accounts, (a) => a.provider);
+    this.saveState();
+  }
+
+  connectShoppingAccount(account: ConnectedAccount) {
+    const existing = this.state.connectedAccounts.filter((a) => a.provider !== account.provider);
+    this.state.connectedAccounts = [...existing, account];
+    this.saveState();
+  }
+
+  disconnectShoppingAccount(provider: ShoppingProvider) {
+    this.state.connectedAccounts = this.state.connectedAccounts.filter((a) => a.provider !== provider);
+    this.saveState();
+  }
+
+  async syncShoppingOrders(provider?: ShoppingProvider): Promise<number> {
+    const providersToSync = provider
+      ? [provider]
+      : this.state.connectedAccounts.filter((a) => a.status === 'CONNECTED').map((a) => a.provider);
+
+    let totalDiscovered = 0;
+    const residentInfo = {
+      name: this.state.currentUser?.name || 'Resident',
+      phone: this.state.currentUser?.phone || '+91 98000 00000',
+      flat: this.state.currentUser?.flatNumber || 'B-402',
+    };
+
+    for (const prov of providersToSync) {
+      try {
+        const result = await syncProviderOrders(this.state.currentUser?.id, prov, residentInfo);
+        if (result.discoveredParcels.length > 0) {
+          // Add newly discovered parcels without duplicates
+          const currentTrackingSet = new Set(this.state.parcels.map((p) => p.trackingNumber.toUpperCase()));
+          const novelParcels = result.discoveredParcels.filter(
+            (p) => !currentTrackingSet.has(p.trackingNumber.toUpperCase())
+          );
+
+          if (novelParcels.length > 0) {
+            this.state.parcels = [...novelParcels, ...this.state.parcels];
+            this.state.report.totalParcels += novelParcels.length;
+            this.state.report.pending += novelParcels.length;
+            totalDiscovered += novelParcels.length;
+          }
+
+          // Update account last synced
+          this.state.connectedAccounts = this.state.connectedAccounts.map((acc) => {
+            if (acc.provider === prov) {
+              return {
+                ...acc,
+                status: 'CONNECTED',
+                lastSyncedAt: 'Just now',
+                ordersCount: (acc.ordersCount || 0) + novelParcels.length,
+              };
+            }
+            return acc;
+          });
+        }
+      } catch (err) {
+        console.warn(`Sync error for ${prov}:`, err);
+      }
+    }
+
+    this.saveState();
+    return totalDiscovered;
+  }
 }
 
 export const mobileStore = new MobileStateStore();
@@ -488,6 +563,9 @@ export function useMobileStore() {
     notifyOnTheWay: (parcelId: string) => mobileStore.notifyOnTheWay(parcelId),
     addResident: (resident: any) => mobileStore.addResident(resident),
     addStaff: (staff: any) => mobileStore.addStaff(staff),
+    connectShoppingAccount: (account: ConnectedAccount) => mobileStore.connectShoppingAccount(account),
+    disconnectShoppingAccount: (provider: ShoppingProvider) => mobileStore.disconnectShoppingAccount(provider),
+    syncShoppingOrders: (provider?: ShoppingProvider) => mobileStore.syncShoppingOrders(provider),
     login: (user: AuthenticatedUser) => mobileStore.login(user),
     logout: () => mobileStore.logout(),
   };

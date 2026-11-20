@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Package, Clock, CheckCircle2, Calendar, QrCode, Sparkles, Plus, PackagePlus, Shield } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Calendar, QrCode, Sparkles, Plus, PackagePlus, Shield, ShoppingBag } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 import { AddOrderModal } from './AddOrderModal';
+import { ShoppingDeliveriesModal } from './ShoppingDeliveriesModal';
 import { MobileHeader } from '../components/MobileHeader';
 import { ParcelCard } from '../components/ParcelCard';
 import { EmptyState } from '../components/EmptyState';
@@ -22,6 +23,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
 }) => {
   const { parcels, selectedSociety, currentUser } = useMobileStore();
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
+  const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
 
   // Filter parcels belonging to current resident (or all in test mode)
   const residentParcels = parcels.filter((p) => {
@@ -149,24 +151,55 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
               <span>Inbound Deliveries ({inboundParcels.length})</span>
             </h2>
 
-            <button
-              type="button"
-              onClick={() => setIsAddOrderOpen(true)}
-              className="flex items-center gap-1 px-2.5 py-1 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[3]" />
-              <span>Add Order</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setIsShoppingModalOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-[#060D1E] rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
+                title="Auto-discover online orders"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#060D1E]" />
+                <span>Auto-Sync</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsAddOrderOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Add Order</span>
+              </button>
+            </div>
           </div>
 
           {inboundParcels.length === 0 ? (
-            <EmptyState
-              icon="package"
-              title="No parcels waiting at hub"
-              description="When Amazon, Flipkart, or any courier drops off a package at your society gate, it will be checked in and appear here immediately."
-              actionLabel="+ Add Expected Order"
-              onAction={() => setIsAddOrderOpen(true)}
-            />
+            <div className="space-y-3">
+              <EmptyState
+                icon="package"
+                title="No parcels waiting at hub"
+                description="When Amazon, Flipkart, or any courier drops off a package at your society gate, it will be checked in and appear here immediately."
+                actionLabel="+ Add Expected Order"
+                onAction={() => setIsAddOrderOpen(true)}
+              />
+              <div
+                onClick={() => setIsShoppingModalOpen(true)}
+                className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] p-3 flex items-center justify-between cursor-pointer hover:bg-amber-50/50 transition-colors"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-400 border border-[#060D1E] flex items-center justify-center text-[#060D1E]">
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-xs font-black text-[#060D1E]">Auto-Sync Deliveries</p>
+                    <p className="text-[10px] font-bold text-slate-500">Connect Amazon, Flipkart or Gmail once</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-300">
+                  Connect
+                </span>
+              </div>
+            </div>
           ) : (
             inboundParcels.map((parcel) => (
               <ParcelCard
@@ -193,6 +226,12 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
           }}
         />
       )}
+
+      {/* Shopping & Deliveries Auto-Aggregation Modal */}
+      <ShoppingDeliveriesModal
+        isOpen={isShoppingModalOpen}
+        onClose={() => setIsShoppingModalOpen(false)}
+      />
     </div>
   );
 };

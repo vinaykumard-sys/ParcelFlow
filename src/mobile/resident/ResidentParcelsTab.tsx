@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Package, Search, PackagePlus } from 'lucide-react';
+import { Package, Search, PackagePlus, Sparkles } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 import { AddOrderModal } from './AddOrderModal';
+import { ShoppingDeliveriesModal } from './ShoppingDeliveriesModal';
 import { ParcelCard } from '../components/ParcelCard';
 import { EmptyState } from '../components/EmptyState';
 
@@ -21,6 +22,7 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
   const [filter, setFilter] = useState<'ALL' | 'WAITING' | 'SCHEDULED' | 'COLLECTED'>('ALL');
   const [search, setSearch] = useState('');
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
+  const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
 
   // Filter parcels for current resident (or all in test mode)
   const residentParcels = parcels.filter((p) => {
@@ -94,14 +96,25 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
           <h1 className="text-base font-black text-[#060D1E] tracking-tight">Your Society Parcels</h1>
           <p className="text-[11px] font-bold text-slate-500">Live incoming & stored hub inventory</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setIsAddOrderOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] active:scale-95 transition-all"
-        >
-          <PackagePlus className="w-3.5 h-3.5" />
-          <span>+ Add Order</span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setIsShoppingModalOpen(true)}
+            className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-400 hover:bg-amber-500 text-[#060D1E] rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
+            title="Auto-discover online orders"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#060D1E]" />
+            <span>Auto-Sync</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsAddOrderOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] active:scale-95 transition-all"
+          >
+            <PackagePlus className="w-3.5 h-3.5" />
+            <span>+ Add Order</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
@@ -178,6 +191,12 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
           }}
         />
       )}
+
+      {/* Shopping & Deliveries Auto-Aggregation Modal */}
+      <ShoppingDeliveriesModal
+        isOpen={isShoppingModalOpen}
+        onClose={() => setIsShoppingModalOpen(false)}
+      />
     </div>
   );
 };

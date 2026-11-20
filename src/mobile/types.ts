@@ -42,7 +42,22 @@ export interface MobileParcel {
   otpCode?: string; // e.g. "742916"
   receivedAt: string;
   collectedAt?: string;
+  orderAmount?: number; // e.g. 2499
+  estimatedDelivery?: string; // e.g. "Arriving Tomorrow"
+  syncedFromProvider?: 'GMAIL' | 'AMAZON' | 'FLIPKART' | 'MYNTRA';
   timeline: TimelineStep[];
+}
+
+export type ShoppingProvider = 'GMAIL' | 'AMAZON' | 'FLIPKART' | 'MYNTRA';
+
+export interface ConnectedAccount {
+  id: string;
+  provider: ShoppingProvider;
+  name: string;
+  accountEmail?: string;
+  status: 'CONNECTED' | 'DISCONNECTED' | 'SYNCING';
+  lastSyncedAt?: string;
+  ordersCount: number;
 }
 
 export interface PickupSlot {

@@ -1,14 +1,16 @@
-import React from 'react';
-import { User, Building, Phone, Mail, Shield, Bell, HelpCircle, LogOut, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { User, Building, Phone, Mail, Shield, Bell, HelpCircle, LogOut, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import { purgeAuthState } from '../../services/authService';
+import { ShoppingDeliveriesModal } from './ShoppingDeliveriesModal';
 
 interface ResidentProfileTabProps {
   onLogout: () => void;
 }
 
 export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout }) => {
-  const { selectedSociety, currentUser, logout } = useMobileStore();
+  const { selectedSociety, currentUser, connectedAccounts, logout } = useMobileStore();
+  const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
 
   const handleLogout = () => {
     purgeAuthState();
@@ -17,6 +19,7 @@ export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout
   };
 
   const initial = (currentUser?.name || 'R').charAt(0).toUpperCase();
+  const connectedCount = connectedAccounts.length;
 
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
@@ -65,6 +68,39 @@ export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout
           </div>
         </div>
 
+        {/* Shopping & Deliveries Auto-Aggregation Card */}
+        <div
+          onClick={() => setIsShoppingModalOpen(true)}
+          className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] p-3.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-400 border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] flex items-center justify-center text-[#060D1E]">
+              <ShoppingBag className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-xs font-black text-[#060D1E]">Shopping & Deliveries</h3>
+                <span className="flex items-center gap-0.5 text-[9px] font-black text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded-full border border-blue-300">
+                  <Sparkles className="w-2.5 h-2.5" /> Auto-Sync
+                </span>
+              </div>
+              <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                Amazon, Flipkart, Myntra & Gmail
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className={`text-[10px] font-black px-2 py-0.5 rounded-full border ${
+              connectedCount > 0
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                : 'bg-slate-100 text-slate-600 border-slate-300'
+            }`}>
+              {connectedCount > 0 ? `${connectedCount} Connected` : 'Connect'}
+            </span>
+            <ChevronRight className="w-4 h-4 text-slate-400" />
+          </div>
+        </div>
+
         {/* Settings Links */}
         <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] divide-y divide-slate-100 text-xs font-bold">
           <button
@@ -106,6 +142,12 @@ export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout
           <span>Log Out & Clear Session</span>
         </button>
       </div>
+
+      {/* Shopping & Deliveries Modal */}
+      <ShoppingDeliveriesModal
+        isOpen={isShoppingModalOpen}
+        onClose={() => setIsShoppingModalOpen(false)}
+      />
     </div>
   );
 };

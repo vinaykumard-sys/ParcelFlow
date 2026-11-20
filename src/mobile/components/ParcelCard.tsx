@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Clock, Calendar, CheckCircle2, ChevronRight, QrCode, MapPin } from 'lucide-react';
+import { Package, Clock, Calendar, CheckCircle2, ChevronRight, QrCode, MapPin, Sparkles, Tag } from 'lucide-react';
 import type { MobileParcel, ParcelStatus } from '../types';
 
 interface ParcelCardProps {
@@ -92,12 +92,34 @@ export const ParcelCard: React.FC<ParcelCardProps> = ({
       </div>
 
       {/* Item Description / Parcel Title */}
-      <h3 className="text-sm font-black text-[#060D1E] leading-snug line-clamp-1 mb-2">
-        {parcel.description || `${parcel.carrier} Parcel`}
-      </h3>
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h3 className="text-sm font-black text-[#060D1E] leading-snug line-clamp-1 flex-1">
+          {parcel.description || `${parcel.carrier} Parcel`}
+        </h3>
+        {parcel.orderAmount && (
+          <span className="text-xs font-black text-slate-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200 shrink-0">
+            ₹{parcel.orderAmount.toLocaleString('en-IN')}
+          </span>
+        )}
+      </div>
 
-      {/* Metadata: Location & Scheduled Slot */}
+      {/* Auto-sync source indicator */}
+      {parcel.syncedFromProvider && (
+        <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold text-blue-700 bg-blue-50/70 px-2 py-0.5 rounded-md border border-blue-100 w-fit">
+          <Sparkles className="w-3 h-3 text-blue-500" />
+          <span>Auto-synced via {parcel.syncedFromProvider}</span>
+        </div>
+      )}
+
+      {/* Metadata: Location, Scheduled Slot & Estimated Arrival */}
       <div className="space-y-1 mb-3 text-[11px] font-bold text-slate-600">
+        {parcel.estimatedDelivery && parcel.status !== 'COLLECTED' && (
+          <div className="flex items-center gap-1.5 text-slate-700">
+            <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span>ETA: <strong className="text-slate-900 font-extrabold">{parcel.estimatedDelivery}</strong></span>
+          </div>
+        )}
+
         {parcel.storageLocation && parcel.status !== 'COLLECTED' && (
           <div className="flex items-center gap-1.5 text-slate-500">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
