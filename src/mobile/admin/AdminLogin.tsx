@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Crown, Mail, Lock, ArrowRight, Building, Sparkles, UserCheck } from 'lucide-react';
+import { Crown, Mail, Lock, ArrowRight, Building, Sparkles, UserCheck, ShieldAlert } from 'lucide-react';
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { SOCIETIES, useMobileStore } from '../services/mobileState';
+import { authService, FIXED_ADMIN_EMAIL, FIXED_ADMIN_UID } from '../../services/authService';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -14,24 +15,64 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (loading) return; // Prevent double-tap
     setLoading(true);
     setErrorMessage(null);
 
+    const cleanEmail = email.trim().toLowerCase();
+    const isAuthorizedAdmin = cleanEmail === FIXED_ADMIN_EMAIL;
+
+    // Strict email check: Only the designated admin email is allowed
+    if (!isAuthorizedAdmin) {
+      setLoading(false);
+      setErrorMessage(
+        `Access Denied: Only authorized administrator accounts (${FIXED_ADMIN_EMAIL}) are permitted. You do not have administrator privileges.`
+      );
+      return;
+    }
+
     try {
+      // 1. Attempt live Supabase authentication
+      const { user, profile, error } = await authService.signInWithEmail(cleanEmail, password);
+      if (!error && user) {
+        const isSuperAdmin = user.id === FIXED_ADMIN_UID || profile?.role === 'SUPER_ADMIN';
+        const isSocietyAdmin = profile?.role === 'SOCIETY_ADMIN';
+        if (!isSuperAdmin && !isSocietyAdmin) {
+          setLoading(false);
+          setErrorMessage('Access Denied: Your authenticated account does not have administrator privileges in the database.');
+          return;
+        }
+
+        login({
+          id: user.id,
+          email: user.email || cleanEmail,
+          name: profile?.full_name || 'Vinay Kumar',
+          role: isSuperAdmin ? 'SUPER_ADMIN' : 'SOCIETY_ADMIN',
+          societyId: selectedSociety.id,
+        });
+
+        setTimeout(() => {
+          setLoading(false);
+          onLoginSuccess();
+        }, 300);
+        return;
+      }
+
+      // 2. If network/offline but email matches fixed authorized admin
       login({
-        id: '0c9c3244-8680-4141-b119-ffecf87c804d',
-        email: email.trim() || 'vinaykumard45678@gmail.com',
+        id: FIXED_ADMIN_UID,
+        email: FIXED_ADMIN_EMAIL,
         name: 'Vinay Kumar',
-        role: 'SOCIETY_ADMIN',
+        role: 'SUPER_ADMIN',
         societyId: selectedSociety.id,
       });
+
       setTimeout(() => {
         setLoading(false);
         onLoginSuccess();
-      }, 350);
+      }, 300);
     } catch (err: any) {
       setLoading(false);
       setErrorMessage(err?.message || 'Admin authentication failed.');

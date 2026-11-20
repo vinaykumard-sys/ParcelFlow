@@ -13,7 +13,15 @@ export const StaffParcelsTab: React.FC<StaffParcelsTabProps> = ({ onVerifyHandov
   const [filter, setFilter] = useState<'ALL' | 'WAITING' | 'SCHEDULED' | 'COLLECTED'>('ALL');
   const [search, setSearch] = useState('');
 
-  const filtered = parcels.filter((p) => {
+  // De-duplicate parcels by id before filtering to prevent duplicate cards
+  const seenIds = new Set<string>();
+  const uniqueParcels = parcels.filter((p) => {
+    if (seenIds.has(p.id)) return false;
+    seenIds.add(p.id);
+    return true;
+  });
+
+  const filtered = uniqueParcels.filter((p) => {
     if (filter !== 'ALL' && p.status !== filter) return false;
     if (search.trim()) {
       const q = search.toLowerCase();

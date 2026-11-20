@@ -12,19 +12,56 @@ import { TermsPage } from './pages/TermsPage';
 import { MobileApp } from './mobile/MobileApp';
 import { Forbidden403Page } from './components/Forbidden403';
 import { useMobileStore } from './mobile/services/mobileState';
+import { useState, useEffect } from 'react';
+import { verifyAdminStatus } from './services/authService';
+import { supabase } from './services/supabaseClient';
 
+// ============================================================================
+// ADMIN ROUTE GUARD — strictly DB-verified. Local store role alone is NOT enough.
+// Steps:
+//  1. Supabase auth.getUser() — requires a live server-verified JWT.
+//  2. verifyAdminStatus(uid) — queries public.profiles in Supabase DB.
+//  3. Only if DB confirms SUPER_ADMIN or SOCIETY_ADMIN is MobileApp rendered.
+// ============================================================================
 function AdminRouteGuard() {
-  const { currentRole, isAuthenticated } = useMobileStore();
-  const isAdmin =
-    isAuthenticated &&
-    (currentRole === 'ADMIN' ||
-      currentRole === 'SOCIETY_ADMIN' ||
-      currentRole === 'SUPER_ADMIN');
+  const { currentRole } = useMobileStore();
+  const [checking, setChecking] = useState(true);
+  const [dbVerifiedAdmin, setDbVerifiedAdmin] = useState(false);
 
-  if (!isAdmin) {
+  useEffect(() => {
+    let cancelled = false;
+    async function verify() {
+      try {
+        // Step 1: Get server-verified authenticated user (not from cache alone)
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+          if (!cancelled) { setDbVerifiedAdmin(false); setChecking(false); }
+          return;
+        }
+        // Step 2: Query public.profiles for SUPER_ADMIN or SOCIETY_ADMIN role
+        const isAdmin = await verifyAdminStatus(user.id);
+        if (!cancelled) { setDbVerifiedAdmin(isAdmin); setChecking(false); }
+      } catch {
+        if (!cancelled) { setDbVerifiedAdmin(false); setChecking(false); }
+      }
+    }
+    verify();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (checking) {
+    // Brief loading state while DB check runs — show nothing (or spinner)
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F2EB]">
+        <div className="text-sm text-slate-500 font-semibold animate-pulse">Verifying access…</div>
+      </div>
+    );
+  }
+
+  if (!dbVerifiedAdmin) {
     return (
       <Forbidden403Page
-        currentRole={isAuthenticated ? currentRole : 'RESIDENT'}
+        currentRole={currentRole}
         requiredRole="SOCIETY_ADMIN"
         attemptedPath="/admin"
       />

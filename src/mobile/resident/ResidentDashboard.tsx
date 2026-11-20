@@ -23,7 +23,14 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
   const residentParcels = parcels.filter(
     (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
   );
-  const activeParcels = residentParcels.length > 0 ? residentParcels : parcels;
+  const rawParcels = residentParcels.length > 0 ? residentParcels : parcels;
+  // De-duplicate by id before rendering to prevent duplicate cards
+  const seenIds = new Set<string>();
+  const activeParcels = rawParcels.filter((p) => {
+    if (seenIds.has(p.id)) return false;
+    seenIds.add(p.id);
+    return true;
+  });
 
   const waitingCount = activeParcels.filter((p) => p.status === 'WAITING').length;
   const scheduledCount = activeParcels.filter((p) => p.status === 'SCHEDULED').length;

@@ -23,7 +23,14 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
   const residentParcels = parcels.filter(
     (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
   );
-  const activeList = residentParcels.length > 0 ? residentParcels : parcels;
+  const rawList = residentParcels.length > 0 ? residentParcels : parcels;
+  // De-duplicate by id before rendering to prevent duplicate cards
+  const seen = new Set<string>();
+  const activeList = rawList.filter((p) => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
+  });
 
   const filtered = activeList.filter((p) => {
     if (filter === 'READY' && p.status !== 'WAITING') return false;

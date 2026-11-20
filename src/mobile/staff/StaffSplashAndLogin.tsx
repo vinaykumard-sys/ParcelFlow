@@ -22,11 +22,22 @@ export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
     setLoading(true);
     setErrorMessage(null);
 
+    const cleanEmail = email.trim().toLowerCase();
+    const isStaffDomain = cleanEmail.endsWith('@parcelflow.in') || cleanEmail === 'staff@parcelflow.in' || cleanEmail.includes('security');
+
+    if (!isStaffDomain) {
+      setLoading(false);
+      setErrorMessage(
+        'Unauthorized: Only registered security staff accounts (e.g. staff@parcelflow.in) can access the Gate Security portal.'
+      );
+      return;
+    }
+
     try {
       login({
         id: 'stf-gate-1',
-        email: email.trim() || 'staff@parcelflow.in',
-        name: 'Gate Security Attendant',
+        email: cleanEmail,
+        name: cleanEmail.includes('ramesh') ? 'Ramesh Gowda (Lead)' : 'Gate Security Attendant',
         role: 'SECURITY',
         societyId: selectedSociety.id,
       });

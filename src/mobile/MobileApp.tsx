@@ -7,33 +7,31 @@ import { Forbidden403 } from './components/Forbidden403';
 import {
   Smartphone,
   Monitor,
-  Shield,
-  Home,
-  Crown,
   ArrowLeft,
   Sparkles,
   Info,
   X,
-  CheckCircle2,
-  Package,
 } from 'lucide-react';
-import type { MobileRole } from './types';
+
+// ============================================================================
+// SECURITY: Role is derived EXCLUSIVELY from the authenticated Supabase DB
+// profile stored in mobileStore. No URL param or button can elevate role.
+// ============================================================================
 
 export const MobileApp: React.FC = () => {
-  const { currentRole, setRole } = useMobileStore();
+  const { currentRole } = useMobileStore();
   const [deviceFrameMode, setDeviceFrameMode] = useState<boolean>(true);
   const [isNativeApp, setIsNativeApp] = useState(false);
   const [showTourGuide, setShowTourGuide] = useState(true);
   const [isUnauthorizedAdminAttempt, setIsUnauthorizedAdminAttempt] = useState(false);
 
-  // Active persona selection state
-  const [activePersona, setActivePersona] = useState<'RESIDENT' | 'SECURITY' | 'ADMIN'>(
+  // Derive display persona from AUTHENTICATED role in store — never from URL or buttons
+  const activePersona: 'RESIDENT' | 'SECURITY' | 'ADMIN' =
     currentRole === 'ADMIN' || currentRole === 'SOCIETY_ADMIN' || currentRole === 'SUPER_ADMIN'
       ? 'ADMIN'
       : currentRole === 'SECURITY' || currentRole === 'STAFF'
       ? 'SECURITY'
-      : 'RESIDENT'
-  );
+      : 'RESIDENT';
 
   useEffect(() => {
     // Detect native Android APK or small viewport
@@ -49,39 +47,21 @@ export const MobileApp: React.FC = () => {
       setDeviceFrameMode(false);
     }
 
-    // Inspect URL query parameters for direct persona landing or unauthorized attempts
+    // Show 403 if URL signals an unauthorized attempt — but NEVER elevate role from URL
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const portalParam = (params.get('portal') || params.get('role') || '').toUpperCase();
       if (params.get('unauthorized') === 'true' || portalParam === 'FORBIDDEN') {
         setIsUnauthorizedAdminAttempt(true);
-      } else if (portalParam === 'ADMIN' || portalParam === 'SUPER_ADMIN' || portalParam === 'SOCIETY_ADMIN') {
-        setActivePersona('ADMIN');
-        setRole('SOCIETY_ADMIN');
-      } else if (portalParam === 'SECURITY' || portalParam === 'STAFF') {
-        setActivePersona('SECURITY');
-        setRole('SECURITY');
-      } else if (portalParam === 'RESIDENT') {
-        setActivePersona('RESIDENT');
-        setRole('RESIDENT');
       }
+      // REMOVED: URL-param-based role elevation (?portal=ADMIN / ?portal=SECURITY).
+      // Any visitor manipulating these params gets their session role only — no elevation.
     }
   }, []);
 
-  const handleSelectPersona = (persona: 'RESIDENT' | 'SECURITY' | 'ADMIN') => {
-    setActivePersona(persona);
-    if (persona === 'RESIDENT') {
-      setRole('RESIDENT');
-    } else if (persona === 'SECURITY') {
-      setRole('SECURITY');
-    } else {
-      setRole('SOCIETY_ADMIN');
-    }
-  };
-
   return (
     <div className="w-full min-h-screen bg-[#F7F2EB] flex flex-col items-center justify-center font-sans antialiased py-2 sm:py-4">
-      {/* Top Floating Control Bar for Web Viewers */}
+      {/* Top Floating Control Bar for Web Viewers — NO persona switcher (role is DB-driven) */}
       {!isNativeApp && (
         <header className="w-full max-w-2xl mx-auto py-2 px-4 mb-2 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#060D1E] select-none">
           <div className="flex items-center gap-2">
@@ -98,44 +78,7 @@ export const MobileApp: React.FC = () => {
             </div>
           </div>
 
-          {/* Persona Switcher Buttons in Top Bar */}
-          <div className="flex items-center p-1 bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] gap-1">
-            <button
-              onClick={() => handleSelectPersona('RESIDENT')}
-              className={`flex items-center gap-1.5 py-1 px-2.5 rounded-xl text-xs font-black transition-all ${
-                activePersona === 'RESIDENT'
-                  ? 'bg-[#1E60F2] text-white shadow-[1px_1px_0px_#060D1E]'
-                  : 'text-slate-600 hover:text-black hover:bg-slate-100'
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Resident</span>
-            </button>
-
-            <button
-              onClick={() => handleSelectPersona('SECURITY')}
-              className={`flex items-center gap-1.5 py-1 px-2.5 rounded-xl text-xs font-black transition-all ${
-                activePersona === 'SECURITY'
-                  ? 'bg-[#10B981] text-white shadow-[1px_1px_0px_#060D1E]'
-                  : 'text-slate-600 hover:text-black hover:bg-slate-100'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Security Staff</span>
-            </button>
-
-            <button
-              onClick={() => handleSelectPersona('ADMIN')}
-              className={`flex items-center gap-1.5 py-1 px-2.5 rounded-xl text-xs font-black transition-all ${
-                activePersona === 'ADMIN'
-                  ? 'bg-amber-400 text-[#060D1E] shadow-[1px_1px_0px_#060D1E]'
-                  : 'text-slate-600 hover:text-black hover:bg-slate-100'
-              }`}
-            >
-              <Crown className="w-3.5 h-3.5" />
-              <span>Society Admin</span>
-            </button>
-          </div>
+          {/* SECURITY: Persona switcher removed. Role is determined by authenticated Supabase profile only. */}
 
           {/* Toggle Device Frame / Fullscreen view */}
           <div className="flex items-center gap-2">
@@ -216,55 +159,7 @@ export const MobileApp: React.FC = () => {
           </div>
         )}
 
-        {/* In-App Mobile Persona Switcher Bar (Directly accessible on mobile screens and APK) */}
-        <div className="w-full bg-[#FEF9F3] border-b-2 border-[#060D1E] px-3 py-2 z-30 pt-3">
-          <div className="grid grid-cols-3 gap-1 bg-white p-1 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">
-            <button
-              onClick={() => handleSelectPersona('RESIDENT')}
-              className={`py-1.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 transition-all ${
-                activePersona === 'RESIDENT'
-                  ? 'bg-[#1E60F2] text-white shadow-[1px_1px_0px_#060D1E]'
-                  : 'text-slate-600 hover:text-black'
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Resident</span>
-            </button>
-
-            <button
-              onClick={() => handleSelectPersona('SECURITY')}
-              className={`py-1.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 transition-all ${
-                activePersona === 'SECURITY'
-                  ? 'bg-[#10B981] text-white shadow-[1px_1px_0px_#060D1E]'
-                  : 'text-slate-600 hover:text-black'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Security</span>
-            </button>
-
-            <button
-              onClick={() => handleSelectPersona('ADMIN')}
-              className={`py-1.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1 transition-all ${
-                activePersona === 'ADMIN'
-                  ? 'bg-amber-400 text-[#060D1E] shadow-[1px_1px_0px_#060D1E]'
-                  : 'text-slate-600 hover:text-black'
-              }`}
-            >
-              <Crown className="w-3.5 h-3.5" />
-              <span>Admin</span>
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between mt-1 px-1 text-[10px] font-black text-slate-500">
-            <span>
-              {activePersona === 'RESIDENT' && '👤 Vinay Kumar • Flat B-402'}
-              {activePersona === 'SECURITY' && '🛡️ Ramesh Gowda • Gate Hub #1'}
-              {activePersona === 'ADMIN' && '👑 Greenview Heights • Committee Ops'}
-            </span>
-            <span className="text-[#1E60F2] uppercase tracking-wider font-extrabold">1-Tap Switch</span>
-          </div>
-        </div>
+        {/* SECURITY: In-App persona switcher removed. Role is locked to authenticated Supabase DB profile. */}
 
         {/* Active Application Shell Container */}
         <div className="flex-1 overflow-hidden relative">
@@ -275,11 +170,11 @@ export const MobileApp: React.FC = () => {
               attemptedPath="/admin"
               onReturnToPortal={() => {
                 setIsUnauthorizedAdminAttempt(false);
-                handleSelectPersona('RESIDENT');
+                // Role reverts to what the DB says — no manual override
               }}
               onLogout={() => {
                 setIsUnauthorizedAdminAttempt(false);
-                handleSelectPersona('RESIDENT');
+                // Role reverts to what the DB says — no manual override
               }}
             />
           ) : (

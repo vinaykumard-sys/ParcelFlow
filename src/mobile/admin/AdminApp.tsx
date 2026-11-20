@@ -44,7 +44,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({
     currentRole === 'SOCIETY_ADMIN' ||
     currentRole === 'SUPER_ADMIN';
 
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated && isAdminRole);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [manageSubtab, setManageSubtab] = useState<'residents' | 'staff' | 'slots'>('residents');
 

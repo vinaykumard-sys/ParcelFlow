@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, PackagePlus, ArrowRight, Sparkles, Check } from 'lucide-react';
+import { X, PackagePlus, ArrowRight, Sparkles, AlertCircle } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import { identifyCarrier } from '../../services/staffService';
 
@@ -15,15 +15,17 @@ export const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, o
   const [description, setDescription] = useState('');
   const [trackingNumber, setTrackingNumber] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState('');
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim()) return;
-
+    setDuplicateWarning('');
     setIsSubmitting(true);
-    addExpectedOrder({
+
+    const result = addExpectedOrder({
       carrier,
       description: description.trim(),
       trackingNumber: trackingNumber.trim() || undefined,
@@ -34,6 +36,15 @@ export const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, o
     });
 
     setIsSubmitting(false);
+
+    if (result.isDuplicate) {
+      const tn = result.existingParcel?.trackingNumber || trackingNumber.trim().toUpperCase();
+      setDuplicateWarning(
+        `⚠️ Parcel Already Registered! Tracking ID "${tn}" is already in your hub inventory (Status: ${result.existingParcel?.status ?? 'ACTIVE'}). Please check your parcels list.`
+      );
+      return;
+    }
+
     setDescription('');
     setTrackingNumber('');
     if (onSuccess) onSuccess();
@@ -42,6 +53,7 @@ export const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, o
 
   const handleTrackingChange = (val: string) => {
     setTrackingNumber(val);
+    setDuplicateWarning('');
     if (val.trim()) {
       const detected = identifyCarrier(val);
       if (detected !== 'Other') setCarrier(detected);
@@ -124,6 +136,14 @@ export const AddOrderModal: React.FC<AddOrderModalProps> = ({ isOpen, onClose, o
               className="w-full bg-white text-xs font-mono font-bold text-[#060D1E] p-3 rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none uppercase"
             />
           </div>
+
+          {/* Duplicate Warning */}
+          {duplicateWarning && (
+            <div className="p-3 bg-rose-50 border-2 border-rose-400 rounded-2xl flex items-start gap-2 shadow-[2px_2px_0px_#f87171]">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <p className="text-xs font-bold text-rose-800 leading-tight">{duplicateWarning}</p>
+            </div>
+          )}
 
           <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl flex items-start gap-2">
             <Sparkles className="w-4 h-4 text-[#1E60F2] shrink-0 mt-0.5" />

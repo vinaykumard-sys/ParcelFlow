@@ -165,6 +165,17 @@ class MobileStateStore {
     this.state = this.loadState();
   }
 
+  /** De-duplicate an array by a string key extractor, keeping first occurrence */
+  private dedup<T>(arr: T[], keyFn: (item: T) => string): T[] {
+    const seen = new Set<string>();
+    return arr.filter((item) => {
+      const key = keyFn(item);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
   private loadState(): MobileStoreState {
     try {
       if (typeof localStorage !== 'undefined') {
@@ -173,6 +184,11 @@ class MobileStateStore {
       const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('parcelflow_mobile_state_v2') : null;
       if (saved) {
         const parsed = JSON.parse(saved);
+        // De-duplicate all arrays on load to fix any stale duplicates persisted in localStorage
+        const rawParcels: MobileParcel[] = parsed.parcels && parsed.parcels.length > 0 ? parsed.parcels : INITIAL_PARCELS;
+        const rawResidents: ResidentUser[] = parsed.residents && parsed.residents.length > 0 ? parsed.residents : INITIAL_RESIDENTS;
+        const rawStaff: StaffMember[] = parsed.staff && parsed.staff.length > 0 ? parsed.staff : INITIAL_STAFF;
+        const rawSlots: PickupSlot[] = parsed.slots && parsed.slots.length > 0 ? parsed.slots : INITIAL_SLOTS;
         return {
           ...parsed,
           isAuthenticated: parsed.isAuthenticated ?? true,
@@ -184,10 +200,10 @@ class MobileStateStore {
             role: parsed.currentRole || 'RESIDENT',
             flatNumber: 'B-402',
           },
-          parcels: parsed.parcels && parsed.parcels.length > 0 ? parsed.parcels : INITIAL_PARCELS,
-          slots: parsed.slots && parsed.slots.length > 0 ? parsed.slots : INITIAL_SLOTS,
-          residents: parsed.residents && parsed.residents.length > 0 ? parsed.residents : INITIAL_RESIDENTS,
-          staff: parsed.staff && parsed.staff.length > 0 ? parsed.staff : INITIAL_STAFF,
+          parcels: this.dedup(rawParcels, (p) => p.id),
+          slots: this.dedup(rawSlots, (s) => s.id),
+          residents: this.dedup(rawResidents, (r) => r.id),
+          staff: this.dedup(rawStaff, (s) => s.id),
         };
       }
     } catch {
@@ -226,7 +242,16 @@ class MobileStateStore {
   private saveState() {
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('parcelflow_mobile_state_v2', JSON.stringify(this.state));
+        // Always de-duplicate before persisting to prevent stale duplicates accumulating
+        const cleanState = {
+          ...this.state,
+          parcels: this.dedup(this.state.parcels, (p) => p.id),
+          slots: this.dedup(this.state.slots, (s) => s.id),
+          residents: this.dedup(this.state.residents, (r) => r.id),
+          staff: this.dedup(this.state.staff, (s) => s.id),
+        };
+        this.state = cleanState;
+        localStorage.setItem('parcelflow_mobile_state_v2', JSON.stringify(cleanState));
       }
     } catch {
       // ignore
@@ -315,10 +340,18 @@ class MobileStateStore {
     recipientPhone?: string;
     flat?: string;
     tower?: string;
-  }): MobileParcel {
+  }): { parcel?: MobileParcel; isDuplicate: boolean; existingParcel?: MobileParcel } {
     const trackingNumber =
       data.trackingNumber?.trim().toUpperCase() ||
       `PF-${Math.floor(1000 + Math.random() * 9000)}-EXP`;
+
+    // Strict uniqueness check: reject if tracking number already exists
+    const existing = this.state.parcels.find(
+      (p) => p.trackingNumber.toUpperCase() === trackingNumber
+    );
+    if (existing) {
+      return { isDuplicate: true, existingParcel: existing };
+    }
 
     const newParcel: MobileParcel = {
       id: 'p-exp-' + Date.now(),
@@ -344,7 +377,7 @@ class MobileStateStore {
     this.state.report.totalParcels += 1;
     this.state.report.pending += 1;
     this.saveState();
-    return newParcel;
+    return { parcel: newParcel, isDuplicate: false };
   }
 
   schedulePickup(parcelId: string, slotId: string): { success: boolean; otp: string; error?: string } {
@@ -394,10 +427,20 @@ class MobileStateStore {
     flat: string;
     storageLocation: string;
     tower?: string;
-  }): MobileParcel {
+  }): { parcel?: MobileParcel; isDuplicate: boolean; existingParcel?: MobileParcel } {
+    const cleanTracking = data.trackingNumber.trim().toUpperCase();
+
+    // Strict uniqueness check: reject if tracking number already exists
+    const existing = this.state.parcels.find(
+      (p) => p.trackingNumber.toUpperCase() === cleanTracking
+    );
+    if (existing) {
+      return { isDuplicate: true, existingParcel: existing };
+    }
+
     const newParcel: MobileParcel = {
       id: 'p-' + Date.now(),
-      trackingNumber: data.trackingNumber.trim().toUpperCase(),
+      trackingNumber: cleanTracking,
       carrier: data.carrier,
       recipientName: data.recipientName,
       recipientPhone: data.recipientPhone,
@@ -418,7 +461,7 @@ class MobileStateStore {
     this.state.report.totalParcels += 1;
     this.state.report.pending += 1;
     this.saveState();
-    return newParcel;
+    return { parcel: newParcel, isDuplicate: false };
   }
 
   verifyHandover(otpOrCode: string): { success: boolean; parcel?: MobileParcel; message: string } {
@@ -468,6 +511,15 @@ class MobileStateStore {
   }
 
   addResident(resident: Omit<ResidentUser, 'id' | 'status'>) {
+    // Uniqueness check: reject if same flat + phone already exists
+    const existing = this.state.residents.find(
+      (r) =>
+        r.phone === resident.phone ||
+        (r.flat === resident.flat && r.email === resident.email)
+    );
+    if (existing) {
+      return { resident: null, isDuplicate: true, existingResident: existing };
+    }
     const newRes: ResidentUser = {
       ...resident,
       id: 'res-' + Date.now(),
@@ -475,10 +527,19 @@ class MobileStateStore {
     };
     this.state.residents = [newRes, ...this.state.residents];
     this.saveState();
-    return newRes;
+    return { resident: newRes, isDuplicate: false };
   }
 
   addStaff(staffMember: Omit<StaffMember, 'id' | 'status'>) {
+    // Uniqueness check: reject if same badge number or phone already exists
+    const existing = this.state.staff.find(
+      (s) =>
+        s.phone === staffMember.phone ||
+        s.badgeNumber === staffMember.badgeNumber
+    );
+    if (existing) {
+      return { staff: null, isDuplicate: true, existingStaff: existing };
+    }
     const newStaff: StaffMember = {
       ...staffMember,
       id: 'stf-' + Date.now(),
@@ -486,7 +547,7 @@ class MobileStateStore {
     };
     this.state.staff = [newStaff, ...this.state.staff];
     this.saveState();
-    return newStaff;
+    return { staff: newStaff, isDuplicate: false };
   }
 }
 
@@ -508,8 +569,7 @@ export function useMobileStore() {
     setActiveParcelId: (id: string | null) => mobileStore.setActiveParcelId(id),
     schedulePickup: (parcelId: string, slotId: string) => mobileStore.schedulePickup(parcelId, slotId),
     receiveParcel: (data: any) => mobileStore.receiveParcel(data),
-    addExpectedOrder: (data: any) => mobileStore.addExpectedOrder(data),
-    verifyHandover: (otp: string) => mobileStore.verifyHandover(otp),
+    addExpectedOrder: (data: any) => mobileStore.addExpectedOrder(data),    verifyHandover: (otp: string) => mobileStore.verifyHandover(otp),
     completeHandover: (parcelId: string) => mobileStore.completeHandover(parcelId),
     addResident: (resident: any) => mobileStore.addResident(resident),
     addStaff: (staff: any) => mobileStore.addStaff(staff),
