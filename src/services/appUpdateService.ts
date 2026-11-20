@@ -6,7 +6,7 @@
 // cryptographic SHA-256 verification, and native Android APK installation.
 // ============================================================================
 
-import { CURRENT_APP_VERSION, type AppVersionInfo } from '../mobile/version';
+import { CURRENT_APP_VERSION, getEffectiveAppVersion, type AppVersionInfo } from '../mobile/version';
 
 export interface RemoteAppUpdateMetadata {
   latestVersionName: string;
@@ -70,7 +70,7 @@ function resolveEndpointUrl(endpoint: string = UPDATE_METADATA_ENDPOINT): string
  * Check remote endpoint for updates against currently installed app version
  */
 export async function checkForAppUpdate(customEndpoint?: string): Promise<AppUpdateCheckResult> {
-  const current = CURRENT_APP_VERSION;
+  const current = getEffectiveAppVersion();
 
   try {
     const url = resolveEndpointUrl(customEndpoint);
@@ -245,9 +245,16 @@ export async function verifyApkSha256(
 export function triggerAndroidApkInstall(
   apkBuffer: ArrayBuffer,
   versionName: string,
-  fallbackUrl: string = '/downloads/android/ParcelFlow.apk'
+  fallbackUrl: string = '/downloads/android/ParcelFlow.apk',
+  versionCode?: number
 ): { success: boolean; method: string } {
   try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('parcelflow_installed_version_name', versionName);
+      if (versionCode) {
+        localStorage.setItem('parcelflow_installed_version_code', String(versionCode));
+      }
+    }
     const fileName = `ParcelFlow-v${versionName}.apk`;
     const blob = new Blob([apkBuffer], { type: 'application/vnd.android.package-archive' });
     const blobUrl = URL.createObjectURL(blob);

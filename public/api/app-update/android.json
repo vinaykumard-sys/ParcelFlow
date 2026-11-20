@@ -4,7 +4,7 @@
   "minimumSupportedVersionCode": 4,
   "apkUrl": "/downloads/android/ParcelFlow.apk",
   "apkSizeBytes": 9958405,
-  "sha256": "a4a5076b2a04285347537be7bed8027bf68ef0ab9707354b25219746fb4b9f9a",
+  "sha256": "736c9d2a484c14d67e3da40c655d607f617732204f60067d8ca00eda8228b1ff",
   "releaseNotes": [
     "Faster parcel barcode scanning & instant carrier auto-detection",
     "Real-time hub express counter arrival alerts ('On My Way')",

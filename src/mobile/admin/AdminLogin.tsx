@@ -11,9 +11,24 @@ interface AdminLoginProps {
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
   const { selectedSociety, setSociety, login } = useMobileStore();
   const [email, setEmail] = useState('vinaykumard45678@gmail.com');
-  const [password, setPassword] = useState('••••••••');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = await authService.signInWithGoogle();
+      if (res.error) {
+        setErrorMessage(res.error);
+        setLoading(false);
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Google authentication failed.');
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -30,6 +45,12 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
       setErrorMessage(
         `Access Denied: Only authorized administrator accounts (${FIXED_ADMIN_EMAIL}) are permitted. You do not have administrator privileges.`
       );
+      return;
+    }
+
+    if (!password) {
+      setLoading(false);
+      setErrorMessage('Please enter your administrator account password.');
       return;
     }
 
@@ -60,19 +81,25 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
         return;
       }
 
-      // 2. If network/offline but email matches fixed authorized admin
-      login({
-        id: FIXED_ADMIN_UID,
-        email: FIXED_ADMIN_EMAIL,
-        name: 'Vinay Kumar',
-        role: 'SUPER_ADMIN',
-        societyId: selectedSociety.id,
-      });
+      // 2. If password matches admin credential
+      if (password === '6Tha3see@123' || password === '6tha3see@123') {
+        login({
+          id: FIXED_ADMIN_UID,
+          email: FIXED_ADMIN_EMAIL,
+          name: 'Vinay Kumar (System Administrator)',
+          role: 'SUPER_ADMIN',
+          societyId: selectedSociety.id,
+        });
 
-      setTimeout(() => {
-        setLoading(false);
-        onLoginSuccess();
-      }, 300);
+        setTimeout(() => {
+          setLoading(false);
+          onLoginSuccess();
+        }, 300);
+        return;
+      }
+
+      setLoading(false);
+      setErrorMessage(error || 'Invalid administrator password.');
     } catch (err: any) {
       setLoading(false);
       setErrorMessage(err?.message || 'Admin authentication failed.');
@@ -131,6 +158,19 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             </select>
           </div>
 
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-rose-50 border-2 border-rose-400 rounded-xl flex items-center justify-between text-xs text-rose-700 font-bold">
+              <span>{errorMessage}</span>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
+                className="text-[10px] font-black underline hover:text-rose-900 ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleLogin} className="space-y-3.5">
             <div>
@@ -152,7 +192,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter password"
                 className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 px-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
               />
             </div>
@@ -160,10 +200,29 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 disabled:opacity-50 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
+              className="w-full mt-2 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 disabled:opacity-50 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
-              <span>{loading ? 'Verifying Admin...' : 'Sign In as Admin'}</span>
+              <span>{loading ? 'Verifying Admin...' : 'Sign In with Password'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+
+            <div className="relative my-3 flex items-center justify-center">
+              <div className="border-t border-slate-300 w-full" />
+              <span className="bg-[#FEF9F3] px-2 text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                or
+              </span>
+            </div>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={handleGoogleLogin}
+              className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center font-black text-[#1E60F2]">
+                G
+              </div>
+              <span>Sign In with Google (Admin)</span>
             </button>
           </form>
         </div>

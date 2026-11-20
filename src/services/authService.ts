@@ -171,8 +171,15 @@ export async function signInWithEmail(email: string, password: string): Promise<
  */
 export async function signInWithGoogle(redirectTo?: string) {
   try {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    const targetRedirect = redirectTo || `${origin}/admin`;
+    let targetRedirect = redirectTo;
+    if (!targetRedirect && typeof window !== 'undefined') {
+      const isFileProtocol = window.location.protocol === 'file:';
+      if (isFileProtocol) {
+        targetRedirect = 'https://parcelflow-blush.vercel.app/app';
+      } else {
+        targetRedirect = `${window.location.origin}/app`;
+      }
+    }
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -188,6 +195,12 @@ export async function signInWithGoogle(redirectTo?: string) {
     if (error) {
       return { success: false, error: error.message };
     }
+
+    // Immediately navigate browser to Google OAuth authorization endpoint
+    if (data?.url && typeof window !== 'undefined') {
+      window.location.href = data.url;
+    }
+
     return { success: true, data };
   } catch (err: any) {
     return { success: false, error: err?.message || 'Google OAuth failed' };
@@ -305,6 +318,35 @@ export async function fetchVerifiedProfile(userId: string): Promise<Profile | nu
           created_at: new Date().toISOString(),
         };
       }
+
+      // Check if user is authenticated in Supabase auth and auto-provision profile
+      try {
+        const { data: authUserData } = await supabase.auth.getUser();
+        if (authUserData?.user && authUserData.user.id === userId) {
+          const u = authUserData.user;
+          const isFixedAdmin =
+            u.id === FIXED_ADMIN_UID || u.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
+          const newProfile: Profile = {
+            id: u.id,
+            full_name:
+              u.user_metadata?.full_name ||
+              u.user_metadata?.name ||
+              u.email?.split('@')[0] ||
+              'Resident',
+            email: u.email || null,
+            phone: u.phone || null,
+            role: isFixedAdmin ? 'SUPER_ADMIN' : 'RESIDENT',
+            society_id: u.user_metadata?.society_id || null,
+            created_at: new Date().toISOString(),
+          };
+
+          await supabase.from('profiles').upsert(newProfile, { onConflict: 'id' });
+          return newProfile;
+        }
+      } catch {
+        // ignore
+      }
+
       return null;
     }
 

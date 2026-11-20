@@ -117,7 +117,7 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
       handleStartDownload();
       return;
     }
-    triggerAndroidApkInstall(downloadedBuffer, metadata.latestVersionName, metadata.apkUrl);
+    triggerAndroidApkInstall(downloadedBuffer, metadata.latestVersionName, metadata.apkUrl, metadata.latestVersionCode);
   };
 
   return (

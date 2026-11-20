@@ -12,7 +12,7 @@ export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
 }) => {
   const { selectedSociety, setSociety, login } = useMobileStore();
   const [email, setEmail] = useState('staff@parcelflow.in');
-  const [password, setPassword] = useState('••••••••');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -127,7 +127,7 @@ export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter staff password / PIN"
                   className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 pl-3 pr-10 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
                 />
                 <Lock className="w-4 h-4 text-slate-400 absolute right-3 top-3.5" />

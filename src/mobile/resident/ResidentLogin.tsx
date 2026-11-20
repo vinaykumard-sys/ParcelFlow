@@ -62,6 +62,13 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           return;
         }
 
+        if (!res.session && res.user) {
+          setLoading(false);
+          setErrorMessage('Account created! Please check your email to confirm, or switch to the Google tab for instant 1-tap sign in.');
+          setMode('LOGIN');
+          return;
+        }
+
         // Store active session
         login({
           id: res.user?.id || 'res-' + Date.now(),
@@ -90,17 +97,24 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         const res = await signInWithEmail(cleanEmail, password);
         if (res.error) {
           setLoading(false);
-          setErrorMessage(res.error);
+          if (res.error.toLowerCase().includes('not confirmed')) {
+            setErrorMessage('Email not confirmed. Please check your verification email, or use the Google tab for instant login.');
+          } else {
+            setErrorMessage(res.error);
+          }
           return;
         }
 
         const profile = res.profile;
+        const isVinay = cleanEmail === 'vinaykumard45678@gmail.com';
+        const role = isVinay ? 'SUPER_ADMIN' : profile?.role || 'RESIDENT';
+
         login({
           id: res.user?.id || profile?.id || 'res-' + Date.now(),
           email: cleanEmail,
           name: profile?.full_name || cleanEmail.split('@')[0],
           phone: profile?.phone || undefined,
-          role: profile?.role || 'RESIDENT',
+          role,
           societyId: profile?.society_id || selectedSociety.id,
           flatNumber: (profile as any)?.flat_number || undefined,
         });

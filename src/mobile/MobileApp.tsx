@@ -7,6 +7,8 @@ import { Forbidden403 } from './components/Forbidden403';
 import { AppUpdateModal } from './components/AppUpdateModal';
 import { checkForAppUpdate, type RemoteAppUpdateMetadata } from '../services/appUpdateService';
 import { initializePushNotifications } from '../services/fcmClient';
+import { supabase } from '../services/supabaseClient';
+import { fetchVerifiedProfile, FIXED_ADMIN_EMAIL } from '../services/authService';
 import {
   Smartphone,
   Monitor,
@@ -22,7 +24,7 @@ import {
 // ============================================================================
 
 export const MobileApp: React.FC = () => {
-  const { currentRole, currentUser } = useMobileStore();
+  const { currentRole, currentUser, login, logout, selectedSociety } = useMobileStore();
   const [deviceFrameMode, setDeviceFrameMode] = useState<boolean>(true);
   const [isNativeApp, setIsNativeApp] = useState(false);
   const [showTourGuide, setShowTourGuide] = useState(true);
@@ -62,11 +64,66 @@ export const MobileApp: React.FC = () => {
       if (params.get('unauthorized') === 'true' || portalParam === 'FORBIDDEN') {
         setIsUnauthorizedAdminAttempt(true);
       }
-      // REMOVED: URL-param-based role elevation (?portal=ADMIN / ?portal=SECURITY).
-      // Any visitor manipulating these params gets their session role only — no elevation.
     }
 
-    // Production In-App Update Check on Startup / Resume
+    // 1. Initial Supabase Session Sync on Startup
+    const syncSession = async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const session = sessionData?.session;
+        if (session?.user) {
+          const profile = await fetchVerifiedProfile(session.user.id);
+          const isVinay = session.user.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
+          const role = isVinay ? 'SUPER_ADMIN' : profile?.role || 'RESIDENT';
+
+          login({
+            id: session.user.id,
+            email: session.user.email || '',
+            name:
+              profile?.full_name ||
+              session.user.user_metadata?.full_name ||
+              session.user.email?.split('@')[0] ||
+              'Resident',
+            phone: profile?.phone || session.user.phone,
+            role,
+            societyId: profile?.society_id || selectedSociety.id,
+            flatNumber: (profile as any)?.flat_number,
+          });
+        }
+      } catch (e) {
+        console.warn('Session sync note:', e);
+      }
+    };
+    syncSession();
+
+    // 2. Global Auth State Change Listener (handles Google OAuth redirect & session refreshes)
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        if (session?.user) {
+          const profile = await fetchVerifiedProfile(session.user.id);
+          const isVinay = session.user.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
+          const role = isVinay ? 'SUPER_ADMIN' : profile?.role || 'RESIDENT';
+
+          login({
+            id: session.user.id,
+            email: session.user.email || '',
+            name:
+              profile?.full_name ||
+              session.user.user_metadata?.full_name ||
+              session.user.email?.split('@')[0] ||
+              'Resident',
+            phone: profile?.phone || session.user.phone,
+            role,
+            societyId: profile?.society_id || selectedSociety.id,
+            flatNumber: (profile as any)?.flat_number,
+          });
+        }
+      } else if (event === 'SIGNED_OUT') {
+        logout();
+      }
+    });
+
+    // 3. Production In-App Update Check on Startup / Resume
     const runUpdateCheck = async () => {
       try {
         const check = await checkForAppUpdate();
@@ -74,9 +131,16 @@ export const MobileApp: React.FC = () => {
           setUpdateMetadata(check.updateMetadata);
           setIsMandatoryUpdate(check.isMandatory);
 
-          // If mandatory: always show. If optional: check if dismissed in this session
-          const dismissed = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('parcelflow_update_dismissed');
-          if (check.isMandatory || !dismissed) {
+          // If mandatory: always show. If optional: check if dismissed for this version code
+          const dismissedCode =
+            typeof localStorage !== 'undefined'
+              ? localStorage.getItem('parcelflow_update_dismissed_code')
+              : null;
+          if (
+            check.isMandatory ||
+            !dismissedCode ||
+            parseInt(dismissedCode, 10) < check.updateMetadata.latestVersionCode
+          ) {
             setIsUpdateModalOpen(true);
           }
         }
@@ -87,11 +151,15 @@ export const MobileApp: React.FC = () => {
 
     runUpdateCheck();
 
-    // Register Device for Push Notifications & Handle Notification Tap Routing
+    // 4. Register Device for Push Notifications & Handle Notification Tap Routing
     initializePushNotifications(currentUser?.id, () => {
       runUpdateCheck();
       setIsUpdateModalOpen(true);
     });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
   }, [currentUser?.id]);
 
   return (
@@ -229,8 +297,11 @@ export const MobileApp: React.FC = () => {
             isMandatory={isMandatoryUpdate}
             onClose={() => {
               setIsUpdateModalOpen(false);
-              if (!isMandatoryUpdate && typeof sessionStorage !== 'undefined') {
-                sessionStorage.setItem('parcelflow_update_dismissed', 'true');
+              if (!isMandatoryUpdate && updateMetadata && typeof localStorage !== 'undefined') {
+                localStorage.setItem(
+                  'parcelflow_update_dismissed_code',
+                  String(updateMetadata.latestVersionCode)
+                );
               }
             }}
           />
