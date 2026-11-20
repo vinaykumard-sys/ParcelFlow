@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { User, Building, Phone, Mail, Shield, Bell, HelpCircle, LogOut, ChevronRight, ShoppingBag, Sparkles } from 'lucide-react';
+import { User, Building, Phone, Mail, Shield, Bell, HelpCircle, LogOut, ChevronRight, ShoppingBag, Sparkles, Smartphone, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import { purgeAuthState } from '../../services/authService';
 import { ShoppingDeliveriesModal } from './ShoppingDeliveriesModal';
+import { AppUpdateModal } from '../components/AppUpdateModal';
+import { checkForAppUpdate, type RemoteAppUpdateMetadata } from '../../services/appUpdateService';
+import { CURRENT_APP_VERSION } from '../version';
 
 interface ResidentProfileTabProps {
   onLogout: () => void;
@@ -11,6 +14,35 @@ interface ResidentProfileTabProps {
 export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout }) => {
   const { selectedSociety, currentUser, connectedAccounts, logout } = useMobileStore();
   const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
+
+  // Manual Update Check State
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [updateFeedback, setUpdateFeedback] = useState<string | null>(null);
+  const [manualUpdateMetadata, setManualUpdateMetadata] = useState<RemoteAppUpdateMetadata | null>(null);
+  const [isManualUpdateMandatory, setIsManualUpdateMandatory] = useState(false);
+  const [isManualUpdateModalOpen, setIsManualUpdateModalOpen] = useState(false);
+
+  const handleManualCheckUpdate = async () => {
+    setIsCheckingUpdate(true);
+    setUpdateFeedback(null);
+    try {
+      const check = await checkForAppUpdate();
+      if (check.hasUpdate && check.updateMetadata) {
+        setManualUpdateMetadata(check.updateMetadata);
+        setIsManualUpdateMandatory(check.isMandatory);
+        setIsManualUpdateModalOpen(true);
+      } else if (check.isOffline) {
+        setUpdateFeedback('Update server unreachable. Check internet connection.');
+      } else {
+        setUpdateFeedback(`You're using the latest version of ParcelFlow (v${CURRENT_APP_VERSION.versionName}).`);
+      }
+    } catch {
+      setUpdateFeedback('Unable to check for updates right now.');
+    } finally {
+      setIsCheckingUpdate(false);
+      setTimeout(() => setUpdateFeedback(null), 5000);
+    }
+  };
 
   const handleLogout = () => {
     purgeAuthState();
@@ -132,6 +164,41 @@ export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout
           </button>
         </div>
 
+        {/* About ParcelFlow & In-App Updates Card */}
+        <div className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] p-3.5 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4 text-[#1E60F2]" />
+              <span className="text-xs font-black text-[#060D1E]">About ParcelFlow</span>
+            </div>
+            <span className="text-[10px] font-black font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-300">
+              v{CURRENT_APP_VERSION.versionName} ({CURRENT_APP_VERSION.versionCode})
+            </span>
+          </div>
+
+          <p className="text-[10px] font-bold text-slate-500">
+            Smart Urban Parcel & Locker Delivery Platform
+          </p>
+
+          {/* Feedback message */}
+          {updateFeedback && (
+            <div className="p-2 rounded-xl bg-blue-50 border border-blue-200 text-[10px] font-black text-blue-900 flex items-center gap-1.5 animate-fadeIn">
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+              <span>{updateFeedback}</span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={handleManualCheckUpdate}
+            disabled={isCheckingUpdate}
+            className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-[#060D1E] rounded-xl text-xs font-black border border-slate-300 flex items-center justify-center gap-1.5 active:scale-95 transition-transform disabled:opacity-60"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-[#1E60F2] ${isCheckingUpdate ? 'animate-spin' : ''}`} />
+            <span>{isCheckingUpdate ? 'Checking Server...' : 'Check for Updates'}</span>
+          </button>
+        </div>
+
         {/* Logout Button */}
         <button
           type="button"
@@ -148,6 +215,16 @@ export const ResidentProfileTab: React.FC<ResidentProfileTabProps> = ({ onLogout
         isOpen={isShoppingModalOpen}
         onClose={() => setIsShoppingModalOpen(false)}
       />
+
+      {/* Manual Check App Update Modal */}
+      {manualUpdateMetadata && (
+        <AppUpdateModal
+          isOpen={isManualUpdateModalOpen}
+          metadata={manualUpdateMetadata}
+          isMandatory={isManualUpdateMandatory}
+          onClose={() => setIsManualUpdateModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -4,6 +4,8 @@ import { ResidentApp } from './resident/ResidentApp';
 import { StaffApp } from './staff/StaffApp';
 import { AdminApp } from './admin/AdminApp';
 import { Forbidden403 } from './components/Forbidden403';
+import { AppUpdateModal } from './components/AppUpdateModal';
+import { checkForAppUpdate, type RemoteAppUpdateMetadata } from '../services/appUpdateService';
 import {
   Smartphone,
   Monitor,
@@ -24,6 +26,11 @@ export const MobileApp: React.FC = () => {
   const [isNativeApp, setIsNativeApp] = useState(false);
   const [showTourGuide, setShowTourGuide] = useState(true);
   const [isUnauthorizedAdminAttempt, setIsUnauthorizedAdminAttempt] = useState(false);
+
+  // In-App Update State
+  const [updateMetadata, setUpdateMetadata] = useState<RemoteAppUpdateMetadata | null>(null);
+  const [isMandatoryUpdate, setIsMandatoryUpdate] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   // Derive display persona from AUTHENTICATED role in store — never from URL or buttons
   const activePersona: 'RESIDENT' | 'SECURITY' | 'ADMIN' =
@@ -57,6 +64,27 @@ export const MobileApp: React.FC = () => {
       // REMOVED: URL-param-based role elevation (?portal=ADMIN / ?portal=SECURITY).
       // Any visitor manipulating these params gets their session role only — no elevation.
     }
+
+    // Production In-App Update Check on Startup / Resume
+    const runUpdateCheck = async () => {
+      try {
+        const check = await checkForAppUpdate();
+        if (check.hasUpdate && check.updateMetadata) {
+          setUpdateMetadata(check.updateMetadata);
+          setIsMandatoryUpdate(check.isMandatory);
+
+          // If mandatory: always show. If optional: check if dismissed in this session
+          const dismissed = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('parcelflow_update_dismissed');
+          if (check.isMandatory || !dismissed) {
+            setIsUpdateModalOpen(true);
+          }
+        }
+      } catch (err) {
+        console.warn('Update check note:', err);
+      }
+    };
+
+    runUpdateCheck();
   }, []);
 
   return (
@@ -185,6 +213,21 @@ export const MobileApp: React.FC = () => {
             </>
           )}
         </div>
+
+        {/* Production In-App Update Modal */}
+        {updateMetadata && (
+          <AppUpdateModal
+            isOpen={isUpdateModalOpen}
+            metadata={updateMetadata}
+            isMandatory={isMandatoryUpdate}
+            onClose={() => {
+              setIsUpdateModalOpen(false);
+              if (!isMandatoryUpdate && typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem('parcelflow_update_dismissed', 'true');
+              }
+            }}
+          />
+        )}
       </main>
     </div>
   );
