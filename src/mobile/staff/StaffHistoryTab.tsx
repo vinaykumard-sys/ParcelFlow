@@ -41,7 +41,7 @@ export const StaffHistoryTab: React.FC = () => {
                     Handed to {p.recipientName} ({p.flat})
                   </p>
                   <p className="text-[10px] text-emerald-700 font-bold mt-0.5">
-                    Verified by OTP • {p.collectedAt || 'Today, 5:15 PM'}
+                    Verified by OTP • {p.collectedAt || 'Today, Express Counter'}
                   </p>
                 </div>
               </div>

@@ -35,17 +35,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onOpenOnboarding,
   onQuickAction,
 }) => {
-  const { selectedSociety, setSociety, report } = useMobileStore();
+  const { selectedSociety, setSociety, report, parcels } = useMobileStore();
 
-  const activity7Days = [
-    { day: 'Mon', count: 88, height: '65%' },
-    { day: 'Tue', count: 94, height: '72%' },
-    { day: 'Wed', count: 104, height: '80%' },
-    { day: 'Thu', count: 98, height: '75%' },
-    { day: 'Fri', count: 124, height: '95%' },
-    { day: 'Sat', count: 132, height: '100%' },
-    { day: 'Sun', count: 112, height: '86%' },
-  ];
+  const totalParcelsCount = parcels.length || report.totalParcels || 0;
+  const collectedCount = parcels.filter(p => p.status === 'COLLECTED').length || report.collected || 0;
+  const scheduledCount = parcels.filter(p => p.status === 'SCHEDULED' || p.status === 'READY_FOR_PICKUP').length || report.scheduled || 0;
+  const pendingCount = parcels.filter(p => p.status === 'WAITING').length || report.pending || 0;
+  const ratePercentage = totalParcelsCount > 0 ? Math.round((collectedCount / totalParcelsCount) * 100) : 0;
 
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
@@ -89,7 +85,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-slate-500">Parcels Today</span>
               <Package className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.totalParcels || 112}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{totalParcelsCount}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Society Total</div>
           </div>
 
@@ -98,8 +94,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-emerald-600">Collected</span>
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.collected || 61}</div>
-            <div className="text-[10px] font-bold text-slate-500 mt-0.5">54.5% Rate</div>
+            <div className="text-2xl font-black text-[#060D1E]">{collectedCount}</div>
+            <div className="text-[10px] font-bold text-slate-500 mt-0.5">{ratePercentage}% Rate</div>
           </div>
 
           <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">
@@ -107,7 +103,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-[#1E60F2]">Scheduled</span>
               <Clock className="w-4 h-4 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.scheduled || 18}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{scheduledCount}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Slots Booked</div>
           </div>
 
@@ -116,7 +112,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-amber-600">Pending</span>
               <AlertTriangle className="w-4 h-4 text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{report.pending || 33}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{pendingCount}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">In Hub Storage</div>
           </div>
         </div>

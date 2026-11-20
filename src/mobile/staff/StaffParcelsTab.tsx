@@ -57,17 +57,25 @@ export const StaffParcelsTab: React.FC<StaffParcelsTabProps> = ({ onVerifyHandov
 
         {/* Filter Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {(['ALL', 'WAITING', 'SCHEDULED', 'COLLECTED'] as const).map((m) => (
+          {(
+            [
+              { key: 'ALL', label: `All (${uniqueParcels.length})` },
+              { key: 'WAITING', label: `Waiting (${uniqueParcels.filter(p => p.status === 'WAITING').length})` },
+              { key: 'SCHEDULED', label: `Scheduled (${uniqueParcels.filter(p => p.status === 'SCHEDULED').length})` },
+              { key: 'COLLECTED', label: `Collected (${uniqueParcels.filter(p => p.status === 'COLLECTED').length})` },
+            ] as const
+          ).map((item) => (
             <button
-              key={m}
-              onClick={() => setFilter(m)}
+              key={item.key}
+              type="button"
+              onClick={() => setFilter(item.key)}
               className={`px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all ${
-                filter === m
+                filter === item.key
                   ? 'bg-[#1E60F2] text-white border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]'
                   : 'bg-white text-slate-600 border border-slate-300'
               }`}
             >
-              {m === 'ALL' ? 'All (24)' : m === 'WAITING' ? 'Waiting (12)' : m === 'SCHEDULED' ? 'Scheduled (8)' : 'Collected'}
+              {item.label}
             </button>
           ))}
         </div>

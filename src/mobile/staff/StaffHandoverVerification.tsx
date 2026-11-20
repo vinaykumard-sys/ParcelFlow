@@ -219,37 +219,6 @@ export const StaffHandoverVerification: React.FC<StaffHandoverVerificationProps>
               </p>
             </div>
 
-            {/* Quick Test Resident Codes for Seamless 1-Tap Verification */}
-            {parcels.filter((p) => p.status === 'SCHEDULED' || p.status === 'WAITING').length > 0 && (
-              <div className="p-3 bg-slate-100 rounded-2xl border border-slate-300 space-y-1.5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
-                  Awaiting Pickup Resident Passes (1-Tap Test):
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {parcels
-                    .filter((p) => p.status === 'SCHEDULED' || p.status === 'WAITING')
-                    .slice(0, 4)
-                    .map((p) => (
-                      <button
-                        key={p.id}
-                        type="button"
-                        onClick={() => {
-                          const code = p.otpCode || p.trackingNumber;
-                          setOtpInput(code);
-                          handleVerifyOtpDirect(code);
-                        }}
-                        className="text-[10px] font-mono font-bold px-2 py-1 bg-white hover:bg-emerald-50 border border-[#060D1E] rounded-lg shadow-[1px_1px_0px_#060D1E] active:scale-95 transition-all text-[#060D1E] flex items-center gap-1"
-                      >
-                        <span className="font-sans font-black">
-                          {p.recipientName?.split(' ')[0]} ({p.flat}):
-                        </span>
-                        <span className="text-blue-700 font-black">{p.otpCode || p.trackingNumber}</span>
-                      </button>
-                    ))}
-                </div>
-              </div>
-            )}
-
             <button
               type="submit"
               disabled={otpInput.length < 4 || isVerifying}

@@ -77,11 +77,11 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
 
           <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-black uppercase text-rose-600">Overdue (&gt;48h)</span>
-              <AlertTriangle className="w-4 h-4 text-rose-500" />
+              <span className="text-[10px] font-black uppercase text-emerald-600">Collected</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
             </div>
             <div className="text-2xl font-black text-[#060D1E]">{parcels.filter(p => p.status === 'COLLECTED').length}</div>
-            <div className="text-[10px] font-bold text-slate-500 mt-0.5">Reminder Triggered</div>
+            <div className="text-[10px] font-bold text-slate-500 mt-0.5">Handed Over</div>
           </div>
         </div>
 
@@ -158,20 +158,31 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
           </h3>
 
           <div className="space-y-2.5 divide-y divide-slate-100 text-xs">
-            <div className="pt-2 first:pt-0 flex items-center justify-between">
-              <div>
-                <p className="font-extrabold text-[#060D1E]">Amazon (PF-8921-IN)</p>
-                <p className="text-[10px] text-slate-500">Stored in Rack B-17 for Vinay (B-402)</p>
-              </div>
-              <span className="text-[10px] font-bold text-slate-400">10:45 AM</span>
-            </div>
-            <div className="pt-2 flex items-center justify-between">
-              <div>
-                <p className="font-extrabold text-[#060D1E]">Flipkart (PF-8922-IN)</p>
-                <p className="text-[10px] text-slate-500">Scheduled for 8:00 PM collection</p>
-              </div>
-              <span className="text-[10px] font-bold text-[#1E60F2]">1:15 PM</span>
-            </div>
+            {parcels.length === 0 ? (
+              <p className="text-xs text-slate-400 font-semibold text-center py-3">
+                No hub activity yet today. Checked-in parcels will appear here live.
+              </p>
+            ) : (
+              parcels.slice(0, 4).map((p) => (
+                <div key={p.id} className="pt-2 first:pt-0 flex items-center justify-between">
+                  <div>
+                    <p className="font-extrabold text-[#060D1E]">
+                      {p.carrier} ({p.trackingNumber})
+                    </p>
+                    <p className="text-[10px] text-slate-500 font-medium">
+                      {p.status === 'COLLECTED'
+                        ? `Collected by ${p.recipientName} (${p.flat || 'Unit'})`
+                        : p.status === 'SCHEDULED'
+                        ? `Scheduled: ${p.scheduledSlot || 'Tonight'} for ${p.recipientName}`
+                        : `Stored: ${p.storageLocation || 'Intake Shelf'} for ${p.recipientName} (${p.flat})`}
+                    </p>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 shrink-0 ml-2">
+                    {p.receivedAt || 'Today'}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

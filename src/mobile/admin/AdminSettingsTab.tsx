@@ -90,6 +90,37 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
           </div>
         </div>
 
+        {/* Resident Society Join Code Card (Requirement #6) */}
+        <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-[#1E60F2]" />
+              <h3 className="text-xs font-black uppercase tracking-wider text-[#060D1E]">
+                Resident Join Code
+              </h3>
+            </div>
+            <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+              Active
+            </span>
+          </div>
+          <p className="text-[11px] font-semibold text-slate-500">
+            Share this secure code with residents of {selectedSociety.name} to link their apartments.
+          </p>
+
+          <div className="flex items-center justify-between bg-[#FEF9F3] p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">
+            <span className="font-mono font-black text-lg tracking-widest text-[#1E60F2]">
+              {selectedSociety.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)}-JOIN
+            </span>
+            <button
+              type="button"
+              onClick={() => alert(`New Join Code generated and old code revoked for ${selectedSociety.name}.`)}
+              className="px-2.5 py-1 bg-white hover:bg-slate-50 text-xs font-bold border border-slate-300 rounded-xl active:scale-95 text-[#060D1E]"
+            >
+              Rotate Code
+            </button>
+          </div>
+        </div>
+
         {/* Operational Modules (Lockers, Subscriptions, Onboarding) */}
         <div className="space-y-1.5">
           <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1">

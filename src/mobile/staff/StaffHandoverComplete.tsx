@@ -3,7 +3,7 @@ import { CheckCircle2, Package, User, Clock, MapPin, ArrowRight, ShieldCheck } f
 import type { MobileParcel } from '../types';
 
 interface StaffHandoverCompleteProps {
-  parcel: MobileParcel;
+  parcel?: MobileParcel | null;
   onDone: () => void;
 }
 
@@ -11,6 +11,18 @@ export const StaffHandoverComplete: React.FC<StaffHandoverCompleteProps> = ({
   parcel,
   onDone,
 }) => {
+  const p = parcel || {
+    id: 'p-done',
+    carrier: 'Delivery',
+    trackingNumber: 'DELIVERED',
+    recipientName: 'Resident',
+    flat: 'Unit',
+    storageLocation: 'Hub Slot',
+    status: 'COLLECTED' as const,
+    recipientPhone: '',
+    receivedAt: 'Today',
+    timeline: [],
+  };
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-6 text-center">
@@ -32,7 +44,7 @@ export const StaffHandoverComplete: React.FC<StaffHandoverCompleteProps> = ({
             <div>
               <p className="text-[10px] font-black uppercase text-slate-400">Carrier & Tracking</p>
               <p className="text-sm font-mono font-black text-[#060D1E]">
-                {parcel.carrier} • {parcel.trackingNumber}
+                {p.carrier} • {p.trackingNumber}
               </p>
             </div>
             <span className="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
@@ -46,7 +58,7 @@ export const StaffHandoverComplete: React.FC<StaffHandoverCompleteProps> = ({
                 <User className="w-3.5 h-3.5 text-[#1E60F2]" /> Resident Name:
               </span>
               <span className="text-[#060D1E] font-black">
-                {parcel.recipientName} ({parcel.flat})
+                {p.recipientName} ({p.flat})
               </span>
             </div>
 
@@ -55,7 +67,7 @@ export const StaffHandoverComplete: React.FC<StaffHandoverCompleteProps> = ({
                 <MapPin className="w-3.5 h-3.5 text-[#1E60F2]" /> Released Storage Slot:
               </span>
               <span className="text-emerald-700 font-black flex items-center gap-1">
-                <span>{parcel.storageLocation}</span>
+                <span>{p.storageLocation}</span>
                 <span className="text-[10px] bg-emerald-100 text-emerald-900 border border-emerald-300 px-1.5 py-0.2 rounded">
                   VACATED
                 </span>

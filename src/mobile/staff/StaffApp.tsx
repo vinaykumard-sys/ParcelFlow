@@ -37,14 +37,14 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
   const [activeTab, setActiveTab] = useState<StaffTab>('home');
 
   // Multi-step intake flow state
-  const [inboundTracking, setInboundTracking] = useState('AMZ-99412-BLR');
+  const [inboundTracking, setInboundTracking] = useState('');
   const [inboundCarrier, setInboundCarrier] = useState<
     'Amazon' | 'Flipkart' | 'Myntra' | 'Blue Dart' | 'Delhivery' | 'Other'
   >('Amazon');
   const [inboundResident, setInboundResident] = useState<ResidentUser | null>(null);
 
   // Handover flow state
-  const [completedParcel, setCompletedParcel] = useState<MobileParcel>(parcels[0]);
+  const [completedParcel, setCompletedParcel] = useState<MobileParcel | null>(parcels[0] || null);
 
   if (view === 'login') {
     return (

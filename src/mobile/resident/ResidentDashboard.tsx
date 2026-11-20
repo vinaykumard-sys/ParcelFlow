@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Package, Clock, CheckCircle2, ChevronRight, Calendar, QrCode, Shield, Bell, Sparkles, Plus, PackagePlus } from 'lucide-react';
+import { Package, Clock, CheckCircle2, Calendar, QrCode, Sparkles, Plus, PackagePlus, Shield } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 import { AddOrderModal } from './AddOrderModal';
+import { MobileHeader } from '../components/MobileHeader';
+import { ParcelCard } from '../components/ParcelCard';
+import { EmptyState } from '../components/EmptyState';
 
 interface ResidentDashboardProps {
   onSelectParcel: (parcel: MobileParcel) => void;
@@ -17,83 +20,54 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
   onShowPickupCode,
   onOpenNotifications,
 }) => {
-  const { parcels, selectedSociety } = useMobileStore();
+  const { parcels, selectedSociety, currentUser } = useMobileStore();
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
 
-  const residentParcels = parcels.filter(
-    (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
-  );
-  const rawParcels = residentParcels.length > 0 ? residentParcels : parcels;
-  // De-duplicate by id before rendering to prevent duplicate cards
+  // Filter parcels belonging to current resident (or all in test mode)
+  const residentParcels = parcels.filter((p) => {
+    if (!currentUser) return true;
+    if (currentUser.flatNumber && p.flat && p.flat.toLowerCase() === currentUser.flatNumber.toLowerCase()) return true;
+    if (currentUser.name && p.recipientName && p.recipientName.toLowerCase().includes(currentUser.name.toLowerCase().split(' ')[0])) return true;
+    if (currentUser.phone && p.recipientPhone && p.recipientPhone === currentUser.phone) return true;
+    return true; // Show in feed for society
+  });
+
+  // De-duplicate by id
   const seenIds = new Set<string>();
-  const activeParcels = rawParcels.filter((p) => {
+  const activeParcels = residentParcels.filter((p) => {
     if (seenIds.has(p.id)) return false;
     seenIds.add(p.id);
     return true;
   });
 
-  const waitingCount = activeParcels.filter((p) => p.status === 'WAITING').length;
-  const scheduledCount = activeParcels.filter((p) => p.status === 'SCHEDULED').length;
-  const collectedCount = activeParcels.filter((p) => p.status === 'COLLECTED').length;
+  const waitingParcels = activeParcels.filter((p) => p.status === 'WAITING');
+  const scheduledParcels = activeParcels.filter((p) => p.status === 'SCHEDULED' || p.status === 'READY_FOR_PICKUP');
+  const collectedParcels = activeParcels.filter((p) => p.status === 'COLLECTED');
+  const inboundParcels = activeParcels.filter((p) => p.status !== 'COLLECTED');
 
-  const getCarrierColor = (carrier: string) => {
-    switch (carrier.toLowerCase()) {
-      case 'amazon':
-        return 'bg-amber-500 text-white';
-      case 'flipkart':
-        return 'bg-blue-600 text-white';
-      case 'myntra':
-        return 'bg-pink-600 text-white';
-      case 'blue dart':
-        return 'bg-red-600 text-white';
-      default:
-        return 'bg-indigo-600 text-white';
-    }
-  };
+  const nextScheduledParcel = scheduledParcels[0] || null;
 
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
-      {/* Top Bar with Resident Profile and Society Badge */}
-      <div className="px-5 pt-3 pb-3 border-b border-slate-200/60 bg-[#FEF9F3] sticky top-0 z-20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-2xl bg-[#1E60F2] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center font-black text-white text-base">
-              V
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="text-base font-black text-[#060D1E] leading-tight">
-                  Good Day 👋
-                </h1>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-600">
-                <span>{selectedSociety.name}</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-[#1E60F2] font-black">Flat B-402</span>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={onOpenNotifications}
-            className="w-9 h-9 rounded-xl bg-white border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center relative active:scale-95 transition-transform"
-          >
-            <Bell className="w-4 h-4 text-[#060D1E]" />
-            <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border border-white" />
-          </button>
-        </div>
-      </div>
+      {/* Top Header — Clean & non-repetitive */}
+      <MobileHeader
+        userName={currentUser?.name || 'Resident'}
+        societyName={selectedSociety.name}
+        flatNumber={currentUser?.flatNumber ? `Flat ${currentUser.flatNumber}` : undefined}
+        onOpenNotifications={onOpenNotifications}
+        hasUnreadNotifications={waitingParcels.length > 0}
+      />
 
       {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-5">
-        {/* Stats Badges Row: 2 Waiting, 1 Scheduled, 12 Collected */}
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
+        {/* KPI Stats Row: Waiting, Scheduled, Collected */}
         <div className="grid grid-cols-3 gap-2.5">
           <div className="bg-white p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col justify-between">
             <div className="flex items-center justify-between mb-1">
               <span className="text-[10px] font-black uppercase text-amber-600">Waiting</span>
               <Package className="w-3.5 h-3.5 text-amber-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{waitingCount}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{waitingParcels.length}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">At Hub</div>
           </div>
 
@@ -102,8 +76,8 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-[#1E60F2]">Scheduled</span>
               <Calendar className="w-3.5 h-3.5 text-[#1E60F2]" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{scheduledCount}</div>
-            <div className="text-[10px] font-bold text-slate-500 mt-0.5">Tonight</div>
+            <div className="text-2xl font-black text-[#060D1E]">{scheduledParcels.length}</div>
+            <div className="text-[10px] font-bold text-slate-500 mt-0.5">Booked</div>
           </div>
 
           <div className="bg-white p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col justify-between">
@@ -111,159 +85,114 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
               <span className="text-[10px] font-black uppercase text-emerald-600">Collected</span>
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{collectedCount}</div>
+            <div className="text-2xl font-black text-[#060D1E]">{collectedParcels.length}</div>
             <div className="text-[10px] font-bold text-slate-500 mt-0.5">Total</div>
           </div>
         </div>
 
-        {/* Quick Announcement Banner */}
-        <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-500 to-[#1E60F2] text-white border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] relative overflow-hidden">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-1.5 mb-1">
+        {/* Next Scheduled Handover Spotlight (Only shown if a parcel is scheduled) */}
+        {nextScheduledParcel && (
+          <div className="p-4 rounded-3xl bg-blue-600 text-white border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-300" />
                 <span className="text-xs font-black uppercase tracking-wider text-blue-100">
-                  Smart Hub Active
+                  Ready for Handover
                 </span>
               </div>
-              <p className="text-xs font-extrabold leading-tight">
-                Hub open till 9:30 PM. 1 parcel scheduled for collection tonight!
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-white text-blue-900">
+                {nextScheduledParcel.carrier}
+              </span>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold text-blue-100 line-clamp-1">
+                {nextScheduledParcel.description || 'Inbound Delivery'}
+              </p>
+              <p className="text-sm font-black text-white mt-0.5">
+                {nextScheduledParcel.scheduledSlot || 'Slot Confirmed'}
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={() => onShowPickupCode(nextScheduledParcel)}
+              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-2 active:scale-95 transition-all"
+            >
+              <QrCode className="w-4 h-4 text-white" />
+              <span>Show Pickup Pass (QR / OTP)</span>
+            </button>
           </div>
+        )}
+
+        {/* Society Hub Status Card */}
+        <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 border border-[#060D1E] flex items-center justify-center">
+              <Shield className="w-5 h-5 text-amber-700" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-[#060D1E]">Society Parcel Hub</p>
+              <p className="text-[10px] font-bold text-slate-500">Counter Open: 8:00 AM – 10:00 PM Daily</p>
+            </div>
+          </div>
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
+            Active
+          </span>
         </div>
 
-        {/* "Your Parcels" Section Header with Action */}
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-black text-[#060D1E] uppercase tracking-wider flex items-center gap-1.5">
+        {/* Inbound Parcels List / Empty State */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-black text-[#060D1E] uppercase tracking-wider flex items-center gap-1.5">
               <Package className="w-4 h-4 text-[#1E60F2]" />
-              Your Parcels ({activeParcels.filter((p) => p.status !== 'COLLECTED').length})
+              <span>Inbound Deliveries ({inboundParcels.length})</span>
             </h2>
+
             <button
+              type="button"
               onClick={() => setIsAddOrderOpen(true)}
-              className="px-2.5 py-1 bg-[#1E60F2] hover:bg-blue-600 text-white text-[11px] font-black rounded-xl border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] flex items-center gap-1 active:scale-95 transition-all"
+              className="flex items-center gap-1 px-2.5 py-1 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span>Add Order</span>
             </button>
           </div>
 
-          <div className="space-y-3">
-            {activeParcels.filter((p) => p.status !== 'COLLECTED').length === 0 ? (
-              <div className="p-8 text-center bg-white rounded-3xl border-2 border-dashed border-slate-300">
-                <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-xs font-black text-slate-700">No incoming parcels awaiting pickup</p>
-                <p className="text-[11px] text-slate-400 font-semibold mt-1">
-                  Deliveries received at the gate hub will appear here automatically.
-                </p>
-              </div>
-            ) : (
-              activeParcels
-                .filter((p) => p.status !== 'COLLECTED')
-                .map((parcel) => (
-                <div
-                  key={parcel.id}
-                  className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 transition-all hover:-translate-y-0.5"
-                >
-                  {/* Top card row: Carrier & Tracking + Status Badge */}
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[11px] font-black px-2.5 py-0.5 rounded-lg border border-[#060D1E] ${getCarrierColor(
-                          parcel.carrier
-                        )}`}
-                      >
-                        {parcel.carrier}
-                      </span>
-                      <span className="text-xs font-mono font-black text-[#060D1E]">
-                        {parcel.trackingNumber}
-                      </span>
-                    </div>
-
-                    {parcel.status === 'SCHEDULED' ? (
-                      <span className="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-blue-100 text-blue-800 border border-blue-300 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-[#1E60F2]" />
-                        Scheduled
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-0.5 text-[11px] font-extrabold rounded-full bg-amber-100 text-amber-900 border border-amber-300">
-                        Ready for Pickup
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Parcel Details row */}
-                  <div className="mb-3">
-                    <p className="text-xs font-bold text-[#060D1E] mb-0.5">
-                      {parcel.description || 'Package parcel'}
-                    </p>
-                    <p className="text-[11px] font-semibold text-slate-500">
-                      Location: <span className="text-[#060D1E] font-bold">{parcel.storageLocation}</span>
-                    </p>
-                    {parcel.scheduledSlot && (
-                      <p className="text-[11px] font-extrabold text-[#1E60F2] mt-0.5 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> Slot: {parcel.scheduledSlot}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
-                    <button
-                      onClick={() => onSelectParcel(parcel)}
-                      className="flex-1 py-2 px-3 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-300 flex items-center justify-center gap-1"
-                    >
-                      <span>Details</span>
-                      <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-
-                    {parcel.status === 'SCHEDULED' ? (
-                      <button
-                        onClick={() => onShowPickupCode(parcel)}
-                        className="flex-1 py-2 px-3 text-xs font-black text-white bg-[#10B981] hover:bg-emerald-600 rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
-                      >
-                        <QrCode className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>Pickup Code</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => onScheduleSlot(parcel)}
-                        className="flex-1 py-2 px-3 text-xs font-black text-white bg-[#1E60F2] hover:bg-blue-600 rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
-                      >
-                        <Clock className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>Schedule Pickup</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )))
-            }
-          </div>
-        </div>
-
-        {/* Society Hub Info Pill */}
-        <div className="p-3 bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 border border-[#060D1E] flex items-center justify-center">
-              <Shield className="w-4 h-4 text-amber-700" />
-            </div>
-            <div>
-              <p className="text-xs font-black text-[#060D1E]">Society Hub Timings</p>
-              <p className="text-[10px] font-bold text-slate-500">Counter Open: 8:00 AM – 10:00 PM Daily</p>
-            </div>
-          </div>
-          <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
-            Active Now
-          </span>
+          {inboundParcels.length === 0 ? (
+            <EmptyState
+              icon="package"
+              title="No parcels waiting at hub"
+              description="When Amazon, Flipkart, or any courier drops off a package at your society gate, it will be checked in and appear here immediately."
+              actionLabel="+ Add Expected Order"
+              onAction={() => setIsAddOrderOpen(true)}
+            />
+          ) : (
+            inboundParcels.map((parcel) => (
+              <ParcelCard
+                key={parcel.id}
+                parcel={parcel}
+                onSelect={onSelectParcel}
+                onScheduleSlot={onScheduleSlot}
+                onShowPickupCode={onShowPickupCode}
+              />
+            ))
+          )}
         </div>
       </div>
 
-      {/* Add Expected Delivery Modal */}
-      <AddOrderModal
-        isOpen={isAddOrderOpen}
-        onClose={() => setIsAddOrderOpen(false)}
-      />
+      {/* Add Expected Order Modal */}
+      {isAddOrderOpen && (
+        <AddOrderModal
+          onClose={() => setIsAddOrderOpen(false)}
+          onSuccess={(newParcel) => {
+            setIsAddOrderOpen(false);
+            if (newParcel) {
+              onSelectParcel(newParcel);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
