@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Camera, ScanLine, ArrowRight, Package, Check, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
 import { identifyCarrier } from '../../services/staffService';
 import { supabase } from '../../services/supabaseClient';
+import { CameraBarcodeScanner } from '../components/scanner/CameraBarcodeScanner';
 
 interface StaffReceiveParcelProps {
   onBack: () => void;
@@ -9,10 +10,9 @@ interface StaffReceiveParcelProps {
 }
 
 export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, onNext }) => {
-  const [trackingId, setTrackingId] = useState('AMZ-99412-BLR');
+  const [trackingId, setTrackingId] = useState('');
   const [carrier, setCarrier] = useState<'Amazon' | 'Flipkart' | 'Myntra' | 'Blue Dart' | 'Delhivery' | 'Other'>('Amazon');
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanSuccess, setScanSuccess] = useState(false);
+  const [useLiveCamera, setUseLiveCamera] = useState(false);
   const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
 
   // Automatically detect carrier when trackingId changes
@@ -94,35 +94,51 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-        {/* Camera Viewport Simulation */}
-        <div className="w-full bg-[#060D1E] rounded-3xl border-[3px] border-[#060D1E] shadow-[4px_4px_0px_#060D1E] p-4 text-white relative overflow-hidden flex flex-col items-center justify-center min-h-[220px]">
-          {/* Target Reticle corners */}
-          <div className="relative w-48 h-36 border-2 border-dashed border-blue-400/80 rounded-2xl flex flex-col items-center justify-center overflow-hidden">
-            {/* Glowing laser scanline animation */}
-            <div
-              className={`absolute left-0 right-0 h-1 bg-[#1E60F2] shadow-[0_0_12px_#1E60F2] ${
-                isScanning ? 'animate-bounce' : 'top-1/2'
-              }`}
+        {/* Real Live Camera Scanner or Reticle */}
+        {useLiveCamera ? (
+          <div className="space-y-2">
+            <CameraBarcodeScanner
+              mode="barcode"
+              label="Align Shipping Label in Reticle"
+              hintText="Scan courier 1D barcode or 2D QR code"
+              onScan={async (decoded) => {
+                const clean = decoded.trim().toUpperCase();
+                setTrackingId(clean);
+                setUseLiveCamera(false);
+                await checkDuplicate(clean);
+              }}
             />
-            <Camera className="w-8 h-8 text-white/50 mb-1" />
-            <span className="text-[10px] font-black tracking-widest uppercase text-blue-200">
-              Align Courier Barcode
-            </span>
+            <button
+              type="button"
+              onClick={() => setUseLiveCamera(false)}
+              className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl"
+            >
+              Switch to Manual Entry
+            </button>
           </div>
+        ) : (
+          <div className="w-full bg-[#060D1E] rounded-3xl border-[3px] border-[#060D1E] shadow-[4px_4px_0px_#060D1E] p-4 text-white relative overflow-hidden flex flex-col items-center justify-center min-h-[190px]">
+            <div className="relative w-48 h-28 border-2 border-dashed border-blue-400/80 rounded-2xl flex flex-col items-center justify-center overflow-hidden">
+              <Camera className="w-8 h-8 text-white/50 mb-1" />
+              <span className="text-[10px] font-black tracking-widest uppercase text-blue-200">
+                Scan Shipping Label
+              </span>
+            </div>
 
-          <p className="text-[11px] text-slate-300 font-bold mt-3">
-            {isScanning ? 'Detecting barcode...' : 'Point camera at Amazon/Flipkart shipping label'}
-          </p>
+            <p className="text-[11px] text-slate-300 font-bold mt-2">
+              Point camera at Amazon, Flipkart or Blue Dart shipping label
+            </p>
 
-          <button
-            type="button"
-            onClick={simulateScan}
-            className="mt-3 px-4 py-2 bg-[#1E60F2] hover:bg-blue-600 text-white font-black text-xs rounded-xl border border-white/40 shadow-[2px_2px_0px_#000] flex items-center gap-1.5 active:scale-95 transition-transform"
-          >
-            {isScanning ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ScanLine className="w-3.5 h-3.5" />}
-            <span>{isScanning ? 'Scanning...' : 'Scan Now'}</span>
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={() => setUseLiveCamera(true)}
+              className="mt-3 px-4 py-2 bg-[#1E60F2] hover:bg-blue-600 text-white font-black text-xs rounded-xl border border-white/40 shadow-[2px_2px_0px_#000] flex items-center gap-1.5 active:scale-95 transition-transform"
+            >
+              <ScanLine className="w-3.5 h-3.5" />
+              <span>Open Camera Scanner</span>
+            </button>
+          </div>
+        )}
 
         {/* Carrier Selector with Auto-Detection Badge */}
         <div>

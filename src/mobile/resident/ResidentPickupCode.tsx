@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, QrCode, Copy, Check, Clock, ShieldCheck, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+import { ArrowLeft, QrCode, Copy, Check, Clock, ShieldCheck, Sparkles, RefreshCw, AlertCircle, Navigation } from 'lucide-react';
 import QRCode from 'qrcode';
 import type { MobileParcel } from '../types';
 import { otpQrService } from '../../services/otpQrService';
+import { useMobileStore } from '../services/mobileState';
 
 interface ResidentPickupCodeProps {
   parcel: MobileParcel;
@@ -17,8 +18,10 @@ export const ResidentPickupCode: React.FC<ResidentPickupCodeProps> = ({
   onBack,
   onCollected,
 }) => {
+  const { notifyOnTheWay } = useMobileStore();
   const [showQr, setShowQr] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isOnTheWay, setIsOnTheWay] = useState(false);
   const [activeOtp, setActiveOtp] = useState<string>(initialOtp || parcel.otpCode || '742916');
   const [qrPayload, setQrPayload] = useState<string>('');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
@@ -255,22 +258,38 @@ export const ResidentPickupCode: React.FC<ResidentPickupCodeProps> = ({
           </div>
         </div>
 
-        {/* Handover Action */}
-        <div className="p-4 bg-amber-50 rounded-2xl border-2 border-amber-400 shadow-[2px_2px_0px_#F59E0B]">
-          <div className="flex items-center gap-1.5 mb-1 text-xs font-black text-amber-950">
-            <Sparkles className="w-4 h-4 text-amber-600" />
-            <span>Counter Handover Action</span>
+        {/* "I'm on my way" Feature (Requirement #14) */}
+        <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 text-left">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-[#1E60F2]">
+                <Navigation className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <h3 className="text-xs font-black uppercase text-[#060D1E]">Heading to Hub Counter?</h3>
+                <p className="text-[10px] font-bold text-slate-500">Alert security to pre-stage your package</p>
+              </div>
+            </div>
           </div>
-          <p className="text-[11px] text-amber-900 font-semibold mb-3">
-            Present code to hub counter staff, or simulate instant counter pickup below to test the full lifecycle:
-          </p>
-          <button
-            onClick={onCollected}
-            className="w-full py-3 px-3 bg-[#10B981] hover:bg-emerald-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
-          >
-            <Check className="w-4 h-4 stroke-[3]" />
-            <span>Simulate Staff Verification & Handover</span>
-          </button>
+
+          {isOnTheWay ? (
+            <div className="p-3 bg-emerald-50 rounded-2xl border-2 border-emerald-500 text-xs text-emerald-900 font-bold flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Staff alerted! Your package ({parcel.storageLocation}) is being retrieved for express handover.</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                notifyOnTheWay(parcel.id);
+                setIsOnTheWay(true);
+              }}
+              className="w-full py-3 px-4 bg-[#1E60F2] hover:bg-blue-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-2 active:scale-95 transition-all"
+            >
+              <Navigation className="w-3.5 h-3.5" />
+              <span>I'm On My Way to Counter</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

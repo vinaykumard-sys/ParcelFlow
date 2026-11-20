@@ -440,6 +440,28 @@ class MobileStateStore {
     this.saveState();
     return { staff: newStaff, isDuplicate: false };
   }
+
+  notifyOnTheWay(parcelId: string): boolean {
+    const parcel = this.state.parcels.find((p) => p.id === parcelId);
+    if (!parcel) return false;
+
+    this.state.parcels = this.state.parcels.map((p) => {
+      if (p.id === parcelId) {
+        return {
+          ...p,
+          status: 'READY_FOR_PICKUP',
+          timeline: [
+            ...p.timeline,
+            { label: 'Resident On The Way', sublabel: 'Heading to hub express counter', time: 'Just now', completed: true, current: true },
+          ],
+        };
+      }
+      return p;
+    });
+
+    this.saveState();
+    return true;
+  }
 }
 
 export const mobileStore = new MobileStateStore();
@@ -460,8 +482,10 @@ export function useMobileStore() {
     setActiveParcelId: (id: string | null) => mobileStore.setActiveParcelId(id),
     schedulePickup: (parcelId: string, slotId: string) => mobileStore.schedulePickup(parcelId, slotId),
     receiveParcel: (data: any) => mobileStore.receiveParcel(data),
-    addExpectedOrder: (data: any) => mobileStore.addExpectedOrder(data),    verifyHandover: (otp: string) => mobileStore.verifyHandover(otp),
+    addExpectedOrder: (data: any) => mobileStore.addExpectedOrder(data),
+    verifyHandover: (otp: string) => mobileStore.verifyHandover(otp),
     completeHandover: (parcelId: string) => mobileStore.completeHandover(parcelId),
+    notifyOnTheWay: (parcelId: string) => mobileStore.notifyOnTheWay(parcelId),
     addResident: (resident: any) => mobileStore.addResident(resident),
     addStaff: (staff: any) => mobileStore.addStaff(staff),
     login: (user: AuthenticatedUser) => mobileStore.login(user),

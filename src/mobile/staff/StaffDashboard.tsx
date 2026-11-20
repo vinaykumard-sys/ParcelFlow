@@ -46,7 +46,37 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
 
       {/* Main Body */}
       <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
-        {/* KPI Stats Grid (24 Total, 12 Awaiting, 8 Scheduled, 4 Overdue) */}
+        {/* Real-Time "Resident On The Way" Alert (Requirement #14) */}
+        {parcels.some((p) => p.status === 'READY_FOR_PICKUP') && (
+          <div className="bg-amber-500 text-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 space-y-2 animate-bounce-once">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider bg-white text-amber-950 px-2 py-0.5 rounded-full">
+                🚨 Resident Heading to Counter
+              </span>
+              <span className="text-xs font-bold">Express Handover</span>
+            </div>
+            {parcels
+              .filter((p) => p.status === 'READY_FOR_PICKUP')
+              .map((p) => (
+                <div key={p.id} className="flex items-center justify-between pt-1">
+                  <div>
+                    <p className="text-xs font-black">{p.recipientName} ({p.flat})</p>
+                    <p className="text-[11px] text-amber-100 font-bold">
+                      Retrieve from: <strong className="underline font-black">{p.storageLocation}</strong>
+                    </p>
+                  </div>
+                  <button
+                    onClick={onHandoverParcel}
+                    className="px-3 py-1.5 bg-white text-amber-950 hover:bg-amber-50 font-black text-xs rounded-xl border border-[#060D1E] active:scale-95"
+                  >
+                    Verify Pass
+                  </button>
+                </div>
+              ))}
+          </div>
+        )}
+
+        {/* KPI Stats Grid */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">
             <div className="flex items-center justify-between mb-1">
