@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     email TEXT UNIQUE NOT NULL,
     phone TEXT UNIQUE NOT NULL,
     full_name TEXT NOT NULL,
-    role TEXT NOT NULL CHECK (role IN ('RESIDENT', 'STAFF', 'ADMIN')),
+    role TEXT NOT NULL CHECK (role IN ('SUPER_ADMIN', 'SOCIETY_ADMIN', 'SECURITY', 'RESIDENT')),
     avatar_url TEXT,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

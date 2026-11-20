@@ -5,22 +5,37 @@ import { SOCIETIES, useMobileStore } from '../services/mobileState';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
-  onSwitchRole: () => void;
 }
 
-export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onSwitchRole }) => {
-  const { selectedSociety, setSociety } = useMobileStore();
+export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
+  const { selectedSociety, setSociety, login } = useMobileStore();
   const [email, setEmail] = useState('vinaykumard45678@gmail.com');
   const [password, setPassword] = useState('••••••••');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (loading) return; // Prevent double-tap
     setLoading(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      login({
+        id: '0c9c3244-8680-4141-b119-ffecf87c804d',
+        email: email.trim() || 'vinaykumard45678@gmail.com',
+        name: 'Vinay Kumar',
+        role: 'SOCIETY_ADMIN',
+        societyId: selectedSociety.id,
+      });
+      setTimeout(() => {
+        setLoading(false);
+        onLoginSuccess();
+      }, 350);
+    } catch (err: any) {
       setLoading(false);
-      onLoginSuccess();
-    }, 400);
+      setErrorMessage(err?.message || 'Admin authentication failed.');
+    }
   };
 
   return (
@@ -104,39 +119,13 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onSwitch
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
+              className="w-full mt-4 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 disabled:opacity-50 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
             >
               <span>{loading ? 'Verifying Admin...' : 'Sign In as Admin'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </form>
-
-          {/* Quick Demo Admin Card */}
-          <div className="mt-5 p-3.5 bg-amber-50 rounded-2xl border-2 border-amber-400 shadow-[2px_2px_0px_#F59E0B]">
-            <div className="flex items-center gap-1.5 mb-1 text-xs font-black text-amber-950">
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>One-Click Demo Admin</span>
-            </div>
-            <p className="text-[11px] text-amber-900 font-semibold mb-2.5">
-              Launch directly as Vinay Kumar (Admin for Greenview Heights).
-            </p>
-            <button
-              type="button"
-              onClick={() => handleLogin()}
-              className="w-full py-2.5 px-3 bg-[#060D1E] hover:bg-slate-800 text-white font-black text-xs rounded-xl border border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-amber-400" />
-              <span>Launch as Admin</span>
-            </button>
-          </div>
         </div>
-
-        <button
-          onClick={onSwitchRole}
-          className="mt-6 py-2 text-xs font-extrabold text-slate-600 hover:text-black text-center"
-        >
-          Switch to Resident / Staff App →
-        </button>
       </div>
     </div>
   );

@@ -3,8 +3,27 @@
 // TypeScript domain types and database interfaces for ParcelFlow services
 // ============================================================================
 
-export type UserRole = 'RESIDENT' | 'STAFF' | 'ADMIN';
-export type ProfileRole = 'resident' | 'staff' | 'admin';
+export type UserRole = 'SUPER_ADMIN' | 'SOCIETY_ADMIN' | 'SECURITY' | 'RESIDENT';
+export type ProfileRole =
+  | 'SUPER_ADMIN'
+  | 'SOCIETY_ADMIN'
+  | 'SECURITY'
+  | 'RESIDENT'
+  | 'admin'
+  | 'staff'
+  | 'resident';
+
+export const isSuperAdminRole = (role?: string | null): boolean =>
+  role === 'SUPER_ADMIN' || role === 'admin';
+
+export const isSocietyAdminRole = (role?: string | null): boolean =>
+  role === 'SOCIETY_ADMIN' || isSuperAdminRole(role);
+
+export const isSecurityRole = (role?: string | null): boolean =>
+  role === 'SECURITY' || role === 'staff' || isSocietyAdminRole(role);
+
+export const isResidentRole = (role?: string | null): boolean =>
+  role === 'RESIDENT' || role === 'resident';
 
 export type ParcelStatus =
   | 'CREATED'

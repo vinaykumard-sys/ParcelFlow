@@ -58,7 +58,13 @@ fs.mkdirSync(wwwDir, { recursive: true });
 
 // Copy all files from dist into wwwDir using built-in cpSync
 fs.cpSync('dist', wwwDir, { recursive: true });
-console.log('Copied fresh dist to assets/www. Total items:', fs.readdirSync(wwwDir).length);
+// Strip out recursive downloads folder so APK doesn't package itself!
+const downloadsDir = path.join(wwwDir, 'downloads');
+if (fs.existsSync(downloadsDir)) {
+  fs.rmSync(downloadsDir, { recursive: true, force: true });
+  console.log('Stripped recursive downloads directory from assets/www');
+}
+console.log('Copied clean dist to assets/www. Total items:', fs.readdirSync(wwwDir).length);
 
 // Verify index.html in assets/www has /assets/ and inject native app flag
 let indexHtml = fs.readFileSync(path.join(wwwDir, 'index.html'), 'utf8');

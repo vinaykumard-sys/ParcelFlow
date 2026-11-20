@@ -127,30 +127,38 @@ async function generateAllIcons() {
     { dir: 'mipmap-xxxhdpi-v4', size: 192 }
   ];
 
-  for (const s of sizes) {
-    const outDir = path.join('apk_temp/res', s.dir);
-    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+  const targetDirs = ['apk_temp/res', 'apk_build/res'];
 
-    // Square
-    const squareBuf = await sharp(Buffer.from(squareSvg)).resize(s.size, s.size).png().toBuffer();
-    fs.writeFileSync(path.join(outDir, 'ic_launcher.png'), squareBuf);
+  for (const base of targetDirs) {
+    if (!fs.existsSync(base)) fs.mkdirSync(base, { recursive: true });
 
-    // Round
-    const roundBuf = await sharp(Buffer.from(roundSvg)).resize(s.size, s.size).png().toBuffer();
-    fs.writeFileSync(path.join(outDir, 'ic_launcher_round.png'), roundBuf);
+    for (const s of sizes) {
+      const outDir = path.join(base, s.dir);
+      if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
-    console.log(`Generated ${s.dir} (${s.size}x${s.size})`);
+      // Square
+      const squareBuf = await sharp(Buffer.from(squareSvg)).resize(s.size, s.size).png().toBuffer();
+      fs.writeFileSync(path.join(outDir, 'ic_launcher.png'), squareBuf);
+
+      // Round
+      const roundBuf = await sharp(Buffer.from(roundSvg)).resize(s.size, s.size).png().toBuffer();
+      fs.writeFileSync(path.join(outDir, 'ic_launcher_round.png'), roundBuf);
+
+      console.log(`Generated ${base}/${s.dir} (${s.size}x${s.size})`);
+    }
+
+    // Adaptive Foreground (432x432)
+    const fgDir = path.join(base, 'drawable');
+    if (!fs.existsSync(fgDir)) fs.mkdirSync(fgDir, { recursive: true });
+
+    const fgBuf = await sharp(Buffer.from(foregroundSvg)).resize(432, 432).png().toBuffer();
+    fs.writeFileSync(path.join(fgDir, 'ic_launcher_foreground.png'), fgBuf);
+
+    // Splash Logo (512x512)
+    const spBuf = await sharp(Buffer.from(splashSvg)).resize(512, 512).png().toBuffer();
+    fs.writeFileSync(path.join(fgDir, 'splash_logo.png'), spBuf);
+    console.log(`Generated ${base}/drawable icons`);
   }
-
-  // Adaptive Foreground (432x432)
-  const fgBuf = await sharp(Buffer.from(foregroundSvg)).resize(432, 432).png().toBuffer();
-  fs.writeFileSync('apk_temp/res/drawable/ic_launcher_foreground.png', fgBuf);
-  console.log('Generated drawable/ic_launcher_foreground.png (432x432)');
-
-  // Splash Logo (512x512)
-  const spBuf = await sharp(Buffer.from(splashSvg)).resize(512, 512).png().toBuffer();
-  fs.writeFileSync('apk_temp/res/drawable/splash_logo.png', spBuf);
-  console.log('Generated drawable/splash_logo.png (512x512)');
 }
 
 generateAllIcons();

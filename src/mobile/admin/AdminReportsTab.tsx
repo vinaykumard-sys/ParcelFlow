@@ -22,7 +22,7 @@ export const AdminReportsTab: React.FC = () => {
         <p className="text-[11px] font-bold text-slate-500">Last 30 Days Society Performance</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
         {/* Period Selector Tabs */}
         <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/80 rounded-2xl border border-slate-300 text-xs font-black">
           {(['Daily', 'Weekly', 'Monthly'] as const).map((p) => (

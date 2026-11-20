@@ -3,14 +3,14 @@ import { useMobileStore } from './services/mobileState';
 import { ResidentApp } from './resident/ResidentApp';
 import { StaffApp } from './staff/StaffApp';
 import { AdminApp } from './admin/AdminApp';
-import { RoleSwitcherModal } from './components/RoleSwitcherModal';
-import { Smartphone, Monitor, Shield, Sparkles, Home, ArrowLeft } from 'lucide-react';
+import { Forbidden403 } from './components/Forbidden403';
+import { Smartphone, Monitor, Shield, ArrowLeft } from 'lucide-react';
 
 export const MobileApp: React.FC = () => {
-  const { currentRole, setRole, selectedSociety } = useMobileStore();
-  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
+  const { currentRole, isAuthenticated, logout } = useMobileStore();
   const [deviceFrameMode, setDeviceFrameMode] = useState<boolean>(true);
   const [isNativeApp, setIsNativeApp] = useState(false);
+  const [requestedPortal, setRequestedPortal] = useState<string | null>(null);
 
   useEffect(() => {
     // Detect if running inside native Android APK or mobile browser
@@ -25,7 +25,52 @@ export const MobileApp: React.FC = () => {
       setIsNativeApp(true);
       setDeviceFrameMode(false);
     }
+
+    // Inspect URL parameters for requested portal (e.g., ?portal=admin or ?role=admin)
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const portalParam = params.get('portal') || params.get('role');
+      const path = window.location.pathname;
+
+      if (portalParam) {
+        setRequestedPortal(portalParam.toUpperCase());
+      } else if (path.includes('/admin')) {
+        setRequestedPortal('ADMIN');
+      } else if (path.includes('/staff') || path.includes('/security')) {
+        setRequestedPortal('SECURITY');
+      } else if (path.includes('/resident')) {
+        setRequestedPortal('RESIDENT');
+      }
+    }
   }, []);
+
+  // Determine authorized portal strictly from authenticated user role
+  const isSuperAdmin = currentRole === 'SUPER_ADMIN';
+  const isSocietyAdmin = currentRole === 'SOCIETY_ADMIN' || currentRole === 'ADMIN';
+  const isSecurity = currentRole === 'SECURITY' || currentRole === 'STAFF';
+  const isResident = currentRole === 'RESIDENT' || (!isSuperAdmin && !isSocietyAdmin && !isSecurity);
+
+  // Role validation: if requestedPortal is set and user is authenticated with a different privilege level
+  const isUnauthorizedAdminAttempt =
+    requestedPortal &&
+    (requestedPortal === 'ADMIN' || requestedPortal === 'SUPER_ADMIN' || requestedPortal === 'SOCIETY_ADMIN') &&
+    isAuthenticated &&
+    !isSuperAdmin &&
+    !isSocietyAdmin;
+
+  const isUnauthorizedStaffAttempt =
+    requestedPortal &&
+    (requestedPortal === 'SECURITY' || requestedPortal === 'STAFF') &&
+    isAuthenticated &&
+    isResident;
+
+  const portalLabel = isSuperAdmin
+    ? 'Super Admin Portal'
+    : isSocietyAdmin
+    ? 'Society Admin Portal'
+    : isSecurity
+    ? 'Gate Security Portal'
+    : 'Resident Portal';
 
   return (
     <div className="w-full min-h-screen bg-[#F7F2EB] flex flex-col items-center justify-center font-sans antialiased">
@@ -40,17 +85,11 @@ export const MobileApp: React.FC = () => {
             <span>Marketing Site</span>
           </a>
 
-          {/* Role Indicator & Switcher Button */}
-          <button
-            onClick={() => setShowRoleSwitcher(true)}
-            className="flex items-center gap-1.5 py-1.5 px-3 bg-white hover:bg-slate-50 text-[#060D1E] rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] active:scale-95 transition-transform"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#1E60F2]" />
-            <span>Role:</span>
-            <span className="font-black text-[#1E60F2]">
-              {currentRole === 'RESIDENT' ? 'Resident' : currentRole === 'STAFF' ? 'Staff' : 'Admin'}
-            </span>
-          </button>
+          {/* Strict Role/Portal Indicator - Non-clickable Badge (NO role switching dropdowns or buttons) */}
+          <div className="flex items-center gap-1.5 py-1 px-3 bg-white text-[#060D1E] rounded-xl border border-slate-300 shadow-sm">
+            <Shield className="w-3.5 h-3.5 text-[#1E60F2]" />
+            <span className="font-extrabold text-[#1E60F2]">{portalLabel}</span>
+          </div>
 
           {/* Toggle Device Frame / Fullscreen view */}
           <button
@@ -88,33 +127,41 @@ export const MobileApp: React.FC = () => {
           </div>
         )}
 
-        {/* Active Role Application Shell */}
-        {currentRole === 'RESIDENT' && (
-          <ResidentApp onOpenRoleSwitcher={() => setShowRoleSwitcher(true)} />
-        )}
-
-        {currentRole === 'STAFF' && (
-          <StaffApp onOpenRoleSwitcher={() => setShowRoleSwitcher(true)} />
-        )}
-
-        {currentRole === 'ADMIN' && (
-          <AdminApp
-            onOpenRoleSwitcher={() => setShowRoleSwitcher(true)}
-            onNavigateToStaffScan={() => {
-              setRole('STAFF');
-            }}
-            onNavigateToStaffReceive={() => {
-              setRole('STAFF');
+        {/* 403 Forbidden Screen when unauthorized role attempts access */}
+        {isUnauthorizedAdminAttempt ? (
+          <Forbidden403
+            currentRole={currentRole}
+            requiredRole="SOCIETY_ADMIN"
+            attemptedPath="/admin"
+            onReturnToPortal={() => setRequestedPortal(null)}
+            onLogout={() => {
+              logout();
+              setRequestedPortal(null);
             }}
           />
-        )}
-
-        {/* Role Switcher Modal */}
-        {showRoleSwitcher && (
-          <RoleSwitcherModal
+        ) : isUnauthorizedStaffAttempt ? (
+          <Forbidden403
             currentRole={currentRole}
-            onSelectRole={(role) => setRole(role)}
-            onClose={() => setShowRoleSwitcher(false)}
+            requiredRole="SECURITY"
+            attemptedPath="/staff"
+            onReturnToPortal={() => setRequestedPortal(null)}
+            onLogout={() => {
+              logout();
+              setRequestedPortal(null);
+            }}
+          />
+        ) : isSuperAdmin || isSocietyAdmin ? (
+          <AdminApp
+            onLogoutSession={() => setRequestedPortal(null)}
+            onReturnToPortal={() => setRequestedPortal(null)}
+          />
+        ) : isSecurity ? (
+          <StaffApp
+            onLogoutSession={() => setRequestedPortal(null)}
+          />
+        ) : (
+          <ResidentApp
+            onLogoutSession={() => setRequestedPortal(null)}
           />
         )}
       </main>

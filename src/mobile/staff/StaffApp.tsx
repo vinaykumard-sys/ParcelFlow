@@ -16,7 +16,7 @@ import type { ResidentUser, MobileParcel } from '../types';
 import { useMobileStore } from '../services/mobileState';
 
 interface StaffAppProps {
-  onOpenRoleSwitcher: () => void;
+  onLogoutSession?: () => void;
 }
 
 export type StaffView =
@@ -31,9 +31,9 @@ export type StaffView =
 
 export type StaffTab = 'home' | 'parcels' | 'scan' | 'history' | 'profile';
 
-export const StaffApp: React.FC<StaffAppProps> = ({ onOpenRoleSwitcher }) => {
-  const { parcels } = useMobileStore();
-  const [view, setView] = useState<StaffView>('dashboard');
+export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
+  const { parcels, isAuthenticated, logout } = useMobileStore();
+  const [view, setView] = useState<StaffView>(isAuthenticated ? 'dashboard' : 'login');
   const [activeTab, setActiveTab] = useState<StaffTab>('home');
 
   // Multi-step intake flow state
@@ -50,7 +50,6 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onOpenRoleSwitcher }) => {
     return (
       <StaffSplashAndLogin
         onLoginSuccess={() => setView('dashboard')}
-        onSwitchRole={onOpenRoleSwitcher}
       />
     );
   }
@@ -81,8 +80,11 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onOpenRoleSwitcher }) => {
             {activeTab === 'history' && <StaffHistoryTab />}
             {activeTab === 'profile' && (
               <StaffProfileTab
-                onLogout={() => setView('login')}
-                onSwitchRole={onOpenRoleSwitcher}
+                onLogout={() => {
+                  logout();
+                  if (onLogoutSession) onLogoutSession();
+                  setView('login');
+                }}
               />
             )}
           </>

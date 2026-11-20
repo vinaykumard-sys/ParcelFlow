@@ -19,10 +19,11 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
   const [search, setSearch] = useState('');
 
   const residentParcels = parcels.filter(
-    (p) => p.recipientName.includes('Vinay') || p.flat === 'B-402'
+    (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
   );
+  const activeList = residentParcels.length > 0 ? residentParcels : parcels;
 
-  const filtered = residentParcels.filter((p) => {
+  const filtered = activeList.filter((p) => {
     if (filter === 'READY' && p.status !== 'WAITING') return false;
     if (filter === 'SCHEDULED' && p.status !== 'SCHEDULED') return false;
     if (search.trim()) {
@@ -43,7 +44,7 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
         <p className="text-[11px] font-bold text-slate-500">Live incoming & stored hub inventory</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
         {/* Search Bar */}
         <div className="relative">
           <input
@@ -77,8 +78,21 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
         <div className="space-y-3">
           {filtered.length === 0 ? (
             <div className="p-8 text-center bg-white rounded-3xl border-2 border-dashed border-slate-300">
-              <Package className="w-10 h-10 text-slate-400 mx-auto mb-2" />
-              <p className="text-xs font-black text-slate-600">No parcels found</p>
+              <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+              <p className="text-xs font-black text-slate-700">No parcels found</p>
+              <p className="text-[11px] text-slate-400 font-semibold mt-1">
+                No packages match the selected status or search query.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setFilter('ALL');
+                  setSearch('');
+                }}
+                className="mt-3 px-3.5 py-1.5 bg-[#1E60F2] text-white text-[11px] font-black rounded-xl border border-[#060D1E] shadow-[2px_2px_0px_#060D1E] active:scale-95 transition-all"
+              >
+                Reset Search Filters
+              </button>
             </div>
           ) : (
             filtered.map((parcel) => (

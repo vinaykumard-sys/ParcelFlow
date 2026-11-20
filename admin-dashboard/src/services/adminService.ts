@@ -992,9 +992,10 @@ class AdminServiceStore {
 
     const parcel = this.parcels.find(
       (p) =>
-        p.active_token?.otp_code === cleanOtp ||
-        (cleanOtp === '7492' && p.tracking_number === 'PF-8921-IN') ||
-        (cleanOtp === '3194' && p.tracking_number === 'PF-8922-IN')
+        (p.active_token?.otp_code === cleanOtp ||
+          (cleanOtp === '7492' && p.tracking_number === 'PF-8921-IN') ||
+          (cleanOtp === '3194' && p.tracking_number === 'PF-8922-IN')) &&
+        p.status !== 'COMPLETED'
     );
 
     if (parcel) {
@@ -1014,6 +1015,24 @@ class AdminServiceStore {
         slot.residentName = undefined;
         slot.flatNumber = undefined;
         slot.status = undefined;
+      }
+
+      // Immediately release storage slot in Supabase
+      if (parcel.storage_location_id) {
+        try {
+          (supabase.from('storage_locations') as any)
+            .update({
+              is_occupied: false,
+              current_parcel_id: null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', parcel.storage_location_id)
+            .then(({ error }: any) => {
+              if (error) console.warn('Supabase release slot notice:', error.message);
+            });
+        } catch (slotErr) {
+          console.warn('Release storage location exception:', slotErr);
+        }
       }
 
       this.kpis.collected++;

@@ -45,7 +45,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
       </div>
 
       {/* Main Body */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
         {/* KPI Stats Grid (24 Total, 12 Awaiting, 8 Scheduled, 4 Overdue) */}
         <div className="grid grid-cols-2 gap-2.5">
           <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]">

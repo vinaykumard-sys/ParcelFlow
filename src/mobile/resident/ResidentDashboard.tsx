@@ -19,12 +19,13 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
   const { parcels, selectedSociety } = useMobileStore();
 
   const residentParcels = parcels.filter(
-    (p) => p.recipientName.includes('Vinay') || p.flat === 'B-402'
+    (p) => p.recipientName.toLowerCase().includes('vinay') || p.flat === 'B-402'
   );
+  const activeParcels = residentParcels.length > 0 ? residentParcels : parcels;
 
-  const waitingCount = residentParcels.filter((p) => p.status === 'WAITING').length;
-  const scheduledCount = residentParcels.filter((p) => p.status === 'SCHEDULED').length;
-  const collectedCount = residentParcels.filter((p) => p.status === 'COLLECTED').length;
+  const waitingCount = activeParcels.filter((p) => p.status === 'WAITING').length;
+  const scheduledCount = activeParcels.filter((p) => p.status === 'SCHEDULED').length;
+  const collectedCount = activeParcels.filter((p) => p.status === 'COLLECTED').length;
 
   const getCarrierColor = (carrier: string) => {
     switch (carrier.toLowerCase()) {
@@ -75,7 +76,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
       </div>
 
       {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-5">
         {/* Stats Badges Row: 2 Waiting, 1 Scheduled, 12 Collected */}
         <div className="grid grid-cols-3 gap-2.5">
           <div className="bg-white p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col justify-between">
@@ -128,15 +129,24 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-black text-[#060D1E] uppercase tracking-wider flex items-center gap-1.5">
               <Package className="w-4 h-4 text-[#1E60F2]" />
-              Your Parcels ({residentParcels.filter((p) => p.status !== 'COLLECTED').length})
+              Your Parcels ({activeParcels.filter((p) => p.status !== 'COLLECTED').length})
             </h2>
             <span className="text-[11px] font-bold text-[#1E60F2]">Tower B Hub</span>
           </div>
 
           <div className="space-y-3">
-            {residentParcels
-              .filter((p) => p.status !== 'COLLECTED')
-              .map((parcel) => (
+            {activeParcels.filter((p) => p.status !== 'COLLECTED').length === 0 ? (
+              <div className="p-8 text-center bg-white rounded-3xl border-2 border-dashed border-slate-300">
+                <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <p className="text-xs font-black text-slate-700">No incoming parcels awaiting pickup</p>
+                <p className="text-[11px] text-slate-400 font-semibold mt-1">
+                  Deliveries received at the gate hub will appear here automatically.
+                </p>
+              </div>
+            ) : (
+              activeParcels
+                .filter((p) => p.status !== 'COLLECTED')
+                .map((parcel) => (
                 <div
                   key={parcel.id}
                   className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 transition-all hover:-translate-y-0.5"
@@ -212,7 +222,8 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
                     )}
                   </div>
                 </div>
-              ))}
+              )))
+            }
           </div>
         </div>
 

@@ -11,3 +11,6 @@ export * from './pickupService.ts';
 export * from './otpQrService.ts';
 export * from './staffService.ts';
 export * from './adminService.ts';
+export * from './auditService.ts';
+export * from './subscriptionService.ts';
+export * from './onboardingService.ts';

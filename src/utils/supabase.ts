@@ -85,7 +85,14 @@ export async function submitWaitlistEmail(email: string, platform: 'android' | '
 // PROFILE & AUTH TYPES
 // ============================================================================
 
-export type ProfileRole = 'resident' | 'staff' | 'admin';
+export type ProfileRole =
+  | 'SUPER_ADMIN'
+  | 'SOCIETY_ADMIN'
+  | 'SECURITY'
+  | 'RESIDENT'
+  | 'resident'
+  | 'staff'
+  | 'admin';
 
 export interface Profile {
   id: string; // references auth.users(id)
@@ -348,11 +355,38 @@ export async function getCurrentUserProfile(): Promise<{
 }
 
 /**
- * Sign out the currently active session
+ * Sign out the currently active session and purge cached state
  */
 export async function signOut(): Promise<{ error: string | null }> {
   try {
     const { error } = await supabase.auth.signOut();
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.localStorage) {
+          const keysToRemove: string[] = [];
+          for (let i = 0; i < window.localStorage.length; i++) {
+            const key = window.localStorage.key(i);
+            if (
+              key &&
+              (key.startsWith('parcelflow_') ||
+                key.startsWith('sb-') ||
+                key.includes('supabase') ||
+                key.includes('auth'))
+            ) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+          window.localStorage.removeItem('parcelflow_mobile_state_v2');
+          window.localStorage.removeItem('parcelflow_mobile_state_v1');
+        }
+        if (window.sessionStorage) {
+          window.sessionStorage.clear();
+        }
+      } catch {
+        // ignore
+      }
+    }
     return { error: error ? error.message : null };
   } catch (err: any) {
     return { error: err.message || 'Failed to sign out' };

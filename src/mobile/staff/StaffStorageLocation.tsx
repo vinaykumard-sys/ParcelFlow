@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { ArrowLeft, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, MapPin, CheckCircle2, ArrowRight, ShieldCheck, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { ResidentUser, MobileParcel } from '../types';
+import { staffService } from '../../services/staffService';
+import { supabase } from '../../services/supabaseClient';
 
 interface StaffStorageLocationProps {
   trackingNumber: string;
@@ -23,19 +25,80 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
   const [rack, setRack] = useState<'Rack A' | 'Rack B' | 'Cold Storage'>('Rack B');
   const [selectedSlot, setSelectedSlot] = useState('B17');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const availableSlots = [
-    { id: 'B15', status: 'OCCUPIED' },
-    { id: 'B16', status: 'OCCUPIED' },
-    { id: 'B17', status: 'AVAILABLE' }, // Prompt exact requirement
-    { id: 'B18', status: 'AVAILABLE' },
-    { id: 'B19', status: 'AVAILABLE' },
-    { id: 'B20', status: 'OCCUPIED' },
+  const [dbSlots, setDbSlots] = useState<{ id: string; status: 'AVAILABLE' | 'OCCUPIED' }[]>([]);
+
+  // Default slots matching hub design
+  const defaultRackSlots = [
+    { id: 'B15', status: 'OCCUPIED' as const },
+    { id: 'B16', status: 'OCCUPIED' as const },
+    { id: 'B17', status: 'AVAILABLE' as const },
+    { id: 'B18', status: 'AVAILABLE' as const },
+    { id: 'B19', status: 'AVAILABLE' as const },
+    { id: 'B20', status: 'OCCUPIED' as const },
   ];
 
-  const handleSaveAndStore = () => {
+  // Fetch real storage locations from Supabase for current society & rack
+  useEffect(() => {
+    let isMounted = true;
+    const fetchStorageSlots = async () => {
+      try {
+        const { data } = await supabase
+          .from('storage_locations')
+          .select('shelf, is_occupied')
+          .eq('society_id', 'a1111111-1111-1111-1111-111111111111')
+          .eq('rack', rack);
+
+        if (isMounted && data && data.length > 0) {
+          const mapped = data.map((d) => ({
+            id: d.shelf.replace(/^(Slot\s*|Rack\s*)/i, '').trim(),
+            status: d.is_occupied ? ('OCCUPIED' as const) : ('AVAILABLE' as const),
+          }));
+          setDbSlots(mapped);
+          const firstOpen = mapped.find((s) => s.status === 'AVAILABLE');
+          if (firstOpen) setSelectedSlot(firstOpen.id);
+        } else {
+          setDbSlots(defaultRackSlots);
+        }
+      } catch {
+        if (isMounted) setDbSlots(defaultRackSlots);
+      }
+    };
+
+    fetchStorageSlots();
+    return () => {
+      isMounted = false;
+    };
+  }, [rack]);
+
+  const activeSlots = dbSlots.length > 0 ? dbSlots : defaultRackSlots;
+
+  const handleSaveAndStore = async () => {
+    setErrorMsg(null);
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const slotString = `${tower} / ${rack} / Slot ${selectedSlot}`;
+
+      // 1. Execute Real Parcel Intake in Supabase
+      const intakeResult = await staffService.intakeParcel({
+        trackingNumber,
+        carrierName: carrier,
+        societyId: 'a1111111-1111-1111-1111-111111111111',
+        apartmentId: 'c1111111-1111-1111-1111-111111111111', // Lakeview apartment
+        residentId: 'e1111111-1111-1111-1111-111111111111',  // Lakeview resident
+        storageSlot: slotString,
+        staffId: 'd1111111-1111-1111-1111-111111111111',    // Hub staff
+      });
+
+      if (!intakeResult.success) {
+        setErrorMsg(intakeResult.error || 'Failed to complete parcel intake');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Synchronize local store
       const location = `${tower}, ${rack}, Slot ${selectedSlot}`;
       const savedParcel = receiveParcel({
         trackingNumber,
@@ -46,9 +109,13 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
         tower,
         storageLocation: location,
       });
+
       setLoading(false);
       onSaved(savedParcel);
-    }, 400);
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Error processing parcel intake');
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,6 +147,13 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
             Inbound
           </span>
         </div>
+
+        {errorMsg && (
+          <div className="p-3 bg-rose-50 border border-rose-300 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
 
         {/* Tower Selector */}
         <div>
@@ -127,19 +201,19 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
           </div>
         </div>
 
-        {/* Slot Grid (Highlighting Slot B17 Available) */}
+        {/* Slot Grid (Enforces Non-Double Allocation) */}
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-black uppercase text-slate-500">
               Select Slot in {rack}
             </label>
             <span className="text-[11px] font-black text-emerald-700 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-md">
-              Slot B17 Available
+              Slot {selectedSlot} Selected
             </span>
           </div>
 
           <div className="grid grid-cols-3 gap-2.5">
-            {availableSlots.map((slot) => {
+            {activeSlots.map((slot) => {
               const isOccupied = slot.status === 'OCCUPIED';
               const isSelected = selectedSlot === slot.id;
 
@@ -148,7 +222,10 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
                   key={slot.id}
                   type="button"
                   disabled={isOccupied}
-                  onClick={() => setSelectedSlot(slot.id)}
+                  onClick={() => {
+                    setSelectedSlot(slot.id);
+                    setErrorMsg(null);
+                  }}
                   className={`p-3 rounded-2xl border-2 flex flex-col items-center justify-center transition-all ${
                     isOccupied
                       ? 'bg-slate-100 border-slate-300 opacity-50 cursor-not-allowed'
@@ -165,7 +242,7 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
                     Slot {slot.id}
                   </span>
                   <span className="text-[9px] font-bold text-slate-500 uppercase mt-0.5">
-                    {isOccupied ? 'In Use' : 'Empty'}
+                    {isOccupied ? 'Occupied' : 'Available'}
                   </span>
                 </button>
               );
@@ -181,7 +258,7 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
               Assigned: {tower}, {rack}, Slot {selectedSlot}
             </p>
             <p className="text-[11px] text-emerald-800 font-semibold">
-              Notification will be dispatched to resident {resident.name} immediately upon saving.
+              Live notification record will be inserted to database for {resident.name} immediately upon saving.
             </p>
           </div>
         </div>
@@ -192,9 +269,9 @@ export const StaffStorageLocation: React.FC<StaffStorageLocationProps> = ({
         <button
           onClick={handleSaveAndStore}
           disabled={loading || !selectedSlot}
-          className="w-full py-3.5 px-4 bg-[#10B981] hover:bg-emerald-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
+          className="w-full py-3.5 px-4 bg-[#10B981] hover:bg-emerald-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
-          <span>{loading ? 'Saving & Storing...' : 'Save & Store'}</span>
+          <span>{loading ? 'Saving to Database...' : 'Save & Store'}</span>
           <ArrowRight className="w-4 h-4 stroke-[2.5]" />
         </button>
       </div>

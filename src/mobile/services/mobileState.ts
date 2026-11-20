@@ -7,7 +7,9 @@ import type {
   StaffMember,
   SocietyOption,
   SocietyReport,
+  AuthenticatedUser,
 } from '../types';
+import { supabase } from '../../services/supabaseClient';
 
 export const SOCIETIES: SocietyOption[] = [
   { id: 'soc-1', name: 'Greenview Heights', address: 'Hebbal, Outer Ring Rd', city: 'Bengaluru' },
@@ -33,6 +35,8 @@ const INITIAL_STAFF: StaffMember[] = [];
 
 interface MobileStoreState {
   currentRole: MobileRole;
+  isAuthenticated: boolean;
+  currentUser: AuthenticatedUser | null;
   selectedSociety: SocietyOption;
   parcels: MobileParcel[];
   slots: PickupSlot[];
@@ -52,7 +56,7 @@ class MobileStateStore {
 
   private loadState(): MobileStoreState {
     try {
-      // Purge any stale fake v1 state
+      // Purge any stale legacy state
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('parcelflow_mobile_state_v1');
       }
@@ -61,6 +65,8 @@ class MobileStateStore {
         const parsed = JSON.parse(saved);
         return {
           ...parsed,
+          isAuthenticated: parsed.isAuthenticated ?? false,
+          currentUser: parsed.currentUser ?? null,
           slots: parsed.slots?.length ? parsed.slots : INITIAL_SLOTS,
         };
       }
@@ -70,6 +76,8 @@ class MobileStateStore {
 
     return {
       currentRole: 'RESIDENT',
+      isAuthenticated: false,
+      currentUser: null,
       selectedSociety: SOCIETIES[0],
       parcels: INITIAL_PARCELS,
       slots: INITIAL_SLOTS,
@@ -97,6 +105,59 @@ class MobileStateStore {
       // ignore
     }
     this.notify();
+  }
+
+  logout() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('parcelflow_mobile_state_v2');
+        localStorage.removeItem('parcelflow_mobile_state_v1');
+        localStorage.removeItem('parcelflow_auth_user');
+        localStorage.removeItem('parcelflow_active_role');
+        // Purge Supabase auth storage tokens
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('sb-') || key.includes('supabase')) {
+            localStorage.removeItem(key);
+          }
+        });
+      }
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.clear();
+      }
+      // Call Supabase signOut in background
+      supabase.auth.signOut().catch(() => {});
+    } catch {
+      // ignore
+    }
+
+    this.state = {
+      currentRole: 'RESIDENT',
+      isAuthenticated: false,
+      currentUser: null,
+      selectedSociety: SOCIETIES[0],
+      parcels: [],
+      slots: INITIAL_SLOTS,
+      residents: [],
+      staff: [],
+      activeParcelId: null,
+      report: {
+        period: 'Daily',
+        totalParcels: 0,
+        collected: 0,
+        scheduled: 0,
+        pending: 0,
+        collectionRate: 0,
+        hourlyStats: [],
+      },
+    };
+    this.notify();
+  }
+
+  login(user: AuthenticatedUser) {
+    this.state.isAuthenticated = true;
+    this.state.currentUser = user;
+    this.state.currentRole = user.role;
+    this.saveState();
   }
 
   private notify() {
@@ -129,8 +190,14 @@ class MobileStateStore {
     this.saveState();
   }
 
-  schedulePickup(parcelId: string, slotId: string): { success: boolean; otp: string } {
+  schedulePickup(parcelId: string, slotId: string): { success: boolean; otp: string; error?: string } {
     const slot = this.state.slots.find((s) => s.id === slotId);
+    
+    // Strict capacity check
+    if (slot && (!slot.isAvailable || slot.bookedCount >= slot.capacity)) {
+      return { success: false, otp: '', error: 'FULL: Slot has reached maximum capacity.' };
+    }
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const timeWindow = slot ? slot.timeWindow : '6:00 PM - 6:30 PM';
 
@@ -205,11 +272,6 @@ class MobileStateStore {
     });
 
     if (!parcel) {
-      // If entered OTP is 6 digits or 742916, match the first waiting or scheduled parcel
-      const candidate = this.state.parcels.find((p) => p.status === 'SCHEDULED' || p.status === 'WAITING');
-      if (candidate && clean.length >= 4) {
-        return this.completeHandover(candidate.id);
-      }
       return { success: false, message: 'Invalid OTP or QR code. Please check and try again.' };
     }
 
@@ -306,6 +368,8 @@ export function useMobileStore() {
 
   return {
     ...state,
+    logout: () => mobileStore.logout(),
+    login: (u: AuthenticatedUser) => mobileStore.login(u),
     setRole: (role: MobileRole) => mobileStore.setRole(role),
     setSociety: (society: SocietyOption) => mobileStore.setSociety(society),
     setActiveParcelId: (id: string | null) => mobileStore.setActiveParcelId(id),

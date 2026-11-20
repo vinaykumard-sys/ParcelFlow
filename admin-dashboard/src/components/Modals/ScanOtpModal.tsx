@@ -72,7 +72,7 @@ export const ScanOtpModal: React.FC<ScanOtpModalProps> = ({ isOpen, onClose, onS
             }`}
           >
             <KeyRound className="w-3.5 h-3.5" />
-            <span>4-Digit OTP</span>
+            <span>6-Digit OTP</span>
           </button>
           <button
             type="button"
@@ -91,14 +91,14 @@ export const ScanOtpModal: React.FC<ScanOtpModalProps> = ({ isOpen, onClose, onS
           <form onSubmit={handleVerify} className="space-y-4">
             <div>
               <label className="block text-xs font-black uppercase text-[#0A1128] mb-1.5">
-                Enter Resident Handover OTP
+                Enter Resident Handover 6-Digit OTP
               </label>
               <input
                 type="text"
                 maxLength={6}
                 value={otpInput}
                 onChange={(e) => setOtpInput(e.target.value)}
-                placeholder="e.g. 7492 or 3194"
+                placeholder="7 4 2 9 1 6"
                 className="w-full text-center tracking-[0.4em] font-mono font-black text-2xl py-3 px-4 rounded-xl border-2.5 border-[#0A1128] shadow-[3px_3px_0px_#0A1128] bg-white text-[#0A1128] focus:outline-none focus:ring-2 focus:ring-orange-500"
                 autoFocus
               />

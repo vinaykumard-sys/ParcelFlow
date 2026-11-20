@@ -14,7 +14,9 @@ import {
   Settings,
   Sparkles,
   UserCheck,
-  ChevronDown
+  ChevronDown,
+  CreditCard,
+  Layers
 } from 'lucide-react';
 import type { AdminTab } from '../types';
 
@@ -55,11 +57,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: <Building className="w-4 h-4" />,
       badge: '4 Active',
       badgeColor: 'bg-amber-400 text-[#0A1128]',
-    },
-    {
-      id: 'role-switcher',
-      label: 'Role-Based Access',
-      icon: <Shield className="w-4 h-4" />,
     },
     {
       id: 'residents',
@@ -119,6 +116,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: <AlertCircle className="w-4 h-4" />,
       badge: openIssuesCount > 0 ? `${openIssuesCount} Open` : undefined,
       badgeColor: 'bg-amber-500 text-white',
+    },
+    {
+      id: 'subscriptions',
+      label: 'Society Subscriptions',
+      icon: <CreditCard className="w-4 h-4" />,
+      badge: 'Plans',
+      badgeColor: 'bg-blue-600 text-white',
+    },
+    {
+      id: 'onboarding',
+      label: 'Society Onboarding',
+      icon: <Layers className="w-4 h-4" />,
+      badge: '8 Steps',
+      badgeColor: 'bg-emerald-600 text-white',
     },
     {
       id: 'settings',

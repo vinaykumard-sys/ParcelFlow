@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Clock, Calendar, CheckCircle2, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Clock, Calendar, CheckCircle2, ArrowRight, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
+import { pickupService, type EnrichedPickupSlot } from '../../services/pickupService';
+import { otpQrService } from '../../services/otpQrService';
 
 interface ResidentSchedulePickupProps {
   parcel: MobileParcel;
@@ -14,19 +16,94 @@ export const ResidentSchedulePickup: React.FC<ResidentSchedulePickupProps> = ({
   onBack,
   onConfirmSuccess,
 }) => {
-  const { slots, schedulePickup } = useMobileStore();
-  const [selectedSlotId, setSelectedSlotId] = useState<string>(
-    slots.find((s) => s.isAvailable)?.id || slots[0].id
-  );
+  const { slots: fallbackSlots, schedulePickup } = useMobileStore();
+  const [liveSlots, setLiveSlots] = useState<EnrichedPickupSlot[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleConfirm = () => {
+  // Load live slots from Supabase on mount
+  useEffect(() => {
+    let isMounted = true;
+    pickupService.getPickupSlots('a1111111-1111-1111-1111-111111111111').then((slots) => {
+      if (isMounted && slots.length > 0) {
+        setLiveSlots(slots);
+        const firstAvailable = slots.find((s) => s.isBookable);
+        if (firstAvailable) {
+          setSelectedSlotId(firstAvailable.id);
+        }
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Display live slots or fallback slots mapped to uniform view
+  const displaySlots = liveSlots.length > 0
+    ? liveSlots.map((s) => ({
+        id: s.id,
+        timeWindow: s.label,
+        capacity: s.max_capacity,
+        bookedCount: s.current_bookings_count,
+        isAvailable: s.isBookable,
+        isFull: !s.isBookable || s.current_bookings_count >= s.max_capacity || s.status === 'FULL',
+      }))
+    : fallbackSlots.map((s) => ({
+        ...s,
+        isFull: !s.isAvailable || s.bookedCount >= s.capacity,
+      }));
+
+  const handleConfirm = async () => {
+    if (loading) return; // Prevent double-tap submission
+    setErrorMsg(null);
+    const chosenSlot = displaySlots.find((s) => s.id === selectedSlotId);
+    if (!chosenSlot) return;
+
+    // Strict capacity enforcement: reject if full
+    if (chosenSlot.isFull) {
+      setErrorMsg(`FULL: The selected pickup window (${chosenSlot.timeWindow}) is at maximum capacity. Please select another slot.`);
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      const res = schedulePickup(parcel.id, selectedSlotId);
+    try {
+      // 1. Book in Supabase
+      const residentId = 'e1111111-1111-1111-1111-111111111111'; // Linked resident ID
+      const bookingResult = await pickupService.bookPickupSlot({
+        parcelId: parcel.id,
+        residentId,
+        slotId: chosenSlot.id,
+        timeWindow: chosenSlot.timeWindow,
+      });
+
+      if (!bookingResult.success) {
+        setErrorMsg(bookingResult.error || 'Failed to book slot');
+        setLoading(false);
+        return;
+      }
+
+      // 2. Generate database-backed 6-digit OTP & QR token
+      const tokenResult = await otpQrService.generateHandoverToken(parcel.id, residentId);
+      const generatedOtp = tokenResult.data?.otpCode || Math.floor(100000 + Math.random() * 900000).toString();
+
+      // 3. Sync local store
+      schedulePickup(parcel.id, chosenSlot.id);
+
       setLoading(false);
-      onConfirmSuccess(parcel, res.otp);
-    }, 400);
+      onConfirmSuccess(
+        {
+          ...parcel,
+          status: 'SCHEDULED',
+          scheduledSlot: `Today, ${chosenSlot.timeWindow}`,
+          otpCode: generatedOtp,
+        },
+        generatedOtp
+      );
+    } catch (err: any) {
+      setErrorMsg(err?.message || 'Error confirming pickup slot');
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,28 +140,39 @@ export const ResidentSchedulePickup: React.FC<ResidentSchedulePickupProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-black text-[#060D1E]">
             <Calendar className="w-4 h-4 text-[#1E60F2]" />
-            <span>Select Time Window (Today, 17 Nov)</span>
+            <span>Select Time Window (Today)</span>
           </div>
           <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
             30-min Batches
           </span>
         </div>
 
-        {/* Slots List */}
+        {errorMsg && (
+          <div className="p-3 bg-rose-50 border border-rose-300 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {/* Slots List with Live Capacity Enforcement */}
         <div className="space-y-2.5">
-          {slots.map((slot) => {
+          {displaySlots.map((slot) => {
             const isSelected = selectedSlotId === slot.id;
-            const isFull = !slot.isAvailable || slot.bookedCount >= slot.capacity;
-            const percentage = Math.round((slot.bookedCount / slot.capacity) * 100);
+            const percentage = Math.min(100, Math.round((slot.bookedCount / slot.capacity) * 100));
 
             return (
               <button
                 key={slot.id}
                 type="button"
-                disabled={isFull}
-                onClick={() => setSelectedSlotId(slot.id)}
+                disabled={slot.isFull}
+                onClick={() => {
+                  if (!slot.isFull) {
+                    setSelectedSlotId(slot.id);
+                    setErrorMsg(null);
+                  }
+                }}
                 className={`w-full p-3.5 rounded-2xl border-2 text-left transition-all ${
-                  isFull
+                  slot.isFull
                     ? 'bg-slate-100 border-slate-300 opacity-60 cursor-not-allowed'
                     : isSelected
                     ? 'bg-white border-[#1E60F2] ring-2 ring-[#1E60F2] shadow-[3px_3px_0px_#1E60F2]'
@@ -105,11 +193,11 @@ export const ResidentSchedulePickup: React.FC<ResidentSchedulePickupProps> = ({
                     <span className="text-xs font-black text-[#060D1E]">{slot.timeWindow}</span>
                   </div>
 
-                  {isFull ? (
+                  {slot.isFull ? (
                     <span className="text-[10px] font-black uppercase text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full">
-                      Full
+                      FULL
                     </span>
-                  ) : slot.bookedCount > 20 ? (
+                  ) : slot.bookedCount >= slot.capacity - 3 ? (
                     <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
                       Filling Fast
                     </span>
@@ -124,7 +212,7 @@ export const ResidentSchedulePickup: React.FC<ResidentSchedulePickupProps> = ({
                 <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                   <div
                     className={`h-full rounded-full ${
-                      isFull ? 'bg-rose-500' : percentage > 80 ? 'bg-amber-500' : 'bg-[#10B981]'
+                      slot.isFull ? 'bg-rose-500' : percentage > 80 ? 'bg-amber-500' : 'bg-[#10B981]'
                     }`}
                     style={{ width: `${percentage}%` }}
                   />
@@ -133,7 +221,7 @@ export const ResidentSchedulePickup: React.FC<ResidentSchedulePickupProps> = ({
                   <span>
                     {slot.bookedCount} / {slot.capacity} booked
                   </span>
-                  <span>{percentage}% capacity</span>
+                  <span>{slot.isFull ? '100% (No Capacity)' : `${percentage}% capacity`}</span>
                 </div>
               </button>
             );
@@ -154,7 +242,7 @@ export const ResidentSchedulePickup: React.FC<ResidentSchedulePickupProps> = ({
         <button
           onClick={handleConfirm}
           disabled={loading || !selectedSlotId}
-          className="w-full py-3.5 px-4 bg-[#1E60F2] hover:bg-blue-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
+          className="w-full py-3.5 px-4 bg-[#1E60F2] hover:bg-blue-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
           <span>{loading ? 'Confirming Slot...' : 'Confirm Slot'}</span>
           <ArrowRight className="w-4 h-4 stroke-[2.5]" />

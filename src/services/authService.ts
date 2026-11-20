@@ -1,18 +1,72 @@
 // ============================================================================
 // PARCELFLOW AUTH SERVICE (src/services/authService.ts)
 // Production Authentication & Role-Based Access Control via Supabase
-// Real login: Email/password, Google OAuth, Phone OTP
-// Strict Admin verification linked to authenticated UID and public.profiles
+// Permanent Identity: auth.users.id is the cryptographic source of truth
+// Roles: SUPER_ADMIN, SOCIETY_ADMIN, SECURITY, RESIDENT
+// Fixed Admin Account: vinaykumard45678@gmail.com / 0c9c3244-8680-4141-b119-ffecf87c804d
 // ============================================================================
 
 import { supabase } from './supabaseClient.ts';
 import type { Profile, AuthSessionResponse, ProfileRole } from './types.ts';
+import { isSuperAdminRole, isSocietyAdminRole, isSecurityRole } from './types.ts';
 
-export const ADMIN_EMAIL = 'vinaykumard45678@gmail.com';
+// Fixed Root Administrator Account
+export const FIXED_ADMIN_EMAIL = 'vinaykumard45678@gmail.com';
+export const FIXED_ADMIN_UID = '0c9c3244-8680-4141-b119-ffecf87c804d';
+export const ADMIN_EMAIL = FIXED_ADMIN_EMAIL; // Backwards compatibility
+
+/**
+ * Normalizes any database role string into the canonical 4-tier role
+ */
+export function normalizeRole(role: string | null | undefined): ProfileRole {
+  if (!role) return 'RESIDENT';
+  const clean = role.trim().toUpperCase();
+  if (clean === 'SUPER_ADMIN' || clean === 'ADMIN') return 'SUPER_ADMIN';
+  if (clean === 'SOCIETY_ADMIN') return 'SOCIETY_ADMIN';
+  if (clean === 'SECURITY' || clean === 'STAFF') return 'SECURITY';
+  return 'RESIDENT';
+}
+
+/**
+ * Purge all cached local and session storage upon logout
+ * Ensures zero leakage of user data, society information, or tokens during account switching
+ */
+export function purgeAuthState(): void {
+  if (typeof window !== 'undefined') {
+    try {
+      if (window.localStorage) {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < window.localStorage.length; i++) {
+          const key = window.localStorage.key(i);
+          if (
+            key &&
+            (key.startsWith('parcelflow_') ||
+              key.startsWith('sb-') ||
+              key.includes('supabase') ||
+              key.includes('auth'))
+          ) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+        window.localStorage.removeItem('parcelflow_mobile_state_v2');
+        window.localStorage.removeItem('parcelflow_mobile_state_v1');
+        window.localStorage.removeItem('parcelflow_active_role');
+        window.localStorage.removeItem('parcelflow_auth_profile');
+        window.localStorage.removeItem('parcelflow_cached_user');
+      }
+      if (window.sessionStorage) {
+        window.sessionStorage.clear();
+      }
+    } catch {
+      // ignore security restrictions in restricted iframes
+    }
+  }
+}
 
 /**
  * Sign up a new user with Email and Password
- * Automatically sets up public.profiles via PostgreSQL trigger
+ * Default role is strictly RESIDENT; client-side role elevation is rejected.
  */
 export async function signUpWithEmail(
   email: string,
@@ -43,6 +97,7 @@ export async function signUpWithEmail(
           name: fullName?.trim() || cleanEmail.split('@')[0],
           phone: phone?.trim() || null,
           society_id: societyId || null,
+          // Client cannot choose role; server trigger defaults to RESIDENT
         },
       },
     });
@@ -55,9 +110,9 @@ export async function signUpWithEmail(
       return { user: null, session: null, profile: null, isAdmin: false, error: 'Sign up failed to create user.' };
     }
 
-    // Retrieve verified profile created by trigger
+    // Retrieve verified permanent profile created by database trigger
     const profile = await fetchVerifiedProfile(data.user.id);
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = isSuperAdminRole(profile?.role) || isSocietyAdminRole(profile?.role);
 
     return {
       user: data.user,
@@ -72,6 +127,7 @@ export async function signUpWithEmail(
 
 /**
  * Sign in existing user with Email and Password
+ * Permanent identity verified against auth.users.id and public.profiles
  */
 export async function signInWithEmail(email: string, password: string): Promise<AuthSessionResponse> {
   try {
@@ -97,7 +153,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
     }
 
     const profile = await fetchVerifiedProfile(data.user.id);
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = isSuperAdminRole(profile?.role) || isSocietyAdminRole(profile?.role);
 
     return {
       user: data.user,
@@ -193,7 +249,7 @@ export async function verifyPhoneOtp(phone: string, token: string): Promise<Auth
     }
 
     const profile = await fetchVerifiedProfile(data.user.id);
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = isSuperAdminRole(profile?.role) || isSocietyAdminRole(profile?.role);
 
     return {
       user: data.user,
@@ -207,22 +263,25 @@ export async function verifyPhoneOtp(phone: string, token: string): Promise<Auth
 }
 
 /**
- * Sign out current session
+ * Sign out current session and wipe all cached client state
  */
 export async function signOut(): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await supabase.auth.signOut();
+    purgeAuthState();
     if (error) {
       return { success: false, error: error.message };
     }
     return { success: true };
   } catch (err: any) {
+    purgeAuthState();
     return { success: false, error: err?.message };
   }
 }
 
 /**
  * Fetch verified profile strictly for authenticated user UID
+ * Strictly checks the database profiles table; no client-side overrides
  */
 export async function fetchVerifiedProfile(userId: string): Promise<Profile | null> {
   if (!userId) return null;
@@ -234,15 +293,35 @@ export async function fetchVerifiedProfile(userId: string): Promise<Profile | nu
       .maybeSingle();
 
     if (error || !data) {
+      // Invariant: Fixed Admin account check
+      if (userId === FIXED_ADMIN_UID) {
+        return {
+          id: FIXED_ADMIN_UID,
+          full_name: 'Vinay Kumar (System Administrator)',
+          email: FIXED_ADMIN_EMAIL,
+          phone: '+91 99999 88888',
+          role: 'SUPER_ADMIN',
+          society_id: null,
+          created_at: new Date().toISOString(),
+        };
+      }
       return null;
     }
+
+    const role = normalizeRole(data.role);
+
+    // If user is the designated admin, enforce SUPER_ADMIN
+    const finalRole: ProfileRole =
+      userId === FIXED_ADMIN_UID || data.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL
+        ? 'SUPER_ADMIN'
+        : role;
 
     return {
       id: data.id,
       full_name: data.full_name,
       email: data.email,
       phone: data.phone,
-      role: data.role as ProfileRole,
+      role: finalRole,
       society_id: data.society_id,
       avatar_url: data.avatar_url,
       created_at: data.created_at,
@@ -255,6 +334,7 @@ export async function fetchVerifiedProfile(userId: string): Promise<Profile | nu
 
 /**
  * Get current session user and verified role profile
+ * Authenticated Supabase auth.users.id is the permanent identity
  */
 export async function getCurrentUserProfile(): Promise<AuthSessionResponse> {
   try {
@@ -269,20 +349,22 @@ export async function getCurrentUserProfile(): Promise<AuthSessionResponse> {
 
     let profile = await fetchVerifiedProfile(user.id);
 
-    // If profile row not yet created in public.profiles, provide unverified default resident profile
+    // If profile row not yet created in public.profiles, provide unverified default RESIDENT profile
     if (!profile) {
+      const isFixedAdmin =
+        user.id === FIXED_ADMIN_UID || user.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
       profile = {
         id: user.id,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Resident',
         email: user.email || null,
         phone: user.phone || null,
-        role: 'resident',
+        role: isFixedAdmin ? 'SUPER_ADMIN' : 'RESIDENT',
         society_id: user.user_metadata?.society_id || null,
         created_at: new Date().toISOString(),
       };
     }
 
-    const isAdmin = profile.role === 'admin';
+    const isAdmin = isSuperAdminRole(profile.role) || isSocietyAdminRole(profile.role);
 
     return {
       user,
@@ -296,13 +378,28 @@ export async function getCurrentUserProfile(): Promise<AuthSessionResponse> {
 }
 
 /**
- * Check if given authenticated UID has verified admin rights in public.profiles
+ * Check if given authenticated UID has verified SUPER_ADMIN rights
+ */
+export async function verifySuperAdminStatus(userId: string): Promise<boolean> {
+  if (!userId) return false;
+  if (userId === FIXED_ADMIN_UID) return true;
+  try {
+    const profile = await fetchVerifiedProfile(userId);
+    return isSuperAdminRole(profile?.role);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if given authenticated UID has verified admin rights (SUPER_ADMIN or SOCIETY_ADMIN)
  */
 export async function verifyAdminStatus(userId: string): Promise<boolean> {
   if (!userId) return false;
+  if (userId === FIXED_ADMIN_UID) return true;
   try {
     const profile = await fetchVerifiedProfile(userId);
-    return profile?.role === 'admin';
+    return isSuperAdminRole(profile?.role) || isSocietyAdminRole(profile?.role);
   } catch {
     return false;
   }
@@ -314,11 +411,12 @@ export async function verifyAdminStatus(userId: string): Promise<boolean> {
 export function onAuthStateChange(callback: (response: AuthSessionResponse) => void) {
   return supabase.auth.onAuthStateChange(async (_event, session) => {
     if (!session?.user) {
+      purgeAuthState();
       callback({ user: null, session: null, profile: null, isAdmin: false });
       return;
     }
     const profile = await fetchVerifiedProfile(session.user.id);
-    const isAdmin = profile?.role === 'admin';
+    const isAdmin = isSuperAdminRole(profile?.role) || isSocietyAdminRole(profile?.role);
     callback({
       user: session.user,
       session,
@@ -335,8 +433,11 @@ export const authService = {
   signInWithPhoneOtp,
   verifyPhoneOtp,
   signOut,
+  purgeAuthState,
   fetchVerifiedProfile,
   getCurrentUserProfile,
+  verifySuperAdminStatus,
   verifyAdminStatus,
   onAuthStateChange,
+  normalizeRole,
 };

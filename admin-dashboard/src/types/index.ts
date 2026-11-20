@@ -80,6 +80,8 @@ export type AdminTab =
   | 'notifications'
   | 'reports'
   | 'issues'
+  | 'subscriptions'
+  | 'onboarding'
   | 'settings';
 
 export interface HubInventorySlot {

@@ -5,25 +5,39 @@ import { SOCIETIES, useMobileStore } from '../services/mobileState';
 
 interface StaffSplashAndLoginProps {
   onLoginSuccess: () => void;
-  onSwitchRole: () => void;
 }
 
 export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
   onLoginSuccess,
-  onSwitchRole,
 }) => {
-  const { selectedSociety, setSociety } = useMobileStore();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { selectedSociety, setSociety, login } = useMobileStore();
+  const [email, setEmail] = useState('staff@parcelflow.in');
+  const [password, setPassword] = useState('••••••••');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleLogin = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (loading) return; // Prevent double-tap
     setLoading(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      login({
+        id: 'stf-gate-1',
+        email: email.trim() || 'staff@parcelflow.in',
+        name: 'Gate Security Attendant',
+        role: 'SECURITY',
+        societyId: selectedSociety.id,
+      });
+      setTimeout(() => {
+        setLoading(false);
+        onLoginSuccess();
+      }, 350);
+    } catch (err: any) {
       setLoading(false);
-      onLoginSuccess();
-    }, 400);
+      setErrorMessage(err?.message || 'Login failed. Please retry.');
+    }
   };
 
   return (
@@ -112,22 +126,13 @@ export const StaffSplashAndLogin: React.FC<StaffSplashAndLoginProps> = ({
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-4 py-3.5 px-4 bg-[#1E60F2] hover:bg-blue-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
+              className="w-full mt-4 py-3.5 px-4 bg-[#1E60F2] hover:bg-blue-600 active:scale-95 disabled:opacity-50 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
             >
               <span>{loading ? 'Authenticating...' : 'Sign In as Staff'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </form>
-
-          
         </div>
-
-        <button
-          onClick={onSwitchRole}
-          className="mt-6 py-2 text-xs font-extrabold text-slate-600 hover:text-black text-center"
-        >
-          Switch to Resident / Admin App →
-        </button>
       </div>
     </div>
   );

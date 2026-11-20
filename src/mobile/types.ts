@@ -1,4 +1,20 @@
-export type MobileRole = 'RESIDENT' | 'STAFF' | 'ADMIN';
+export type MobileRole =
+  | 'SUPER_ADMIN'
+  | 'SOCIETY_ADMIN'
+  | 'SECURITY'
+  | 'RESIDENT'
+  | 'STAFF'
+  | 'ADMIN';
+
+export interface AuthenticatedUser {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  role: MobileRole;
+  societyId?: string;
+  flatNumber?: string;
+}
 
 export type ParcelStatus = 'WAITING' | 'SCHEDULED' | 'READY_FOR_PICKUP' | 'COLLECTED';
 

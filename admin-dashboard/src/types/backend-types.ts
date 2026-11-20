@@ -15,7 +15,7 @@ export type Json =
 // Core Domain Enums & Statuses
 // ----------------------------------------------------------------------------
 
-export type UserRole = 'RESIDENT' | 'STAFF' | 'ADMIN';
+export type UserRole = 'SUPER_ADMIN' | 'SOCIETY_ADMIN' | 'SECURITY' | 'RESIDENT' | 'ADMIN' | 'STAFF';
 
 export type ParcelStatus =
   | 'CREATED'
@@ -142,7 +142,7 @@ export interface User {
   updated_at: string;
 }
 
-export type ProfileRole = 'resident' | 'staff' | 'admin';
+export type ProfileRole = 'SUPER_ADMIN' | 'SOCIETY_ADMIN' | 'SECURITY' | 'RESIDENT' | 'resident' | 'staff' | 'admin';
 
 export interface Profile {
   id: string; // references auth.users(id)

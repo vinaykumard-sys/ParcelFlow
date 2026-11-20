@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Camera, ScanLine, ArrowRight, Package, Check, Sparkles, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Camera, ScanLine, ArrowRight, Package, Check, Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
+import { identifyCarrier } from '../../services/staffService';
+import { supabase } from '../../services/supabaseClient';
 
 interface StaffReceiveParcelProps {
   onBack: () => void;
@@ -11,21 +13,70 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
   const [carrier, setCarrier] = useState<'Amazon' | 'Flipkart' | 'Myntra' | 'Blue Dart' | 'Delhivery' | 'Other'>('Amazon');
   const [isScanning, setIsScanning] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
 
-  const simulateScan = () => {
+  // Automatically detect carrier when trackingId changes
+  useEffect(() => {
+    if (trackingId.trim()) {
+      const detected = identifyCarrier(trackingId);
+      setCarrier(detected);
+    }
+  }, [trackingId]);
+
+  // Duplicate scan protection check
+  const checkDuplicate = async (tid: string): Promise<boolean> => {
+    try {
+      const clean = tid.trim().toUpperCase();
+      const { data } = await supabase
+        .from('parcels')
+        .select('tracking_number, status, storage_locations(rack, shelf)')
+        .eq('tracking_number', clean)
+        .maybeSingle();
+
+      if (data && !['COMPLETED', 'HANDED_OVER', 'CANCELLED'].includes(data.status)) {
+        const slot = (data.storage_locations as any)?.rack
+          ? `at ${(data.storage_locations as any)?.rack} - ${(data.storage_locations as any)?.shelf}`
+          : '';
+        setDuplicateWarning(`Parcel already registered: Package ${clean} is active with status ${data.status} ${slot}.`);
+        return true;
+      }
+      setDuplicateWarning(null);
+      return false;
+    } catch {
+      setDuplicateWarning(null);
+      return false;
+    }
+  };
+
+  const simulateScan = async () => {
     setIsScanning(true);
-    setTimeout(() => {
+    setDuplicateWarning(null);
+    setTimeout(async () => {
       setIsScanning(false);
       setScanSuccess(true);
       const generated = 'PF-' + Math.floor(1000 + Math.random() * 9000) + '-IN';
       setTrackingId(generated);
+      await checkDuplicate(generated);
     }, 700);
   };
 
-  const handleContinue = (e?: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleContinue = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!trackingId.trim()) return;
-    onNext({ trackingNumber: trackingId.trim(), carrier });
+    if (submitting || !trackingId.trim()) return;
+
+    setSubmitting(true);
+    try {
+      const isDup = await checkDuplicate(trackingId);
+      if (isDup) {
+        setSubmitting(false);
+        return;
+      }
+      onNext({ trackingNumber: trackingId.trim().toUpperCase(), carrier });
+    } catch {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -73,11 +124,16 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
           </button>
         </div>
 
-        {/* Carrier Selector */}
+        {/* Carrier Selector with Auto-Detection Badge */}
         <div>
-          <label className="text-xs font-black uppercase tracking-wider text-slate-500 block mb-2">
-            Select Courier Partner
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-black uppercase tracking-wider text-slate-500">
+              Courier Partner
+            </label>
+            <span className="text-[10px] font-black text-[#1E60F2] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+              Auto-Detected: {carrier}
+            </span>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             {(['Amazon', 'Flipkart', 'Myntra', 'Blue Dart', 'Delhivery', 'Other'] as const).map(
               (c) => (
@@ -106,7 +162,10 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
           <input
             type="text"
             value={trackingId}
-            onChange={(e) => setTrackingId(e.target.value)}
+            onChange={(e) => {
+              setTrackingId(e.target.value);
+              checkDuplicate(e.target.value);
+            }}
             placeholder="e.g. AMZ-99412-BLR"
             className="w-full bg-[#FEF9F3] text-sm font-mono font-black text-[#060D1E] p-3 rounded-xl border border-slate-300 focus:outline-none focus:border-[#1E60F2]"
           />
@@ -115,6 +174,13 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
               <Check className="w-3.5 h-3.5" /> Barcode scanned & verified!
             </p>
           )}
+
+          {duplicateWarning && (
+            <div className="mt-2 p-2.5 bg-rose-50 border border-rose-300 rounded-xl text-xs font-bold text-rose-700 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{duplicateWarning}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -122,7 +188,8 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({ onBack, 
       <div className="p-4 bg-white border-t-2 border-[#060D1E]">
         <button
           onClick={handleContinue}
-          className="w-full py-3.5 px-4 bg-[#1E60F2] hover:bg-blue-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all"
+          disabled={Boolean(duplicateWarning) || !trackingId.trim()}
+          className="w-full py-3.5 px-4 bg-[#1E60F2] hover:bg-blue-600 active:scale-95 text-white font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all disabled:opacity-50"
         >
           <span>Continue to Assign Resident</span>
           <ArrowRight className="w-4 h-4 stroke-[2.5]" />

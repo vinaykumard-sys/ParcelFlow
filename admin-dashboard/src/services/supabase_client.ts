@@ -992,11 +992,36 @@ export async function getCurrentUserProfile(): Promise<{
 }
 
 /**
- * Sign out the currently active session
+ * Sign out the currently active session and purge cached state
  */
 export async function signOut(): Promise<{ error: string | null }> {
   try {
     const { error } = await supabase.auth.signOut();
+    if (typeof window !== 'undefined') {
+      try {
+        if (window.localStorage) {
+          const keysToRemove: string[] = [];
+          for (let i = 0; i < window.localStorage.length; i++) {
+            const key = window.localStorage.key(i);
+            if (
+              key &&
+              (key.startsWith('parcelflow_') ||
+                key.startsWith('sb-') ||
+                key.includes('supabase') ||
+                key.includes('auth'))
+            ) {
+              keysToRemove.push(key);
+            }
+          }
+          keysToRemove.forEach((k) => window.localStorage.removeItem(k));
+        }
+        if (window.sessionStorage) {
+          window.sessionStorage.clear();
+        }
+      } catch {
+        // ignore
+      }
+    }
     return { error: error ? error.message : null };
   } catch (err: any) {
     return { error: err.message || 'Failed to sign out' };

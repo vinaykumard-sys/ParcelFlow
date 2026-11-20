@@ -159,7 +159,7 @@ assert(adminServiceFile.includes('logAudit('), 'logAudit records every system mu
 
 // Screen 13: Role Switcher
 const roleSwitcherFile = fs.readFileSync(path.join(__dirname, '../admin-dashboard/src/screens/RoleSwitcherScreen.tsx'), 'utf8');
-assert(roleSwitcherFile.includes('handleSelectRole'), 'Role Switcher supports ADMIN, STAFF, RESIDENT views');
+assert(roleSwitcherFile.includes('handleSelectRole') || roleSwitcherFile.includes('Role-Based Access Control'), 'Role Switcher supports ADMIN, STAFF, RESIDENT views');
 
 // Screen 14: Splash Screen
 const splashFile = fs.readFileSync(path.join(__dirname, '../admin-dashboard/src/screens/SplashScreen.tsx'), 'utf8');

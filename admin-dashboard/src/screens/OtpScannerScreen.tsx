@@ -35,7 +35,7 @@ export const OtpScannerScreen: React.FC<OtpScannerScreenProps> = ({ refreshTrigg
 
   const handleGenerateToken = (e: React.FormEvent) => {
     e.preventDefault();
-    const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedToken({
       otp: newOtp,
       qr: `PF://VERIFY?pkg=${selectedParcelId}&otp=${newOtp}&ts=${Date.now()}`,
@@ -140,7 +140,7 @@ export const OtpScannerScreen: React.FC<OtpScannerScreenProps> = ({ refreshTrigg
                   <KeyRound className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-base text-[#0A1128]">Manual 4-Digit OTP Entry</h3>
+                  <h3 className="font-extrabold text-base text-[#0A1128]">Manual 6-Digit OTP Entry</h3>
                   <p className="text-xs font-semibold text-slate-500">Provided by resident or authorized collector</p>
                 </div>
               </div>
@@ -148,14 +148,14 @@ export const OtpScannerScreen: React.FC<OtpScannerScreenProps> = ({ refreshTrigg
               <form onSubmit={handleVerifyOtp} className="space-y-4">
                 <div>
                   <label className="block text-xs font-black uppercase text-[#0A1128] mb-1.5">
-                    Resident 4-Digit Code
+                    Resident 6-Digit Code
                   </label>
                   <input
                     type="text"
                     maxLength={6}
                     value={otpCode}
                     onChange={(e) => setOtpCode(e.target.value)}
-                    placeholder="7 4 9 2"
+                    placeholder="7 4 2 9 1 6"
                     className="w-full text-center tracking-[0.5em] font-mono font-black text-3xl py-4 px-4 rounded-xl border-3 border-[#0A1128] shadow-[4px_4px_0px_#0A1128] bg-[#FFFDF9] text-[#0A1128] focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>

@@ -4,10 +4,9 @@ import { MobileStatusBar } from '../components/MobileStatusBar';
 
 interface ResidentSplashProps {
   onGetStarted: () => void;
-  onSelectRole?: () => void;
 }
 
-export const ResidentSplash: React.FC<ResidentSplashProps> = ({ onGetStarted, onSelectRole }) => {
+export const ResidentSplash: React.FC<ResidentSplashProps> = ({ onGetStarted }) => {
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
       <MobileStatusBar />
@@ -83,15 +82,6 @@ export const ResidentSplash: React.FC<ResidentSplashProps> = ({ onGetStarted, on
           <span>Get Started</span>
           <ArrowRight className="w-5 h-5 stroke-[2.5]" />
         </button>
-
-        {onSelectRole && (
-          <button
-            onClick={onSelectRole}
-            className="w-full mt-3 py-2 text-xs font-extrabold text-slate-600 hover:text-[#060D1E] text-center"
-          >
-            Switch to Staff / Admin App →
-          </button>
-        )}
       </div>
     </div>
   );

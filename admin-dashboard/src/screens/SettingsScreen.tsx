@@ -219,6 +219,44 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ refreshTrigger }
           </table>
         </div>
       </div>
+
+      {/* Session Security & State Isolation */}
+      <div className="rounded-2xl bg-rose-50/60 border-3 border-rose-300 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="font-extrabold text-sm text-rose-950 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-rose-700" />
+            Session Isolation & Security
+          </h3>
+          <p className="text-xs font-semibold text-rose-800 mt-1 max-w-lg">
+            Sign out and purge all active authentication tokens, society cache, and profile sessions to prevent cross-account data leakage.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => {
+            try {
+              if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem('parcelflow_mobile_state_v2');
+                localStorage.removeItem('parcelflow_mobile_state_v1');
+                localStorage.removeItem('parcelflow_auth_user');
+                localStorage.removeItem('parcelflow_active_role');
+                Object.keys(localStorage).forEach((key) => {
+                  if (key.startsWith('sb-') || key.includes('supabase')) {
+                    localStorage.removeItem(key);
+                  }
+                });
+              }
+              if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.clear();
+              }
+            } catch {}
+            window.location.href = '/app';
+          }}
+          className="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-extrabold text-xs border-2 border-[#0A1128] shadow-[3px_3px_0px_#0A1128] transition-all whitespace-nowrap"
+        >
+          Sign Out Admin & Clear Session
+        </button>
+      </div>
     </div>
   );
 };

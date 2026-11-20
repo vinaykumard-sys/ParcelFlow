@@ -116,15 +116,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Center / Right Controls & Quick Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Role Pill */}
-          <button
-            onClick={() => onSelectTab('role-switcher')}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-100 border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] hover:bg-emerald-200 text-xs font-extrabold text-[#0A1128] transition-all"
-            title="Switch User Role View"
+          {/* Verified Admin Role Pill - Non-clickable Badge */}
+          <div
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-100 border-2 border-[#0A1128] shadow-[2px_2px_0px_#0A1128] text-xs font-extrabold text-[#0A1128]"
+            title="Authenticated Role: Administrator"
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-800" />
             <span>Role: {activeRole}</span>
-          </button>
+          </div>
 
           {/* Quick Actions (Scan OTP, Receive Parcel, Add Resident) */}
           <div className="flex items-center gap-1.5 sm:gap-2">

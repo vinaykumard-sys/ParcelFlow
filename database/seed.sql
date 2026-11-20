@@ -108,22 +108,23 @@ ON CONFLICT (id) DO NOTHING;
 -- ----------------------------------------------------------------------------
 INSERT INTO public.users (id, email, phone, full_name, role, avatar_url, is_active)
 VALUES
-    -- Admin
-    ('b0000000-0000-0000-0000-000000000000', 'admin@parcelflow.in', '+91 98450 00001', 'Vikram Malhotra', 'ADMIN', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', true),
+    -- Fixed Admin (Super Admin)
+    ('0c9c3244-8680-4141-b119-ffecf87c804d', 'vinaykumard45678@gmail.com', '+91 99999 88888', 'Vinay Kumar (System Administrator)', 'SUPER_ADMIN', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', true),
+    ('b0000000-0000-0000-0000-000000000000', 'admin@parcelflow.in', '+91 98450 00001', 'Vikram Malhotra', 'SOCIETY_ADMIN', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', true),
 
-    -- 12 Staff Members (Ramesh K, Suresh P, Manoj T, etc.)
-    ('b1111111-1111-1111-1111-111111111111', 'ramesh.k@parcelflow.in', '+91 98451 11001', 'Ramesh K', 'STAFF', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', true),
-    ('b2222222-2222-2222-2222-222222222222', 'suresh.p@parcelflow.in', '+91 98451 11002', 'Suresh P', 'STAFF', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150', true),
-    ('b3333333-3333-3333-3333-333333333333', 'manoj.t@parcelflow.in', '+91 98451 11003', 'Manoj T', 'STAFF', 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150', true),
-    ('b4444444-4444-4444-4444-444444444444', 'anil.d@parcelflow.in', '+91 98451 11004', 'Anil Deshmukh', 'STAFF', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150', true),
-    ('b5555555-5555-5555-5555-555555555555', 'kavita.n@parcelflow.in', '+91 98451 11005', 'Kavita Nair', 'STAFF', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', true),
-    ('b6666666-6666-6666-6666-666666666666', 'rajesh.y@parcelflow.in', '+91 98451 11006', 'Rajesh Yadav', 'STAFF', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150', true),
-    ('b7777777-7777-7777-7777-777777777777', 'deepak.c@parcelflow.in', '+91 98451 11007', 'Deepak Chauhan', 'STAFF', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150', true),
-    ('b8888888-8888-8888-8888-888888888888', 'santosh.r@parcelflow.in', '+91 98451 11008', 'Santosh Rao', 'STAFF', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', true),
-    ('b9999999-9999-9999-9999-999999999999', 'pooja.s@parcelflow.in', '+91 98451 11009', 'Pooja Singh', 'STAFF', 'https://images.unsplash.com/photo-1548142813-c348350df52b?w=150', true),
-    ('baaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'vijay.m@parcelflow.in', '+91 98451 11010', 'Vijay Murthy', 'STAFF', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150', true),
-    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'arun.b@parcelflow.in', '+91 98451 11011', 'Arun Barua', 'STAFF', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', true),
-    ('bccccccc-cccc-cccc-cccc-cccccccccccc', 'sunil.g@parcelflow.in', '+91 98451 11012', 'Sunil Gowda', 'STAFF', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', true),
+    -- 12 Staff Members (Ramesh K, Suresh P, Manoj T, etc. - SECURITY role)
+    ('b1111111-1111-1111-1111-111111111111', 'ramesh.k@parcelflow.in', '+91 98451 11001', 'Ramesh K', 'SECURITY', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', true),
+    ('b2222222-2222-2222-2222-222222222222', 'suresh.p@parcelflow.in', '+91 98451 11002', 'Suresh P', 'SECURITY', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150', true),
+    ('b3333333-3333-3333-3333-333333333333', 'manoj.t@parcelflow.in', '+91 98451 11003', 'Manoj T', 'SECURITY', 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=150', true),
+    ('b4444444-4444-4444-4444-444444444444', 'anil.d@parcelflow.in', '+91 98451 11004', 'Anil Deshmukh', 'SECURITY', 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150', true),
+    ('b5555555-5555-5555-5555-555555555555', 'kavita.n@parcelflow.in', '+91 98451 11005', 'Kavita Nair', 'SECURITY', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150', true),
+    ('b6666666-6666-6666-6666-666666666666', 'rajesh.y@parcelflow.in', '+91 98451 11006', 'Rajesh Yadav', 'SECURITY', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150', true),
+    ('b7777777-7777-7777-7777-777777777777', 'deepak.c@parcelflow.in', '+91 98451 11007', 'Deepak Chauhan', 'SECURITY', 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150', true),
+    ('b8888888-8888-8888-8888-888888888888', 'santosh.r@parcelflow.in', '+91 98451 11008', 'Santosh Rao', 'SECURITY', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', true),
+    ('b9999999-9999-9999-9999-999999999999', 'pooja.s@parcelflow.in', '+91 98451 11009', 'Pooja Singh', 'SECURITY', 'https://images.unsplash.com/photo-1548142813-c348350df52b?w=150', true),
+    ('baaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'vijay.m@parcelflow.in', '+91 98451 11010', 'Vijay Murthy', 'SECURITY', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150', true),
+    ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'arun.b@parcelflow.in', '+91 98451 11011', 'Arun Barua', 'SECURITY', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150', true),
+    ('bccccccc-cccc-cccc-cccc-cccccccccccc', 'sunil.g@parcelflow.in', '+91 98451 11012', 'Sunil Gowda', 'SECURITY', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', true),
 
     -- Residents (Arjun Kumar, Priya Sharma, Rahul Verma, Sneha Iyer)
     ('d1111111-1111-1111-1111-111111111111', 'arjun.kumar@gmail.com', '+91 98860 12345', 'Arjun Kumar', 'RESIDENT', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150', true),

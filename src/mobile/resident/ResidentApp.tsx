@@ -15,7 +15,7 @@ import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 
 interface ResidentAppProps {
-  onOpenRoleSwitcher: () => void;
+  onLogoutSession?: () => void;
 }
 
 export type ResidentView =
@@ -29,10 +29,10 @@ export type ResidentView =
 
 export type ResidentTab = 'home' | 'parcels' | 'history' | 'profile';
 
-export const ResidentApp: React.FC<ResidentAppProps> = ({ onOpenRoleSwitcher }) => {
-  const { parcels, completeHandover } = useMobileStore();
+export const ResidentApp: React.FC<ResidentAppProps> = ({ onLogoutSession }) => {
+  const { parcels, completeHandover, isAuthenticated, logout } = useMobileStore();
 
-  const [view, setView] = useState<ResidentView>('dashboard');
+  const [view, setView] = useState<ResidentView>(isAuthenticated ? 'dashboard' : 'login');
   const [activeTab, setActiveTab] = useState<ResidentTab>('home');
   const [selectedParcel, setSelectedParcel] = useState<MobileParcel>(parcels[0]);
   const [generatedOtp, setGeneratedOtp] = useState<string>('742916');
@@ -71,7 +71,6 @@ export const ResidentApp: React.FC<ResidentAppProps> = ({ onOpenRoleSwitcher }) 
     return (
       <ResidentSplash
         onGetStarted={() => setView('login')}
-        onSelectRole={onOpenRoleSwitcher}
       />
     );
   }
@@ -113,8 +112,11 @@ export const ResidentApp: React.FC<ResidentAppProps> = ({ onOpenRoleSwitcher }) 
             )}
             {activeTab === 'profile' && (
               <ResidentProfileTab
-                onLogout={() => setView('login')}
-                onSwitchRole={onOpenRoleSwitcher}
+                onLogout={() => {
+                  logout();
+                  if (onLogoutSession) onLogoutSession();
+                  setView('login');
+                }}
               />
             )}
           </>

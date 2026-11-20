@@ -10,6 +10,29 @@ import { FAQPage } from './pages/FAQPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { MobileApp } from './mobile/MobileApp';
+import { Forbidden403Page } from './components/Forbidden403';
+import { useMobileStore } from './mobile/services/mobileState';
+
+function AdminRouteGuard() {
+  const { currentRole, isAuthenticated } = useMobileStore();
+  const isAdmin =
+    isAuthenticated &&
+    (currentRole === 'ADMIN' ||
+      currentRole === 'SOCIETY_ADMIN' ||
+      currentRole === 'SUPER_ADMIN');
+
+  if (!isAdmin) {
+    return (
+      <Forbidden403Page
+        currentRole={isAuthenticated ? currentRole : 'RESIDENT'}
+        requiredRole="SOCIETY_ADMIN"
+        attemptedPath="/admin"
+      />
+    );
+  }
+
+  return <MobileApp />;
+}
 
 export function App() {
   // If running inside native Android APK or native webview wrapper, render mobile app directly
@@ -30,6 +53,10 @@ export function App() {
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
+          {/* Protected Admin Routes */}
+          <Route path="/admin" element={<AdminRouteGuard />} />
+          <Route path="/admin/*" element={<AdminRouteGuard />} />
+
           {/* Direct Mobile Application Route */}
           <Route path="/app" element={<MobileApp />} />
           <Route path="/app/*" element={<MobileApp />} />

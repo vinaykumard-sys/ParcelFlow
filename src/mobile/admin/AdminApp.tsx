@@ -6,42 +6,58 @@ import { AdminDashboard } from './AdminDashboard';
 import { AdminManageTab } from './AdminManageTab';
 import { AdminReportsTab } from './AdminReportsTab';
 import { AdminSettingsTab } from './AdminSettingsTab';
+import { Forbidden403 } from '../components/Forbidden403';
+import { useMobileStore } from '../services/mobileState';
 
 interface AdminAppProps {
-  onOpenRoleSwitcher: () => void;
-  onNavigateToStaffScan?: () => void;
-  onNavigateToStaffReceive?: () => void;
+  onLogoutSession?: () => void;
+  onReturnToPortal?: () => void;
 }
 
 export type AdminTab = 'dashboard' | 'manage' | 'reports' | 'settings';
 
 export const AdminApp: React.FC<AdminAppProps> = ({
-  onOpenRoleSwitcher,
-  onNavigateToStaffScan,
-  onNavigateToStaffReceive,
+  onLogoutSession,
+  onReturnToPortal,
 }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const { currentRole, isAuthenticated, logout } = useMobileStore();
+  const isAdminRole =
+    currentRole === 'ADMIN' ||
+    currentRole === 'SOCIETY_ADMIN' ||
+    currentRole === 'SUPER_ADMIN';
+
+  const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated && isAdminRole);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [manageSubtab, setManageSubtab] = useState<'residents' | 'staff' | 'slots'>('residents');
+
+  // Strict route protection: If authenticated user is NOT an admin, display 403 Forbidden!
+  if (isAuthenticated && !isAdminRole) {
+    return (
+      <Forbidden403
+        currentRole={currentRole}
+        requiredRole="SOCIETY_ADMIN"
+        attemptedPath="/admin"
+        onReturnToPortal={onReturnToPortal}
+        onLogout={() => {
+          logout();
+          if (onLogoutSession) onLogoutSession();
+          setIsLoggedIn(false);
+        }}
+      />
+    );
+  }
 
   if (!isLoggedIn) {
     return (
       <AdminLogin
         onLoginSuccess={() => setIsLoggedIn(true)}
-        onSwitchRole={onOpenRoleSwitcher}
       />
     );
   }
 
-  const handleQuickAction = (action: 'scan' | 'receive' | 'add_resident') => {
-    if (action === 'scan' && onNavigateToStaffScan) {
-      onNavigateToStaffScan();
-    } else if (action === 'receive' && onNavigateToStaffReceive) {
-      onNavigateToStaffReceive();
-    } else {
-      setManageSubtab('residents');
-      setActiveTab('manage');
-    }
+  const handleQuickAction = (_action: 'scan' | 'receive' | 'add_resident') => {
+    setManageSubtab('residents');
+    setActiveTab('manage');
   };
 
   return (
@@ -68,8 +84,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({
 
         {activeTab === 'settings' && (
           <AdminSettingsTab
-            onLogout={() => setIsLoggedIn(false)}
-            onSwitchRole={onOpenRoleSwitcher}
+            onLogout={() => {
+              logout();
+              if (onLogoutSession) onLogoutSession();
+              setIsLoggedIn(false);
+            }}
           />
         )}
       </div>

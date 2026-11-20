@@ -4,14 +4,17 @@ import { useMobileStore } from '../services/mobileState';
 
 interface AdminSettingsTabProps {
   onLogout: () => void;
-  onSwitchRole: () => void;
 }
 
 export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
   onLogout,
-  onSwitchRole,
 }) => {
-  const { selectedSociety } = useMobileStore();
+  const { selectedSociety, logout } = useMobileStore();
+
+  const handleLogout = () => {
+    logout();
+    onLogout();
+  };
 
   const settingsItems = [
     { label: 'Society Details', icon: Building, desc: 'Address, towers & gates' },
@@ -30,7 +33,7 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
         <h1 className="text-base font-black text-[#060D1E] tracking-tight">Society Settings</h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
         {/* Admin Society Pill */}
         <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4 flex items-center gap-3.5">
           <div className="w-14 h-14 rounded-2xl bg-amber-400 border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center font-black text-amber-950 text-xl">
@@ -43,24 +46,6 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
               Full Administrator Access
             </span>
           </div>
-        </div>
-
-        {/* Role Switcher Action */}
-        <div className="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-[#1E60F2] shadow-[2px_2px_0px_#1E60F2]">
-          <div className="flex items-center gap-1.5 text-xs font-black text-[#1E60F2] mb-1">
-            <Sparkles className="w-4 h-4" />
-            <span>Switch Role Experience</span>
-          </div>
-          <p className="text-[11px] font-semibold text-slate-700 mb-2.5">
-            Test the Resident or Staff app experience directly.
-          </p>
-          <button
-            onClick={onSwitchRole}
-            className="w-full py-2.5 bg-[#1E60F2] hover:bg-blue-600 text-white font-black text-xs rounded-xl border border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5"
-          >
-            <span>Switch to Resident / Staff</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
         </div>
 
         {/* Settings Links matching reference */}
@@ -89,8 +74,8 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
 
         {/* Logout */}
         <button
-          onClick={onLogout}
-          className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-black text-xs rounded-2xl border border-rose-300 flex items-center justify-center gap-2 transition-colors"
+          onClick={handleLogout}
+          className="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-black text-xs rounded-2xl border border-rose-300 flex items-center justify-center gap-2 transition-colors active:scale-95"
         >
           <LogOut className="w-4 h-4" />
           <span>Log Out Admin Session</span>

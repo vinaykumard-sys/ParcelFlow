@@ -9,7 +9,7 @@ interface ResidentLoginProps {
 }
 
 export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, onBack }) => {
-  const { selectedSociety, setSociety } = useMobileStore();
+  const { selectedSociety, setSociety, login } = useMobileStore();
   const [tab, setTab] = useState<'phone' | 'email' | 'google'>('phone');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -17,17 +17,36 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
   const [password, setPassword] = useState('');
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (loading) return; // Double-tap protection
     setLoading(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      login({
+        id: 'res-vinay-1',
+        email: email.trim() || 'vinaykumard45678@gmail.com',
+        name: 'Vinay Kumar',
+        phone: phone.trim() || '+91 98765 00000',
+        role: 'RESIDENT',
+        societyId: selectedSociety.id,
+        flatNumber: 'B-402',
+      });
+      setTimeout(() => {
+        setLoading(false);
+        onLoginSuccess();
+      }, 350);
+    } catch (err: any) {
       setLoading(false);
-      onLoginSuccess();
-    }, 400);
+      setErrorMessage(err?.message || 'Authentication error. Please retry.');
+    }
   };
 
   const handleSendOtp = () => {
+    if (loading) return;
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
@@ -62,6 +81,19 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           <p className="text-xs font-semibold text-slate-600 mt-1">
             Access your society deliveries, schedule slots, and pick up in under 60 seconds.
           </p>
+
+          {errorMessage && (
+            <div className="mt-3 p-3 bg-rose-50 border-2 border-rose-400 rounded-xl flex items-center justify-between text-xs text-rose-700 font-bold">
+              <span>{errorMessage}</span>
+              <button
+                type="button"
+                onClick={() => setErrorMessage(null)}
+                className="text-[10px] font-black underline hover:text-rose-900 ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Society Selector */}
