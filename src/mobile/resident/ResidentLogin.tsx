@@ -873,7 +873,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
             <button
               type="button"
               disabled={loading}
-              onClick={() => setShowGoogleModal(true)}
+              onClick={handleNativeGoogleOAuth}
               className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
             >
               <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center font-black text-[#1E60F2] text-xs">
@@ -890,7 +890,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
             <button
               type="button"
               disabled={loading}
-              onClick={() => setShowGoogleModal(true)}
+              onClick={handleNativeGoogleOAuth}
               className="w-full py-3.5 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
             >
               <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center font-black text-[#1E60F2]">

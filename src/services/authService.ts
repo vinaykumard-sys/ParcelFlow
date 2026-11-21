@@ -275,43 +275,12 @@ export async function signInWithGoogle(
       return { success: false, error: error.message };
     }
 
-    // Verify whether the provider is enabled in Supabase before navigating away
+    // Navigate browser to Google OAuth authorization endpoint
     if (data?.url) {
-      try {
-        const probe = await fetch(data.url, { method: 'GET', redirect: 'manual' });
-        if (probe.status >= 400) {
-          const bodyText = await probe.text();
-          console.warn('[authService.signInWithGoogle] Provider pre-check response:', probe.status, bodyText);
-          if (bodyText.includes('Unsupported provider') || bodyText.includes('provider is not enabled')) {
-            // Fallback to direct authenticated sign-in for verified Google account
-            const fallbackRes = await signInWithEmail(targetEmail, '6Tha3see@123');
-            if (fallbackRes.user && fallbackRes.session) {
-              return {
-                success: true,
-                user: fallbackRes.user,
-                session: fallbackRes.session,
-                profile: fallbackRes.profile,
-                isFallback: true,
-              };
-            }
-            return {
-              success: false,
-              error: `Google sign-in is not enabled in Supabase, and fallback for ${targetEmail} failed: ${fallbackRes.error}`,
-            };
-          }
-          return {
-            success: false,
-            error: `Google sign-in is currently unavailable (${probe.status}). Please log in with email and password.`,
-          };
-        }
-      } catch (probeErr) {
-        console.warn('[authService.signInWithGoogle] Provider pre-flight note:', probeErr);
-      }
-
-      // Immediately navigate browser to Google OAuth authorization endpoint
       if (typeof window !== 'undefined') {
         window.location.href = data.url;
       }
+      return { success: true, data };
     }
 
     return { success: true, data };
