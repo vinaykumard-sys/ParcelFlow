@@ -3,6 +3,7 @@ import { Home, Package, ScanLine, History, User, QrCode, PlusCircle } from 'luci
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { StaffSplashAndLogin } from './StaffSplashAndLogin';
 import { StaffDashboard } from './StaffDashboard';
+import { StaffScanner } from './StaffScanner';
 import { StaffReceiveParcel } from './StaffReceiveParcel';
 import { StaffAssignResident } from './StaffAssignResident';
 import { StaffStorageLocation } from './StaffStorageLocation';
@@ -14,6 +15,7 @@ import { StaffHistoryTab } from './StaffHistoryTab';
 import { StaffProfileTab } from './StaffProfileTab';
 import type { ResidentUser, MobileParcel } from '../types';
 import { useMobileStore } from '../services/mobileState';
+import type { CourierCarrier } from '../services/scannerService';
 
 interface StaffAppProps {
   onLogoutSession?: () => void;
@@ -22,6 +24,8 @@ interface StaffAppProps {
 export type StaffView =
   | 'login'
   | 'dashboard'
+  | 'scanner'
+  | 'receive_parcel'
   | 'receive_step1'
   | 'receive_step2'
   | 'receive_step3'
@@ -38,13 +42,12 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
 
   // Multi-step intake flow state
   const [inboundTracking, setInboundTracking] = useState('');
-  const [inboundCarrier, setInboundCarrier] = useState<
-    'Amazon' | 'Flipkart' | 'Myntra' | 'Blue Dart' | 'Delhivery' | 'Other'
-  >('Amazon');
+  const [inboundCarrier, setInboundCarrier] = useState<CourierCarrier>('Amazon');
   const [inboundResident, setInboundResident] = useState<ResidentUser | null>(null);
 
   // Handover flow state
   const [completedParcel, setCompletedParcel] = useState<MobileParcel | null>(parcels[0] || null);
+  const [handoverTimestamp, setHandoverTimestamp] = useState<string>('');
 
   if (view === 'login') {
     return (
@@ -63,9 +66,14 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
           <>
             {activeTab === 'home' && (
               <StaffDashboard
-                onReceiveParcel={() => setView('receive_step1')}
+                onOpenScanner={() => setView('scanner')}
+                onReceiveParcel={() => {
+                  setInboundTracking('');
+                  setView('receive_parcel');
+                }}
                 onHandoverParcel={() => setView('handover_verify')}
                 onOpenParcelList={() => setActiveTab('parcels')}
+                onSearchParcel={() => setActiveTab('parcels')}
                 onFindResident={() => setView('find_resident')}
               />
             )}
@@ -90,6 +98,24 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
           </>
         )}
 
+        {view === 'scanner' && (
+          <StaffScanner
+            onBack={() => setView('dashboard')}
+            onScanComplete={(data) => {
+              setInboundTracking(data.trackingNumber);
+              setInboundCarrier(data.carrier);
+              if (data.existingParcel) {
+                setCompletedParcel(data.existingParcel);
+              }
+              setView('receive_parcel');
+            }}
+            onManualEntry={() => {
+              setInboundTracking('');
+              setView('receive_parcel');
+            }}
+          />
+        )}
+
         {view === 'find_resident' && (
           <StaffFindResidentTab
             onBack={() => setView('dashboard')}
@@ -100,9 +126,27 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
           />
         )}
 
+        {/* Screen 3: Receive Parcel Flow */}
+        {view === 'receive_parcel' && (
+          <StaffReceiveParcel
+            initialTracking={inboundTracking}
+            initialCarrier={inboundCarrier}
+            onBack={() => setView('dashboard')}
+            onOpenScanner={() => setView('scanner')}
+            onDone={() => {
+              setView('dashboard');
+              setActiveTab('home');
+            }}
+          />
+        )}
+
         {view === 'receive_step1' && (
           <StaffReceiveParcel
+            initialTracking={inboundTracking}
+            initialCarrier={inboundCarrier}
             onBack={() => setView('dashboard')}
+            onOpenScanner={() => setView('scanner')}
+            onDone={() => setView('dashboard')}
             onNext={(data) => {
               setInboundTracking(data.trackingNumber);
               setInboundCarrier(data.carrier);
@@ -137,11 +181,14 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
           />
         )}
 
+        {/* Screen 4: Handover Verification Flow */}
         {view === 'handover_verify' && (
           <StaffHandoverVerification
+            selectedParcel={completedParcel}
             onBack={() => setView('dashboard')}
-            onSuccess={(parcel) => {
-              setCompletedParcel(parcel);
+            onSuccess={(data) => {
+              setCompletedParcel(data.parcel);
+              setHandoverTimestamp(data.timestamp);
               setView('handover_complete');
             }}
           />
@@ -150,12 +197,16 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
         {view === 'handover_complete' && (
           <StaffHandoverComplete
             parcel={completedParcel}
-            onDone={() => setView('dashboard')}
+            timestamp={handoverTimestamp}
+            onDone={() => {
+              setView('dashboard');
+              setActiveTab('home');
+            }}
           />
         )}
       </div>
 
-      {/* Staff Bottom Nav (Home, Parcels, Scan, History, Profile) */}
+      {/* Staff Bottom Nav (Home, Parcels, Central Scan, History, Profile) */}
       {view === 'dashboard' && (
         <div className="w-full bg-white border-t-2 border-[#060D1E] px-3 py-2 flex items-center justify-around z-30 shadow-[0px_-2px_10px_rgba(0,0,0,0.04)]">
           <button
@@ -190,12 +241,12 @@ export const StaffApp: React.FC<StaffAppProps> = ({ onLogoutSession }) => {
             <span className="text-[10px] font-black">Parcels</span>
           </button>
 
-          {/* Central Highlighted Scan Button */}
+          {/* Central Highlighted Scan Button -> opens Scanner (Screen 2) */}
           <button
-            onClick={() => setView('receive_step1')}
+            onClick={() => setView('scanner')}
             className="flex flex-col items-center -mt-5 transition-transform active:scale-95"
           >
-            <div className="w-12 h-12 rounded-2xl bg-[#1E60F2] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center text-white">
+            <div className="w-12 h-12 rounded-2xl bg-[#0B1E3F] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center text-[#00F0FF]">
               <ScanLine className="w-6 h-6 stroke-[2.5]" />
             </div>
             <span className="text-[10px] font-black text-[#060D1E] mt-1">Scan</span>

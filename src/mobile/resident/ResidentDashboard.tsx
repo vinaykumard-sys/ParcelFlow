@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
-import { Package, Clock, CheckCircle2, Calendar, QrCode, Sparkles, Plus, PackagePlus, Shield, ShoppingBag } from 'lucide-react';
+import {
+  Package,
+  Inbox,
+  CheckCircle2,
+  Calendar,
+  ChevronRight,
+  ArrowRight,
+  Plus,
+  Sparkles,
+  Shield,
+} from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 import { AddOrderModal } from './AddOrderModal';
 import { ShoppingDeliveriesModal } from './ShoppingDeliveriesModal';
 import { MobileHeader } from '../components/MobileHeader';
-import { ParcelCard } from '../components/ParcelCard';
-import { EmptyState } from '../components/EmptyState';
+import {
+  ResidentParcelStackIllustration,
+  CarrierLogo,
+} from '../components/design-system';
+import { StatusPill } from './ResidentUIComponents';
 
 interface ResidentDashboardProps {
   onSelectParcel: (parcel: MobileParcel) => void;
@@ -21,17 +34,27 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
   onShowPickupCode,
   onOpenNotifications,
 }) => {
-  const { parcels, selectedSociety, currentUser } = useMobileStore();
+  const { parcels, currentUser, selectedSociety } = useMobileStore();
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
   const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
 
-  // Filter parcels belonging to current resident (or all in test mode)
+  // Filter parcels belonging to current resident (or all in demo mode)
   const residentParcels = parcels.filter((p) => {
     if (!currentUser) return true;
-    if (currentUser.flatNumber && p.flat && p.flat.toLowerCase() === currentUser.flatNumber.toLowerCase()) return true;
-    if (currentUser.name && p.recipientName && p.recipientName.toLowerCase().includes(currentUser.name.toLowerCase().split(' ')[0])) return true;
+    if (
+      currentUser.flatNumber &&
+      p.flat &&
+      p.flat.toLowerCase() === currentUser.flatNumber.toLowerCase()
+    )
+      return true;
+    if (
+      currentUser.name &&
+      p.recipientName &&
+      p.recipientName.toLowerCase().includes(currentUser.name.toLowerCase().split(' ')[0])
+    )
+      return true;
     if (currentUser.phone && p.recipientPhone && p.recipientPhone === currentUser.phone) return true;
-    return true; // Show in feed for society
+    return true;
   });
 
   // De-duplicate by id
@@ -42,175 +65,286 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
     return true;
   });
 
-  const waitingParcels = activeParcels.filter((p) => p.status === 'WAITING');
-  const scheduledParcels = activeParcels.filter((p) => p.status === 'SCHEDULED' || p.status === 'READY_FOR_PICKUP');
-  const collectedParcels = activeParcels.filter((p) => p.status === 'COLLECTED');
-  const inboundParcels = activeParcels.filter((p) => p.status !== 'COLLECTED');
+  // Calculate real stat counts from store
+  const expectedParcels = activeParcels.filter(
+    (p) =>
+      p.status === 'WAITING' &&
+      (!p.storageLocation || p.storageLocation === 'Awaiting Hub Intake')
+  );
+  const receivedParcels = activeParcels.filter(
+    (p) =>
+      p.status === 'WAITING' &&
+      p.storageLocation &&
+      p.storageLocation !== 'Awaiting Hub Intake'
+  );
+  const readyParcels = activeParcels.filter(
+    (p) => p.status === 'READY_FOR_PICKUP' || p.status === 'SCHEDULED'
+  );
 
-  const nextScheduledParcel = scheduledParcels[0] || null;
+  const expectedCount = expectedParcels.length;
+  const receivedCount = receivedParcels.length;
+  const readyCount = readyParcels.length;
+
+  // Latest parcel: prioritize ready/scheduled, then received, then latest
+  const latestParcel =
+    readyParcels[0] ||
+    receivedParcels[0] ||
+    activeParcels.find((p) => p.status !== 'COLLECTED') ||
+    activeParcels[0] ||
+    null;
+
+  // Upcoming scheduled pickup parcel
+  const scheduledParcel = activeParcels.find(
+    (p) => p.status === 'SCHEDULED' || p.status === 'READY_FOR_PICKUP'
+  );
+
+  // Dynamic greeting based on time of day
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
+  const residentName = currentUser?.name
+    ? currentUser.name.split(' ')[0]
+    : 'Resident';
+  const residentTower =
+    currentUser?.flatNumber
+      ? `Tower ${currentUser.flatNumber.charAt(0)}`
+      : 'Tower A';
+  const residentFlat = currentUser?.flatNumber
+    ? `Flat ${currentUser.flatNumber}`
+    : 'Flat 402';
 
   return (
-    <div className="flex flex-col h-full bg-[#FEF9F3] text-[#060D1E] select-none">
-      {/* Top Header — Clean & non-repetitive */}
+    <div className="flex flex-col h-full bg-[#FEF9F3] text-[#0B1E3F] select-none">
+      {/* Screen 1 Spec: Top Header with Hamburger, ParcelFlow Logo, Notification bell */}
       <MobileHeader
         userName={currentUser?.name || 'Resident'}
         societyName={selectedSociety.name}
         flatNumber={currentUser?.flatNumber ? `Flat ${currentUser.flatNumber}` : undefined}
         onOpenNotifications={onOpenNotifications}
-        hasUnreadNotifications={waitingParcels.length > 0}
+        hasUnreadNotifications={readyCount > 0 || receivedCount > 0}
+        showGreeting={false}
       />
 
       {/* Main Scrollable Content */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
-        {/* KPI Stats Row: Waiting, Scheduled, Collected */}
-        <div className="grid grid-cols-3 gap-2.5">
-          <div className="bg-white p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-black uppercase text-amber-600">Waiting</span>
-              <Package className="w-3.5 h-3.5 text-amber-500" />
+      <div className="flex-1 overflow-y-auto px-5 py-4 pb-24 space-y-4">
+        {/* Screen 1 Spec: Greeting Card with 3D parcel boxes graphic on the right */}
+        <div className="bg-white rounded-3xl border-2 border-[#0B1E3F] shadow-[3px_3px_0px_#0B1E3F] p-4 flex items-center justify-between relative overflow-hidden">
+          <div className="space-y-1 z-10">
+            <h1 className="text-xl font-black text-[#0B1E3F] tracking-tight leading-tight">
+              {getGreeting()}, {residentName} 👋
+            </h1>
+            <p className="text-xs font-bold text-slate-500">
+              {residentTower} • {residentFlat}
+            </p>
+            <div className="pt-1 flex items-center gap-1.5 text-[11px] font-black text-[#2563EB]">
+              <span>{selectedSociety.name}</span>
             </div>
-            <div className="text-2xl font-black text-[#060D1E]">{waitingParcels.length}</div>
-            <div className="text-[10px] font-bold text-slate-500 mt-0.5">At Hub</div>
           </div>
 
-          <div className="bg-white p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-black uppercase text-[#1E60F2]">Scheduled</span>
-              <Calendar className="w-3.5 h-3.5 text-[#1E60F2]" />
-            </div>
-            <div className="text-2xl font-black text-[#060D1E]">{scheduledParcels.length}</div>
-            <div className="text-[10px] font-bold text-slate-500 mt-0.5">Booked</div>
-          </div>
-
-          <div className="bg-white p-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex flex-col justify-between">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] font-black uppercase text-emerald-600">Collected</span>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-            </div>
-            <div className="text-2xl font-black text-[#060D1E]">{collectedParcels.length}</div>
-            <div className="text-[10px] font-bold text-slate-500 mt-0.5">Total</div>
+          {/* 3D Parcel Boxes Graphic on the Right */}
+          <div className="z-10 shrink-0">
+            <ResidentParcelStackIllustration size={96} />
           </div>
         </div>
 
-        {/* Next Scheduled Handover Spotlight (Only shown if a parcel is scheduled) */}
-        {nextScheduledParcel && (
-          <div className="p-4 rounded-3xl bg-blue-600 text-white border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] space-y-2.5">
+        {/* Screen 1 Spec: 3 Summary Stat Cards in a row */}
+        <div className="grid grid-cols-3 gap-2.5">
+          {/* Expected Card: Yellow box icon, yellow accent */}
+          <div className="bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] p-3 flex flex-col justify-between">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 mb-2">
+              <Package className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div className="text-2xl font-black text-[#0B1E3F]">{expectedCount}</div>
+            <div className="text-[11px] font-bold text-slate-600 mt-0.5">Expected</div>
+          </div>
+
+          {/* Received Card: Green box/inbox icon, green accent */}
+          <div className="bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] p-3 flex flex-col justify-between">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 mb-2">
+              <Inbox className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div className="text-2xl font-black text-[#0B1E3F]">{receivedCount}</div>
+            <div className="text-[11px] font-bold text-slate-600 mt-0.5">Received</div>
+          </div>
+
+          {/* Ready Card: Green check icon */}
+          <div className="bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] p-3 flex flex-col justify-between">
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 mb-2">
+              <CheckCircle2 className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <div className="text-2xl font-black text-[#0B1E3F]">{readyCount}</div>
+            <div className="text-[11px] font-bold text-slate-600 mt-0.5">Ready</div>
+          </div>
+        </div>
+
+        {/* Screen 1 Spec: "Your Latest Parcel" Card */}
+        {latestParcel ? (
+          <div className="bg-white rounded-3xl border-2 border-[#0B1E3F] shadow-[3px_3px_0px_#0B1E3F] p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <span className="text-xs font-black uppercase tracking-wider text-blue-100">
-                  Ready for Handover
-                </span>
+              <h2 className="text-xs font-black uppercase tracking-wider text-slate-500">
+                Your Latest Parcel
+              </h2>
+              <StatusPill
+                status={latestParcel.status}
+                labelOverride={
+                  latestParcel.status === 'READY_FOR_PICKUP' ||
+                  latestParcel.status === 'SCHEDULED'
+                    ? 'Ready for Pickup'
+                    : latestParcel.status === 'WAITING' &&
+                      latestParcel.storageLocation &&
+                      latestParcel.storageLocation !== 'Awaiting Hub Intake'
+                    ? 'Received at Hub'
+                    : 'Expected Delivery'
+                }
+              />
+            </div>
+
+            {/* Carrier logo, Parcel name, Tracking ID, Arrow icon */}
+            <div
+              onClick={() => onSelectParcel(latestParcel)}
+              className="flex items-center justify-between gap-3 cursor-pointer group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <CarrierLogo carrier={latestParcel.carrier} size="md" />
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-black text-[#0B1E3F] truncate group-hover:text-[#2563EB] transition-colors">
+                    {latestParcel.description || `${latestParcel.carrier} Parcel`}
+                  </h3>
+                  <p className="text-xs font-bold text-slate-500 mt-0.5 truncate">
+                    {latestParcel.carrier} • #{latestParcel.trackingNumber}
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-600 mt-0.5">
+                    Storage:{' '}
+                    <span className="font-black text-[#0B1E3F]">
+                      {latestParcel.storageLocation || 'Hub A - S3'}
+                    </span>
+                  </p>
+                </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-white text-blue-900">
-                {nextScheduledParcel.carrier}
-              </span>
+
+              <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform shrink-0" />
             </div>
 
-            <div>
-              <p className="text-xs font-semibold text-blue-100 line-clamp-1">
-                {nextScheduledParcel.description || 'Inbound Delivery'}
-              </p>
-              <p className="text-sm font-black text-white mt-0.5">
-                {nextScheduledParcel.scheduledSlot || 'Slot Confirmed'}
-              </p>
-            </div>
-
+            {/* Primary CTA button: vibrant yellow/gold button with dark bold text */}
             <button
               type="button"
-              onClick={() => onShowPickupCode(nextScheduledParcel)}
-              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-2 active:scale-95 transition-all"
+              onClick={() => onSelectParcel(latestParcel)}
+              className="w-full py-2.5 px-4 bg-[#FFC72C] hover:bg-[#F59E0B] text-[#0B1E3F] font-black text-xs rounded-xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] flex items-center justify-center gap-2 active:scale-95 transition-all"
             >
-              <QrCode className="w-4 h-4 text-white" />
-              <span>Show Pickup Pass (QR / OTP)</span>
+              <span>View Parcel</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        ) : (
+          /* Empty State if no active parcels */
+          <div className="bg-white rounded-3xl border-2 border-[#0B1E3F] shadow-[3px_3px_0px_#0B1E3F] p-4 space-y-3 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 border-2 border-[#0B1E3F] flex items-center justify-center mx-auto text-amber-800">
+              <Package className="w-6 h-6 stroke-[2.5]" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-[#0B1E3F]">No parcels at hub yet</h3>
+              <p className="text-xs font-bold text-slate-500 mt-0.5">
+                Add an expected order or auto-sync your deliveries to get notified.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsAddOrderOpen(true)}
+              className="w-full py-2.5 px-4 bg-[#FFC72C] hover:bg-[#F59E0B] text-[#0B1E3F] font-black text-xs rounded-xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>+ Add Expected Order</span>
             </button>
           </div>
         )}
 
-        {/* Society Hub Status Card */}
-        <div className="bg-white p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 border border-[#060D1E] flex items-center justify-center">
-              <Shield className="w-5 h-5 text-amber-700" />
+        {/* Screen 1 Spec: "Upcoming Pickup" Card */}
+        <div
+          onClick={() => {
+            if (scheduledParcel) {
+              onShowPickupCode(scheduledParcel);
+            } else if (readyParcels[0]) {
+              onScheduleSlot(readyParcels[0]);
+            }
+          }}
+          className="bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] p-3.5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors group"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-100 border-2 border-[#0B1E3F] shadow-[1.5px_1.5px_0px_#0B1E3F] flex items-center justify-center text-[#2563EB] shrink-0">
+              <Calendar className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
-              <p className="text-xs font-black text-[#060D1E]">Society Parcel Hub</p>
-              <p className="text-[10px] font-bold text-slate-500">Counter Open: 8:00 AM – 10:00 PM Daily</p>
+              <p className="text-xs font-black text-[#0B1E3F] group-hover:text-[#2563EB] transition-colors">
+                {scheduledParcel
+                  ? scheduledParcel.scheduledSlot || 'Today, 5:00 - 5:30 PM'
+                  : readyParcels.length > 0
+                  ? 'Ready for Pickup Slot'
+                  : 'Counter Open: Today, 8:00 AM - 10:00 PM'}
+              </p>
+              <p className="text-[11px] font-bold text-slate-500 mt-0.5">
+                {scheduledParcel
+                  ? `1 parcel • ${
+                      scheduledParcel.storageLocation
+                        ? scheduledParcel.storageLocation.split(' - ')[0]
+                        : 'Hub A'
+                    }`
+                  : readyParcels.length > 0
+                  ? `${readyParcels.length} parcel${
+                      readyParcels.length > 1 ? 's' : ''
+                    } • Hub A`
+                  : 'Society Hub A Counter'}
+              </p>
             </div>
           </div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
-            Active
-          </span>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform shrink-0" />
         </div>
 
-        {/* Inbound Parcels List / Empty State */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xs font-black text-[#060D1E] uppercase tracking-wider flex items-center gap-1.5">
-              <Package className="w-4 h-4 text-[#1E60F2]" />
-              <span>Inbound Deliveries ({inboundParcels.length})</span>
-            </h2>
-
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setIsShoppingModalOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-[#060D1E] rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
-                title="Auto-discover online orders"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#060D1E]" />
-                <span>Auto-Sync</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsAddOrderOpen(true)}
-                className="flex items-center gap-1 px-2.5 py-1 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-xl text-xs font-black border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] active:scale-95 transition-all"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                <span>Add Order</span>
-              </button>
+        {/* Screen 1 Spec: Quick action to open "Shopping & Deliveries" and "+ Add Expected Order" */}
+        <div className="grid grid-cols-2 gap-2.5 pt-1">
+          {/* Shopping & Deliveries Auto-Sync Card */}
+          <button
+            type="button"
+            onClick={() => setIsShoppingModalOpen(true)}
+            className="p-3 bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] text-left hover:bg-amber-50/60 active:scale-95 transition-all flex flex-col justify-between"
+          >
+            <div className="w-8 h-8 rounded-xl bg-[#FFC72C] border-2 border-[#0B1E3F] flex items-center justify-center text-[#0B1E3F] mb-2">
+              <Sparkles className="w-4 h-4 stroke-[2.5]" />
             </div>
+            <div>
+              <p className="text-xs font-black text-[#0B1E3F]">Auto-Sync</p>
+              <p className="text-[10px] font-bold text-slate-500 mt-0.5">Amazon, Flipkart & Gmail</p>
+            </div>
+          </button>
+
+          {/* Add Expected Order Card */}
+          <button
+            type="button"
+            onClick={() => setIsAddOrderOpen(true)}
+            className="p-3 bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] text-left hover:bg-blue-50/60 active:scale-95 transition-all flex flex-col justify-between"
+          >
+            <div className="w-8 h-8 rounded-xl bg-[#2563EB] border-2 border-[#0B1E3F] flex items-center justify-center text-white mb-2">
+              <Plus className="w-4 h-4 stroke-[3]" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-[#0B1E3F]">+ Add Order</p>
+              <p className="text-[10px] font-bold text-slate-500 mt-0.5">Pre-register incoming</p>
+            </div>
+          </button>
+        </div>
+
+        {/* Security Hub Counter Info */}
+        <div className="bg-white p-3 rounded-2xl border-2 border-slate-200 flex items-center justify-between text-xs font-bold text-slate-600">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-emerald-600" />
+            <span>Hub Staff On Duty: 8:00 AM – 10:00 PM</span>
           </div>
-
-          {inboundParcels.length === 0 ? (
-            <div className="space-y-3">
-              <EmptyState
-                icon="package"
-                title="No incoming parcels awaiting pickup"
-                description="When Amazon, Flipkart, or any courier drops off a package at your society gate, it will be checked in and appear here immediately."
-                actionLabel="+ Add Expected Order"
-                onAction={() => setIsAddOrderOpen(true)}
-              />
-              <div
-                onClick={() => setIsShoppingModalOpen(true)}
-                className="bg-white rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] p-3 flex items-center justify-between cursor-pointer hover:bg-amber-50/50 transition-colors"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-amber-400 border border-[#060D1E] flex items-center justify-center text-[#060D1E]">
-                    <ShoppingBag className="w-4 h-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-black text-[#060D1E]">Auto-Sync Deliveries</p>
-                    <p className="text-[10px] font-bold text-slate-500">Connect Amazon, Flipkart or Gmail once</p>
-                  </div>
-                </div>
-                <span className="text-[10px] font-black text-blue-700 bg-blue-100 px-2 py-0.5 rounded-full border border-blue-300">
-                  Connect
-                </span>
-              </div>
-            </div>
-          ) : (
-            inboundParcels.map((parcel) => (
-              <ParcelCard
-                key={parcel.id}
-                parcel={parcel}
-                onSelect={onSelectParcel}
-                onScheduleSlot={onScheduleSlot}
-                onShowPickupCode={onShowPickupCode}
-              />
-            ))
-          )}
+          <span className="text-[10px] font-black uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+            Active
+          </span>
         </div>
       </div>
 

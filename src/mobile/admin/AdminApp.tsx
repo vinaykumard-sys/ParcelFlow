@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
-  Boxes,
+  Package,
   Users,
-  CreditCard,
   Settings,
-  BarChart3,
+  Boxes,
+  CreditCard,
   Compass,
+  BarChart3,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { AdminLogin } from './AdminLogin';
 import { AdminDashboard } from './AdminDashboard';
+import { PlatformOwnerDashboard } from './PlatformOwnerDashboard';
 import { AdminManageTab } from './AdminManageTab';
 import { AdminLockersTab } from './AdminLockersTab';
 import { AdminSubscriptionsTab } from './AdminSubscriptionsTab';
@@ -28,6 +31,7 @@ interface AdminAppProps {
 
 export type AdminTab =
   | 'dashboard'
+  | 'platform'
   | 'lockers'
   | 'manage'
   | 'subscriptions'
@@ -47,7 +51,9 @@ export const AdminApp: React.FC<AdminAppProps> = ({
     currentRole === 'SUPER_ADMIN';
 
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated && isAdminRole);
-  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
+  const [activeTab, setActiveTab] = useState<AdminTab>(
+    currentRole === 'SUPER_ADMIN' ? 'platform' : 'dashboard'
+  );
   const [manageSubtab, setManageSubtab] = useState<'residents' | 'staff' | 'slots'>('residents');
 
   // Reactively sync login state with store auth and role changes
@@ -108,7 +114,18 @@ export const AdminApp: React.FC<AdminAppProps> = ({
             onOpenSubscriptions={() => setActiveTab('subscriptions')}
             onOpenOnboarding={() => setActiveTab('onboarding')}
             onOpenReports={() => setActiveTab('reports')}
+            onOpenPlatformOwner={() => setActiveTab('platform')}
             onQuickAction={handleQuickAction}
+          />
+        )}
+
+        {activeTab === 'platform' && (
+          <PlatformOwnerDashboard
+            onBackToSocietyView={() => setActiveTab('dashboard')}
+            onOpenSubscriptions={() => setActiveTab('subscriptions')}
+            onOpenReleases={() => setActiveTab('releases')}
+            onOpenSettings={() => setActiveTab('settings')}
+            onSelectSociety={() => setActiveTab('dashboard')}
           />
         )}
 
@@ -130,6 +147,10 @@ export const AdminApp: React.FC<AdminAppProps> = ({
             onOpenOnboarding={() => setActiveTab('onboarding')}
             onOpenLockers={() => setActiveTab('lockers')}
             onOpenReleases={() => setActiveTab('releases')}
+            onOpenManage={(sub) => {
+              if (sub) setManageSubtab(sub);
+              setActiveTab('manage');
+            }}
             onLogout={() => {
               logout();
               if (onLogoutSession) onLogoutSession();
@@ -143,26 +164,30 @@ export const AdminApp: React.FC<AdminAppProps> = ({
         )}
       </div>
 
-      {/* Admin Bottom Navigation Bar */}
+      {/* Navigation tab bar: Dashboard, Parcels, Residents, More */}
       <div className="w-full bg-white border-t-2 border-[#060D1E] px-2 py-2 flex items-center justify-around z-30 shadow-[0px_-2px_10px_rgba(0,0,0,0.04)]">
         {/* Dashboard */}
         <button
           onClick={() => setActiveTab('dashboard')}
           className={`flex flex-col items-center gap-1 transition-all ${
-            activeTab === 'dashboard' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
+            activeTab === 'dashboard' || activeTab === 'platform'
+              ? 'text-[#1E60F2] scale-105'
+              : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           <div
             className={`p-1 rounded-xl ${
-              activeTab === 'dashboard' ? 'bg-blue-50 border border-blue-200' : ''
+              activeTab === 'dashboard' || activeTab === 'platform'
+                ? 'bg-blue-50 border border-blue-200'
+                : ''
             }`}
           >
             <LayoutDashboard className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[9px] font-black">Home</span>
+          <span className="text-[9px] font-black">Dashboard</span>
         </button>
 
-        {/* Lockers */}
+        {/* Parcels (Lockers) */}
         <button
           onClick={() => setActiveTab('lockers')}
           className={`flex flex-col items-center gap-1 transition-all ${
@@ -176,12 +201,15 @@ export const AdminApp: React.FC<AdminAppProps> = ({
           >
             <Boxes className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[9px] font-black">Lockers</span>
+          <span className="text-[9px] font-black">Parcels</span>
         </button>
 
-        {/* Directory (Manage) */}
+        {/* Residents (Manage Directory) */}
         <button
-          onClick={() => setActiveTab('manage')}
+          onClick={() => {
+            setManageSubtab('residents');
+            setActiveTab('manage');
+          }}
           className={`flex flex-col items-center gap-1 transition-all ${
             activeTab === 'manage' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
           }`}
@@ -193,45 +221,36 @@ export const AdminApp: React.FC<AdminAppProps> = ({
           >
             <Users className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[9px] font-black">Directory</span>
+          <span className="text-[9px] font-black">Residents</span>
         </button>
 
-        {/* Subscriptions */}
-        <button
-          onClick={() => setActiveTab('subscriptions')}
-          className={`flex flex-col items-center gap-1 transition-all ${
-            activeTab === 'subscriptions' ? 'text-[#1E60F2] scale-105' : 'text-slate-400 hover:text-slate-600'
-          }`}
-        >
-          <div
-            className={`p-1 rounded-xl ${
-              activeTab === 'subscriptions' ? 'bg-blue-50 border border-blue-200' : ''
-            }`}
-          >
-            <CreditCard className="w-4 h-4 stroke-[2.5]" />
-          </div>
-          <span className="text-[9px] font-black">Plan</span>
-        </button>
-
-        {/* Settings */}
+        {/* More (Settings & Modules) */}
         <button
           onClick={() => setActiveTab('settings')}
           className={`flex flex-col items-center gap-1 transition-all ${
-            activeTab === 'settings' || activeTab === 'onboarding' || activeTab === 'reports'
+            activeTab === 'settings' ||
+            activeTab === 'subscriptions' ||
+            activeTab === 'onboarding' ||
+            activeTab === 'reports' ||
+            activeTab === 'releases'
               ? 'text-[#1E60F2] scale-105'
               : 'text-slate-400 hover:text-slate-600'
           }`}
         >
           <div
             className={`p-1 rounded-xl ${
-              activeTab === 'settings' || activeTab === 'onboarding' || activeTab === 'reports'
+              activeTab === 'settings' ||
+              activeTab === 'subscriptions' ||
+              activeTab === 'onboarding' ||
+              activeTab === 'reports' ||
+              activeTab === 'releases'
                 ? 'bg-blue-50 border border-blue-200'
                 : ''
             }`}
           >
-            <Settings className="w-4 h-4 stroke-[2.5]" />
+            <SlidersHorizontal className="w-4 h-4 stroke-[2.5]" />
           </div>
-          <span className="text-[9px] font-black">Settings</span>
+          <span className="text-[9px] font-black">More</span>
         </button>
       </div>
     </div>

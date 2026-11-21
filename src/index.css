@@ -6,13 +6,18 @@
   :root {
     color-scheme: light;
     --pf-bg-cream: #FEF9F3;
+    --pf-bg-cream-light: #FFF8EE;
     --pf-bg-warm: #FFFDF9;
-    --pf-navy: #0A1128;
+    --pf-navy: #0B1E3F;
+    --pf-navy-dark: #060D1E;
     --pf-blue: #2563EB;
-    --pf-blue-light: #3B82F6;
+    --pf-blue-light: #1E60F2;
     --pf-orange: #F97316;
-    --pf-yellow: #FBBF24;
-    --pf-mint: #10B981;
+    --pf-yellow: #FFC72C;
+    --pf-amber: #F59E0B;
+    --pf-mint: #22C55E;
+    --pf-emerald: #10B981;
+    --pf-red: #EF4444;
   }
   
   html {
@@ -50,6 +55,47 @@
 }
 
 @layer utilities {
+  /* ParcelFlow Official Design System Tokens (#0B1E3F Navy, #FFC72C Yellow, #1E60F2 Blue) */
+  .border-navy-2 {
+    border: 2px solid #0B1E3F;
+  }
+  .border-navy-3 {
+    border: 3px solid #0B1E3F;
+  }
+  .shadow-navy-sm {
+    box-shadow: 2px 2px 0px #0B1E3F;
+  }
+  .shadow-navy-md {
+    box-shadow: 3px 3px 0px #0B1E3F;
+  }
+  .shadow-navy-lg {
+    box-shadow: 4px 4px 0px #0B1E3F;
+  }
+  .shadow-navy-xl {
+    box-shadow: 6px 6px 0px #0B1E3F;
+  }
+  .bg-pf-cream {
+    background-color: #FEF9F3;
+  }
+  .bg-pf-cream-warm {
+    background-color: #FFF8EE;
+  }
+  .text-pf-navy {
+    color: #0B1E3F;
+  }
+  .text-pf-blue {
+    color: #1E60F2;
+  }
+  .text-pf-yellow {
+    color: #FFC72C;
+  }
+  .text-pf-green {
+    color: #22C55E;
+  }
+  .text-pf-red {
+    color: #EF4444;
+  }
+
   /* Playful Cartoon & Neo-Brutalist Utility Classes */
   .border-cartoon {
     border: 2.5px solid #0A1128;
