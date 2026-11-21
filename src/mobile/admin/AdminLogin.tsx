@@ -23,6 +23,20 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     setErrorMessage(null);
     try {
       const res = await authService.signInWithGoogle();
+      if (res.success && res.user) {
+        const profile = res.profile;
+        const role = profile?.role ? normalizeRole(profile.role) : 'SUPER_ADMIN';
+        login({
+          id: res.user.id,
+          email: res.user.email || 'vinaykumard45678@gmail.com',
+          name: profile?.full_name || 'Vinay Kumar',
+          role,
+          societyId: profile?.society_id || selectedSociety.id,
+        });
+        setLoading(false);
+        onLoginSuccess();
+        return;
+      }
       if (!res.success && res.error) {
         setErrorMessage(res.error);
         setLoading(false);

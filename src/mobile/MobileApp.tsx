@@ -6,6 +6,7 @@ import { AdminApp } from './admin/AdminApp';
 import { Forbidden403 } from './components/Forbidden403';
 import { AppUpdateModal } from './components/AppUpdateModal';
 import { checkForAppUpdate, type RemoteAppUpdateMetadata } from '../services/appUpdateService';
+import { CURRENT_APP_VERSION } from './version';
 import { initializePushNotifications } from '../services/fcmClient';
 import { supabase } from '../services/supabaseClient';
 import { fetchVerifiedProfile, normalizeRole } from '../services/authService';
@@ -16,6 +17,8 @@ import {
   Sparkles,
   Info,
   X,
+  KeyRound,
+  Check,
 } from 'lucide-react';
 
 // ============================================================================
@@ -35,6 +38,14 @@ export const MobileApp: React.FC = () => {
   const [isMandatoryUpdate, setIsMandatoryUpdate] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isUpdateComplete, setIsUpdateComplete] = useState(false);
+
+  // Global Password Recovery State (listening for PASSWORD_RECOVERY or #type=recovery)
+  const [isPasswordRecoveryModalOpen, setIsPasswordRecoveryModalOpen] = useState(false);
+  const [recoveryNewPassword, setRecoveryNewPassword] = useState('');
+  const [recoveryConfirmPassword, setRecoveryConfirmPassword] = useState('');
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [recoverySuccess, setRecoverySuccess] = useState(false);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
 
   const isPathAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
   // Derive display persona from AUTHENTICATED role in store, or unauthenticated /admin route visit
@@ -69,6 +80,16 @@ export const MobileApp: React.FC = () => {
       if (params.get('action') === 'app_update' || params.get('update') === 'true') {
         setIsUpdateModalOpen(true);
       }
+      // Check for password recovery hash
+      const hash = window.location.hash || '';
+      const search = window.location.search || '';
+      if (
+        hash.includes('type=recovery') ||
+        search.includes('type=recovery') ||
+        (hash.includes('access_token') && hash.includes('recovery'))
+      ) {
+        setIsPasswordRecoveryModalOpen(true);
+      }
     }
 
     // 1. Initial Supabase Session Sync on Startup
@@ -100,9 +121,11 @@ export const MobileApp: React.FC = () => {
     };
     syncSession();
 
-    // 2. Global Auth State Change Listener (handles Google OAuth redirect & session refreshes)
+    // 2. Global Auth State Change Listener (handles Google OAuth redirect, recovery & session refreshes)
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecoveryModalOpen(true);
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         if (session?.user) {
           const profile = await fetchVerifiedProfile(session.user.id);
           const role = profile?.role ? normalizeRole(profile.role) : 'RESIDENT';
@@ -179,25 +202,21 @@ export const MobileApp: React.FC = () => {
   }, [currentUser?.id]);
 
   return (
-    <div className="w-full min-h-screen bg-[#F7F2EB] flex flex-col items-center justify-center font-sans antialiased py-2 sm:py-4">
-      {/* Top Floating Control Bar for Web Viewers — NO persona switcher (role is DB-driven) */}
+    <div className="min-h-screen bg-[#F5EFE6] text-[#060D1E] flex flex-col font-sans select-none overflow-x-hidden">
+      {/* Top Banner (on desktop browsers) */}
       {!isNativeApp && (
-        <header className="w-full max-w-2xl mx-auto py-2 px-4 mb-2 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#060D1E] select-none">
+        <header className="bg-white border-b-2 border-[#060D1E] px-4 py-2 flex items-center justify-between text-xs font-bold shadow-xs z-40">
           <div className="flex items-center gap-2">
-            <a
-              href="/"
-              className="flex items-center gap-1.5 text-slate-700 hover:text-black py-1.5 px-3 bg-white rounded-xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] active:scale-95 transition-transform"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Marketing</span>
-            </a>
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 text-emerald-900 border border-emerald-300 rounded-xl text-[11px] font-black">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Interactive Workflow</span>
+            <div className="w-6 h-6 rounded-lg bg-[#1E60F2] text-white flex items-center justify-center font-black text-xs">
+              PF
             </div>
+            <span className="font-extrabold text-sm tracking-tight text-[#060D1E]">
+              ParcelFlow Mobile
+            </span>
+            <span className="text-[10px] bg-blue-100 text-[#1E60F2] px-2 py-0.5 rounded-full font-bold ml-1">
+              Active: {activePersona}
+            </span>
           </div>
-
-          {/* SECURITY: Persona switcher removed. Role is determined by authenticated Supabase profile only. */}
 
           {/* Toggle Device Frame / Fullscreen view */}
           <div className="flex items-center gap-2">
@@ -248,15 +267,21 @@ export const MobileApp: React.FC = () => {
             <div className="grid grid-cols-3 gap-2 mt-2 text-[11px] font-semibold text-slate-700">
               <div className="bg-blue-50/70 p-2 rounded-xl border border-blue-200">
                 <p className="font-black text-[#1E60F2] mb-0.5">1. Resident</p>
-                <p className="leading-tight text-slate-600">View deliveries, add expected order, book evening slot & open Digital Pass (OTP & QR).</p>
+                <p className="leading-tight text-slate-600">
+                  View deliveries, Ask ParcelFlow AI, Express Pickup QR, Family Pass & 2D Storage Map.
+                </p>
               </div>
               <div className="bg-emerald-50/70 p-2 rounded-xl border border-emerald-200">
                 <p className="font-black text-emerald-800 mb-0.5">2. Security Staff</p>
-                <p className="leading-tight text-slate-600">Scan couriers, assign lockers, verify resident pass & release locker.</p>
+                <p className="leading-tight text-slate-600">
+                  Scan couriers, Smart storage suggestion, report incidents & verify resident passes.
+                </p>
               </div>
               <div className="bg-amber-50/70 p-2 rounded-xl border border-amber-200">
                 <p className="font-black text-amber-900 mb-0.5">3. Society Admin</p>
-                <p className="leading-tight text-slate-600">Manage lockers, launch 8-step onboarding & manage subscriptions.</p>
+                <p className="leading-tight text-slate-600">
+                  Predictive analytics, live hub elevation map, incident resolution & manage subscriptions.
+                </p>
               </div>
             </div>
           </div>
@@ -277,8 +302,6 @@ export const MobileApp: React.FC = () => {
             <div className="w-2.5 h-2.5 rounded-full bg-blue-900/60" />
           </div>
         )}
-
-        {/* SECURITY: In-App persona switcher removed. Role is locked to authenticated Supabase DB profile. */}
 
         {/* Active Application Shell Container */}
         <div className="flex-1 overflow-hidden relative flex flex-col">
@@ -304,11 +327,9 @@ export const MobileApp: React.FC = () => {
               attemptedPath="/admin"
               onReturnToPortal={() => {
                 setIsUnauthorizedAdminAttempt(false);
-                // Role reverts to what the DB says — no manual override
               }}
               onLogout={() => {
                 setIsUnauthorizedAdminAttempt(false);
-                // Role reverts to what the DB says — no manual override
               }}
             />
           ) : (
@@ -338,6 +359,124 @@ export const MobileApp: React.FC = () => {
               }
             }}
           />
+        )}
+
+        {/* Global Set New Password Modal (triggered via email recovery link or PASSWORD_RECOVERY event) */}
+        {isPasswordRecoveryModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 animate-in fade-in">
+            <div className="w-full max-w-sm bg-[#FEF9F3] text-[#0B1E3F] rounded-3xl border-2 border-[#0B1E3F] shadow-[4px_4px_0px_#0B1E3F] p-5 space-y-4">
+              <div className="flex items-center justify-between border-b pb-3 border-slate-200">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-100 border border-blue-300 flex items-center justify-center text-[#1E60F2]">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black text-[#0B1E3F]">Set New Password</h3>
+                    <p className="text-[10px] font-bold text-slate-500">Recovery session authenticated</p>
+                  </div>
+                </div>
+                {!recoveryLoading && (
+                  <button
+                    onClick={() => setIsPasswordRecoveryModalOpen(false)}
+                    className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {recoveryError && (
+                <div className="p-2.5 bg-rose-50 border border-rose-300 rounded-xl text-xs font-bold text-rose-800">
+                  {recoveryError}
+                </div>
+              )}
+
+              {recoverySuccess ? (
+                <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl text-center space-y-2">
+                  <Check className="w-8 h-8 text-emerald-600 mx-auto" />
+                  <p className="text-xs font-black text-emerald-900">Password Updated Successfully!</p>
+                  <p className="text-[11px] font-bold text-slate-500">You can now access your account.</p>
+                  <button
+                    onClick={() => {
+                      setIsPasswordRecoveryModalOpen(false);
+                      setRecoverySuccess(false);
+                    }}
+                    className="w-full py-2 bg-[#FFC72C] text-[#0B1E3F] text-xs font-black rounded-xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F]"
+                  >
+                    Continue to App
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!recoveryNewPassword || recoveryNewPassword.length < 6) {
+                      setRecoveryError('Password must be at least 6 characters long.');
+                      return;
+                    }
+                    if (recoveryNewPassword !== recoveryConfirmPassword) {
+                      setRecoveryError('Passwords do not match.');
+                      return;
+                    }
+                    setRecoveryLoading(true);
+                    setRecoveryError(null);
+                    try {
+                      const { error } = await supabase.auth.updateUser({
+                        password: recoveryNewPassword,
+                      });
+                      if (error) {
+                        setRecoveryError(error.message || 'Failed to update password.');
+                        setRecoveryLoading(false);
+                      } else {
+                        setRecoveryLoading(false);
+                        setRecoverySuccess(true);
+                      }
+                    } catch (err: any) {
+                      setRecoveryError(err.message || 'Error updating password.');
+                      setRecoveryLoading(false);
+                    }
+                  }}
+                  className="space-y-3"
+                >
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                      New Password (min 6 characters)
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={recoveryNewPassword}
+                      onChange={(e) => setRecoveryNewPassword(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white text-xs font-bold text-[#0B1E3F] rounded-2xl border-2 border-[#0B1E3F] shadow-sm focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={recoveryConfirmPassword}
+                      onChange={(e) => setRecoveryConfirmPassword(e.target.value)}
+                      className="w-full px-3 py-2.5 bg-white text-xs font-bold text-[#0B1E3F] rounded-2xl border-2 border-[#0B1E3F] shadow-sm focus:outline-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={recoveryLoading}
+                    className="w-full py-3 bg-[#FFC72C] hover:bg-amber-400 text-[#0B1E3F] font-black text-xs rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] active:scale-95 transition-all"
+                  >
+                    {recoveryLoading ? 'Updating Password...' : 'Save New Password'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
         )}
       </main>
     </div>
