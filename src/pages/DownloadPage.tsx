@@ -35,8 +35,8 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const [iosSubmitted, setIosSubmitted] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
   const [versionInfo, setVersionInfo] = useState({
-    versionName: '1.2.0',
-    versionCode: 5,
+    versionName: '1.3.0',
+    versionCode: 6,
     apkSize: '9.5 MB',
     releaseDate: 'November 21, 2026',
     sha256: 'ccb6997a292ebd1fd1d2defe7f57b7f6689a17b3166e3db6d66acd36850c4f79',
@@ -48,8 +48,8 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
       .then((data) => {
         if (data && data.sha256) {
           setVersionInfo({
-            versionName: data.latestVersionName || '1.2.0',
-            versionCode: data.latestVersionCode || 5,
+            versionName: data.latestVersionName || '1.3.0',
+            versionCode: data.latestVersionCode || 6,
             apkSize: data.apkSizeBytes ? `${(data.apkSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '9.5 MB',
             releaseDate: data.releaseDate || 'November 21, 2026',
             sha256: data.sha256,

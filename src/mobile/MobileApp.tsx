@@ -66,6 +66,9 @@ export const MobileApp: React.FC = () => {
       if (params.get('unauthorized') === 'true' || portalParam === 'FORBIDDEN') {
         setIsUnauthorizedAdminAttempt(true);
       }
+      if (params.get('action') === 'app_update' || params.get('update') === 'true') {
+        setIsUpdateModalOpen(true);
+      }
     }
 
     // 1. Initial Supabase Session Sync on Startup
@@ -278,7 +281,22 @@ export const MobileApp: React.FC = () => {
         {/* SECURITY: In-App persona switcher removed. Role is locked to authenticated Supabase DB profile. */}
 
         {/* Active Application Shell Container */}
-        <div className="flex-1 overflow-hidden relative">
+        <div className="flex-1 overflow-hidden relative flex flex-col">
+          {/* Persistent In-App Update Notice Banner (if update available and modal dismissed) */}
+          {updateMetadata && updateMetadata.latestVersionCode > CURRENT_APP_VERSION.versionCode && !isUpdateModalOpen && !isUpdateComplete && (
+            <div
+              onClick={() => setIsUpdateModalOpen(true)}
+              className="bg-gradient-to-r from-[#1E60F2] to-[#0A1128] text-white px-4 py-2.5 text-xs font-bold flex items-center justify-between cursor-pointer shadow-md z-30 transition-transform active:scale-[0.99] border-b-2 border-[#060D1E]"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping" />
+                <span className="truncate">New ParcelFlow v{updateMetadata.latestVersionName} Available</span>
+              </div>
+              <span className="bg-amber-400 text-[#060D1E] px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-sm flex-shrink-0">
+                Update Now
+              </span>
+            </div>
+          )}
           {isUnauthorizedAdminAttempt ? (
             <Forbidden403
               currentRole={currentRole}

@@ -1,15 +1,16 @@
 {
-  "latestVersionName": "1.2.0",
-  "latestVersionCode": 5,
+  "latestVersionName": "1.3.0",
+  "latestVersionCode": 6,
   "minimumSupportedVersionCode": 4,
   "apkUrl": "/downloads/android/ParcelFlow.apk",
   "apkSizeBytes": 9982981,
   "sha256": "ccb6997a292ebd1fd1d2defe7f57b7f6689a17b3166e3db6d66acd36850c4f79",
   "releaseNotes": [
-    "Faster parcel barcode scanning & instant carrier auto-detection",
-    "Real-time hub express counter arrival alerts ('On My Way')",
-    "Enhanced digital pickup pass QR verification security",
-    "Automatic offline sync resilience & performance improvements"
+    "ParcelFlow AI assistant powered by Google Gemini",
+    "Interactive 2D Live Hub & Storage Map with occupancy view",
+    "Express 10-Minute Pickup QR Pass & Family Authorization",
+    "Smart Storage Location Suggestions & Damage Incident Reporting",
+    "Offline Security Mode with automatic background synchronization"
   ],
   "mandatory": false,
   "releaseDate": "2026-11-21"
