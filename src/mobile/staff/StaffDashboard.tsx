@@ -18,9 +18,13 @@ import {
   User,
   LogOut,
   ChevronRight,
+  ShieldAlert,
+  AlertTriangle,
 } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
+import { OfflineSecurityBanner } from './OfflineSecurityBanner';
+import { ReportIncidentModal } from './ReportIncidentModal';
 
 interface StaffDashboardProps {
   onOpenScanner?: () => void;
@@ -42,6 +46,7 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
   const { selectedSociety, parcels, currentUser, logout } = useMobileStore();
   const [showMenuDrawer, setShowMenuDrawer] = useState(false);
   const [showNotificationModal, setShowNotificationModal] = useState(false);
+  const [showIncidentModal, setShowIncidentModal] = useState(false);
 
   // Time-aware greeting
   const getGreeting = () => {
@@ -168,6 +173,9 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Screen 11: Offline Security Banner (Auto-detects offline status & pending sync queue) */}
+      <OfflineSecurityBanner />
 
       {/* Main Scrollable Content */}
       <div className="flex-1 overflow-y-auto px-5 py-4 pb-20 space-y-4">
@@ -369,6 +377,30 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
               </p>
             </button>
           </div>
+
+          {/* 5. Report Incident Quick Action (Screen 10 Reference) */}
+          <button
+            type="button"
+            onClick={() => setShowIncidentModal(true)}
+            className="w-full mt-3 bg-rose-50 hover:bg-rose-100/70 p-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] flex items-center justify-between text-left transition-transform active:scale-[0.99] group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-rose-500 border-2 border-[#060D1E] shadow-[1px_1px_0px_#060D1E] flex items-center justify-center text-white group-hover:scale-105 transition-transform">
+                <ShieldAlert className="w-5 h-5 text-white stroke-[2.2]" />
+              </div>
+              <div>
+                <h3 className="text-xs font-black text-[#060D1E] leading-tight">
+                  Report Incident / Damage Evidence
+                </h3>
+                <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                  Screen 10 • Log torn box, missing item, or courier issue
+                </p>
+              </div>
+            </div>
+            <span className="text-[10px] font-black text-rose-800 bg-rose-200/80 px-2 py-0.5 rounded-full border border-rose-300">
+              Report
+            </span>
+          </button>
         </div>
 
         {/* "Today's Activity" Section */}
@@ -582,6 +614,12 @@ export const StaffDashboard: React.FC<StaffDashboardProps> = ({
           </div>
         </div>
       )}
+
+      {/* Screen 10: Report Incident Modal */}
+      <ReportIncidentModal
+        isOpen={showIncidentModal}
+        onClose={() => setShowIncidentModal(false)}
+      />
     </div>
   );
 };

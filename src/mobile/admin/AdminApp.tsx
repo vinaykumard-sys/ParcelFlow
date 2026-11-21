@@ -21,6 +21,9 @@ import { AdminOnboardingTab } from './AdminOnboardingTab';
 import { AdminReportsTab } from './AdminReportsTab';
 import { AdminSettingsTab } from './AdminSettingsTab';
 import { PlatformOwnerReleaseTab } from './PlatformOwnerReleaseTab';
+import { PredictiveAnalyticsTab } from './PredictiveAnalyticsTab';
+import { LiveHubMapTab } from './LiveHubMapTab';
+import { IncidentManagementTab } from './IncidentManagementTab';
 import { Forbidden403 } from '../components/Forbidden403';
 import { useMobileStore } from '../services/mobileState';
 
@@ -38,7 +41,10 @@ export type AdminTab =
   | 'onboarding'
   | 'reports'
   | 'settings'
-  | 'releases';
+  | 'releases'
+  | 'analytics'
+  | 'hubmap'
+  | 'incidents';
 
 export const AdminApp: React.FC<AdminAppProps> = ({
   onLogoutSession,
@@ -86,13 +92,19 @@ export const AdminApp: React.FC<AdminAppProps> = ({
     );
   }
 
-  const handleQuickAction = (action: 'scan' | 'receive' | 'add_resident' | 'lockers' | 'subscriptions' | 'onboarding') => {
+  const handleQuickAction = (action: 'scan' | 'receive' | 'add_resident' | 'lockers' | 'subscriptions' | 'onboarding' | 'analytics' | 'hubmap' | 'incidents') => {
     if (action === 'lockers') {
       setActiveTab('lockers');
     } else if (action === 'subscriptions') {
       setActiveTab('subscriptions');
     } else if (action === 'onboarding') {
       setActiveTab('onboarding');
+    } else if (action === 'analytics') {
+      setActiveTab('analytics');
+    } else if (action === 'hubmap') {
+      setActiveTab('hubmap');
+    } else if (action === 'incidents') {
+      setActiveTab('incidents');
     } else {
       setManageSubtab('residents');
       setActiveTab('manage');
@@ -115,6 +127,9 @@ export const AdminApp: React.FC<AdminAppProps> = ({
             onOpenOnboarding={() => setActiveTab('onboarding')}
             onOpenReports={() => setActiveTab('reports')}
             onOpenPlatformOwner={() => setActiveTab('platform')}
+            onOpenAnalytics={() => setActiveTab('analytics')}
+            onOpenHubMap={() => setActiveTab('hubmap')}
+            onOpenIncidents={() => setActiveTab('incidents')}
             onQuickAction={handleQuickAction}
           />
         )}
@@ -162,6 +177,12 @@ export const AdminApp: React.FC<AdminAppProps> = ({
         {activeTab === 'releases' && (
           <PlatformOwnerReleaseTab onBack={() => setActiveTab('settings')} />
         )}
+
+        {activeTab === 'analytics' && <PredictiveAnalyticsTab />}
+
+        {activeTab === 'hubmap' && <LiveHubMapTab />}
+
+        {activeTab === 'incidents' && <IncidentManagementTab />}
       </div>
 
       {/* Navigation tab bar: Dashboard, Parcels, Residents, More */}

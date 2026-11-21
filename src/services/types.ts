@@ -296,3 +296,200 @@ export interface SocietyStats {
   hourlyDemand: Array<{ hour: string; intake: number; pickups: number }>;
   courierDistribution: Array<{ courier: string; count: number; percentage: number }>;
 }
+
+// ============================================================================
+// NEXT-LEVEL FEATURE TYPES & SCHEMA INTERFACES
+// ============================================================================
+
+export type AuthorizationStatus = 'ACTIVE' | 'EXPIRED' | 'REVOKED' | 'USED';
+
+export interface PickupAuthorization {
+  id: string;
+  resident_id: string;
+  society_id: string;
+  authorized_name: string;
+  relationship: string;
+  authorized_phone?: string | null;
+  allowed_parcel_ids: string[];
+  valid_until: string;
+  is_active: boolean;
+  status: AuthorizationStatus;
+  otp_code?: string;
+  notes?: string | null;
+  used_at?: string | null;
+  used_by_staff_id?: string | null;
+  created_at: string;
+  updated_at: string;
+  resident?: Resident;
+  parcels?: Parcel[];
+}
+
+export type IncidentIssueType =
+  | 'DAMAGED_PARCEL'
+  | 'WRONG_PARCEL'
+  | 'MISSING_PARCEL'
+  | 'OPENED_PACKAGE'
+  | 'LABEL_UNREADABLE'
+  | 'OTHER';
+
+export type IncidentStatus = 'OPEN' | 'UNDER_REVIEW' | 'RESOLVED' | 'DISMISSED';
+
+export interface ParcelIncident {
+  id: string;
+  society_id: string;
+  parcel_id?: string | null;
+  reporter_id?: string | null;
+  reporter_name?: string | null;
+  reporter_role?: string;
+  issue_type: IncidentIssueType;
+  description: string;
+  photos: string[];
+  status: IncidentStatus;
+  resolution_notes?: string | null;
+  resolved_at?: string | null;
+  resolved_by?: string | null;
+  created_at: string;
+  updated_at: string;
+  parcel?: Parcel;
+}
+
+export type OfflineSyncStatus = 'PENDING_SYNC' | 'SYNCED' | 'SYNC_FAILED';
+
+export interface OfflineSyncEvent {
+  id: string;
+  event_id: string;
+  society_id: string;
+  user_id: string;
+  action: string;
+  payload: Record<string, any>;
+  status: OfflineSyncStatus;
+  retry_count: number;
+  error_message?: string | null;
+  created_at: string;
+  synced_at?: string | null;
+}
+
+export interface HourlyDistributionItem {
+  hour: string; // e.g. "09:00", "14:00"
+  expected_intake: number;
+  expected_pickups: number;
+  actual_intake?: number;
+  actual_pickups?: number;
+}
+
+export interface DeliveryPrediction {
+  id: string;
+  society_id: string;
+  date: string; // YYYY-MM-DD
+  expected_count: number;
+  peak_window: string; // e.g. "6 PM - 8 PM"
+  hourly_distribution: HourlyDistributionItem[];
+  confidence_score: number;
+  insights: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StorageGridSlot {
+  id: string;
+  hub: string; // e.g. "Hub Alpha", "Hub Beta"
+  rack: string; // "A", "B", "C", "D"
+  shelf: string; // "1", "2", "3", "4", "5"
+  label: string; // e.g. "Hub A - B3"
+  compartment_type: StorageCompartmentType;
+  is_occupied: boolean;
+  parcel_id?: string | null;
+  parcel?: Parcel | null;
+  is_resident_parcel?: boolean;
+}
+
+export interface StorageGridStats {
+  totalSlots: number;
+  occupiedSlots: number;
+  availableSlots: number;
+  occupancyRate: number; // 0-100%
+  hubAlpha: { total: number; occupied: number; available: number };
+  hubBeta: { total: number; occupied: number; available: number };
+}
+
+export interface StorageSuggestion {
+  recommendedSlot: {
+    hub: string;
+    rack: string;
+    shelf: string;
+    label: string;
+    compartment_type: StorageCompartmentType;
+  };
+  reason: string;
+  spaceUtilizationPercent: number;
+  proximityScore: number;
+  alternativeSlots?: Array<{
+    hub: string;
+    rack: string;
+    shelf: string;
+    label: string;
+  }>;
+}
+
+export type CustodyStage =
+  | 'EXPECTED'
+  | 'RECEIVED'
+  | 'STORAGE_ASSIGNED'
+  | 'NOTIFIED'
+  | 'SCHEDULED'
+  | 'READY'
+  | 'VERIFIED'
+  | 'COLLECTED';
+
+export interface ChainOfCustodyEvent {
+  id: string;
+  parcel_id: string;
+  stage: CustodyStage;
+  title: string;
+  description: string;
+  actor_name: string;
+  actor_role: string;
+  timestamp: string;
+  location?: string | null;
+  verification_method?: 'OTP' | 'QR' | 'MANUAL' | 'SYSTEM' | null;
+  metadata?: Record<string, any>;
+  tamper_evident_hash?: string;
+}
+
+export interface ParcelCustodyTimeline {
+  parcel: Parcel;
+  current_stage: CustodyStage;
+  events: ChainOfCustodyEvent[];
+  verification_token?: string | null;
+  is_verified: boolean;
+}
+
+export type SmartSearchCategory = 'ALL' | 'PARCELS' | 'ORDERS' | 'INCIDENTS';
+
+export interface SmartSearchResultItem {
+  id: string;
+  type: 'PARCEL' | 'ORDER' | 'INCIDENT';
+  title: string;
+  subtitle: string;
+  status: string;
+  statusBadgeColor?: string;
+  date: string;
+  tracking_number?: string;
+  carrier?: string;
+  flat?: string;
+  recipient_name?: string;
+  storage_location?: string;
+  highlightSnippet?: string;
+  raw: any;
+}
+
+export interface SmartSearchFilter {
+  query: string;
+  category: SmartSearchCategory;
+  carrier?: string;
+  status?: string;
+  dateRange?: { start?: string; end?: string };
+  societyId?: string;
+  residentId?: string;
+}
+

@@ -9,11 +9,20 @@ import {
   Plus,
   Sparkles,
   Shield,
+  Zap,
+  UserCheck,
+  MapPin,
+  Search,
+  QrCode,
 } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 import { AddOrderModal } from './AddOrderModal';
 import { ShoppingDeliveriesModal } from './ShoppingDeliveriesModal';
+import { ExpressPickupModal } from './ExpressPickupModal';
+import { AuthorizedPickupModal } from './AuthorizedPickupModal';
+import { LiveStorageMapModal } from './LiveStorageMapModal';
+import { SmartSearchModal } from './SmartSearchModal';
 import { MobileHeader } from '../components/MobileHeader';
 import {
   ResidentParcelStackIllustration,
@@ -26,6 +35,11 @@ interface ResidentDashboardProps {
   onScheduleSlot: (parcel: MobileParcel) => void;
   onShowPickupCode: (parcel: MobileParcel) => void;
   onOpenNotifications?: () => void;
+  onOpenAIChat?: () => void;
+  onOpenExpressPickup?: () => void;
+  onOpenAuthorizedPickup?: () => void;
+  onOpenStorageMap?: () => void;
+  onOpenSmartSearch?: () => void;
 }
 
 export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
@@ -33,10 +47,42 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
   onScheduleSlot,
   onShowPickupCode,
   onOpenNotifications,
+  onOpenAIChat,
+  onOpenExpressPickup: propOpenExpress,
+  onOpenAuthorizedPickup: propOpenAuthorized,
+  onOpenStorageMap: propOpenStorageMap,
+  onOpenSmartSearch: propOpenSmartSearch,
 }) => {
   const { parcels, currentUser, selectedSociety } = useMobileStore();
+
+  // Modals state
   const [isAddOrderOpen, setIsAddOrderOpen] = useState(false);
   const [isShoppingModalOpen, setIsShoppingModalOpen] = useState(false);
+  const [isExpressPickupOpen, setIsExpressPickupOpen] = useState(false);
+  const [isAuthorizedPickupOpen, setIsAuthorizedPickupOpen] = useState(false);
+  const [isStorageMapOpen, setIsStorageMapOpen] = useState(false);
+  const [isSmartSearchOpen, setIsSmartSearchOpen] = useState(false);
+
+  // Trigger handlers that prefer parent props if passed, otherwise open local modals
+  const handleOpenExpress = () => {
+    if (propOpenExpress) propOpenExpress();
+    else setIsExpressPickupOpen(true);
+  };
+
+  const handleOpenAuthorized = () => {
+    if (propOpenAuthorized) propOpenAuthorized();
+    else setIsAuthorizedPickupOpen(true);
+  };
+
+  const handleOpenStorageMap = () => {
+    if (propOpenStorageMap) propOpenStorageMap();
+    else setIsStorageMapOpen(true);
+  };
+
+  const handleOpenSmartSearch = () => {
+    if (propOpenSmartSearch) propOpenSmartSearch();
+    else setIsSmartSearchOpen(true);
+  };
 
   // Filter parcels belonging to current resident (or all in demo mode)
   const residentParcels = parcels.filter((p) => {
@@ -181,6 +227,45 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
           </div>
         </div>
 
+        {/* ========================================================================= */}
+        {/* RESPONSIBILITY 6 SPEC: "Ask ParcelFlow AI ✨" Banner Card                 */}
+        {/* Placed prominently between stat counters and Latest Parcel card          */}
+        {/* ========================================================================= */}
+        <div
+          onClick={onOpenAIChat}
+          className="p-4 rounded-3xl bg-gradient-to-r from-[#0B1E3F] via-[#152E5E] to-[#1E60F2] text-white border-2 border-[#0B1E3F] shadow-[3px_3px_0px_#0B1E3F] cursor-pointer group hover:opacity-95 active:scale-98 transition-all relative overflow-hidden"
+        >
+          <div className="absolute right-0 top-0 bottom-0 w-32 bg-radial from-amber-400/20 to-transparent pointer-events-none" />
+
+          <div className="flex items-center justify-between gap-3 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 to-rose-400 p-0.5 shadow-md shrink-0">
+                <div className="w-full h-full bg-[#0B1E3F] rounded-[14px] flex items-center justify-center text-amber-300">
+                  <Sparkles className="w-5 h-5 fill-amber-300 stroke-[#0B1E3F]" />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+                    Ask ParcelFlow AI
+                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full bg-amber-400 text-[#0B1E3F]">
+                      Gemini
+                    </span>
+                  </h3>
+                </div>
+                <p className="text-[11px] font-bold text-slate-300 mt-0.5">
+                  Track parcels, schedule slots, or get pickup QR
+                </p>
+              </div>
+            </div>
+
+            <div className="w-8 h-8 rounded-xl bg-white/10 group-hover:bg-[#FFC72C] group-hover:text-[#0B1E3F] flex items-center justify-center text-white transition-colors shrink-0">
+              <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+            </div>
+          </div>
+        </div>
+
         {/* Screen 1 Spec: "Your Latest Parcel" Card */}
         {latestParcel ? (
           <div className="bg-white rounded-3xl border-2 border-[#0B1E3F] shadow-[3px_3px_0px_#0B1E3F] p-4 space-y-3">
@@ -303,6 +388,86 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
           <ChevronRight className="w-5 h-5 text-slate-400 group-hover:translate-x-1 transition-transform shrink-0" />
         </div>
 
+        {/* ========================================================================= */}
+        {/* RESPONSIBILITY 6 SPEC: 4 Next-Level Quick Action Triggers                 */}
+        {/* Express Pickup, Family Authorization, Storage Map, and Smart Search       */}
+        {/* ========================================================================= */}
+        <div className="space-y-2">
+          <h2 className="text-xs font-black uppercase tracking-wider text-slate-500">
+            Quick Actions
+          </h2>
+
+          <div className="grid grid-cols-2 gap-2.5">
+            {/* 1. Express Pickup Trigger */}
+            <button
+              type="button"
+              onClick={handleOpenExpress}
+              className="p-3 bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] text-left hover:bg-amber-50/70 active:scale-95 transition-all flex flex-col justify-between"
+            >
+              <div className="w-8 h-8 rounded-xl bg-amber-400 border-2 border-[#0B1E3F] flex items-center justify-center text-[#0B1E3F] mb-2">
+                <Zap className="w-4 h-4 fill-[#0B1E3F] stroke-[2.5]" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-[#0B1E3F]">Express Pickup</p>
+                <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                  10-min 1-tap QR release
+                </p>
+              </div>
+            </button>
+
+            {/* 2. Family / Delegate Authorization Trigger */}
+            <button
+              type="button"
+              onClick={handleOpenAuthorized}
+              className="p-3 bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] text-left hover:bg-indigo-50/70 active:scale-95 transition-all flex flex-col justify-between"
+            >
+              <div className="w-8 h-8 rounded-xl bg-indigo-500 border-2 border-[#0B1E3F] flex items-center justify-center text-white mb-2">
+                <UserCheck className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-[#0B1E3F]">Family Pass</p>
+                <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                  Allow someone to collect
+                </p>
+              </div>
+            </button>
+
+            {/* 3. Storage Map Trigger */}
+            <button
+              type="button"
+              onClick={handleOpenStorageMap}
+              className="p-3 bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] text-left hover:bg-blue-50/70 active:scale-95 transition-all flex flex-col justify-between"
+            >
+              <div className="w-8 h-8 rounded-xl bg-[#1E60F2] border-2 border-[#0B1E3F] flex items-center justify-center text-white mb-2">
+                <MapPin className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-[#0B1E3F]">Storage Map</p>
+                <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                  Live 2D racks & shelves
+                </p>
+              </div>
+            </button>
+
+            {/* 4. Smart Search Trigger */}
+            <button
+              type="button"
+              onClick={handleOpenSmartSearch}
+              className="p-3 bg-white rounded-2xl border-2 border-[#0B1E3F] shadow-[2px_2px_0px_#0B1E3F] text-left hover:bg-emerald-50/70 active:scale-95 transition-all flex flex-col justify-between"
+            >
+              <div className="w-8 h-8 rounded-xl bg-emerald-500 border-2 border-[#0B1E3F] flex items-center justify-center text-white mb-2">
+                <Search className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-[#0B1E3F]">Smart Search</p>
+                <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                  Find parcels & tracking
+                </p>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* Screen 1 Spec: Quick action to open "Shopping & Deliveries" and "+ Add Expected Order" */}
         <div className="grid grid-cols-2 gap-2.5 pt-1">
           {/* Shopping & Deliveries Auto-Sync Card */}
@@ -365,6 +530,34 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
       <ShoppingDeliveriesModal
         isOpen={isShoppingModalOpen}
         onClose={() => setIsShoppingModalOpen(false)}
+      />
+
+      {/* Express Pickup Modal */}
+      <ExpressPickupModal
+        isOpen={isExpressPickupOpen}
+        onClose={() => setIsExpressPickupOpen(false)}
+        onSelectParcel={onSelectParcel}
+      />
+
+      {/* Authorized Pickup Modal */}
+      <AuthorizedPickupModal
+        isOpen={isAuthorizedPickupOpen}
+        onClose={() => setIsAuthorizedPickupOpen(false)}
+      />
+
+      {/* Live Storage Map Modal */}
+      <LiveStorageMapModal
+        isOpen={isStorageMapOpen}
+        onClose={() => setIsStorageMapOpen(false)}
+        onSelectParcel={onSelectParcel}
+        onShowPickupCode={onShowPickupCode}
+      />
+
+      {/* Smart Search Modal */}
+      <SmartSearchModal
+        isOpen={isSmartSearchOpen}
+        onClose={() => setIsSmartSearchOpen(false)}
+        onSelectParcel={onSelectParcel}
       />
     </div>
   );

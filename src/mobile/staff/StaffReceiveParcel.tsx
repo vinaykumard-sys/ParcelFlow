@@ -26,6 +26,7 @@ import {
 import { useMobileStore } from '../services/mobileState';
 import { staffService } from '../../services/staffService';
 import type { ResidentUser, MobileParcel } from '../types';
+import { SmartStorageSuggestionModal } from './SmartStorageSuggestionModal';
 
 interface StaffReceiveParcelProps {
   onBack: () => void;
@@ -58,6 +59,7 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({
   // Storage Hub Assignment State
   const [hubName, setHubName] = useState<'Hub A' | 'Hub B' | 'Cold Storage'>('Hub A');
   const [selectedSlot, setSelectedSlot] = useState<string>('S3');
+  const [showStorageSuggestionModal, setShowStorageSuggestionModal] = useState(false);
 
   // Async & Feedback States
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -612,6 +614,21 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({
             </span>
           </div>
 
+          {/* Smart Storage Suggestion Button (Screen 7 Reference) */}
+          <button
+            type="button"
+            onClick={() => setShowStorageSuggestionModal(true)}
+            className="w-full py-2.5 px-3 bg-gradient-to-r from-amber-300 via-amber-200 to-yellow-300 hover:from-amber-400 hover:to-yellow-400 border-2 border-[#060D1E] rounded-2xl shadow-[2px_2px_0px_#060D1E] text-xs font-black text-[#060D1E] flex items-center justify-between transition-all active:translate-x-[1px] active:translate-y-[1px]"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-900" />
+              <span>Smart Storage Suggestion (AI ✨)</span>
+            </div>
+            <span className="text-[10px] font-bold bg-white/80 px-2 py-0.5 rounded-full border border-amber-900/20">
+              Screen 7
+            </span>
+          </button>
+
           {/* Hub Selector */}
           <div className="grid grid-cols-3 gap-2">
             {(['Hub A', 'Hub B', 'Cold Storage'] as const).map((h) => (
@@ -686,6 +703,26 @@ export const StaffReceiveParcel: React.FC<StaffReceiveParcelProps> = ({
           )}
         </button>
       </div>
+      {/* Smart Storage Suggestion Modal (Screen 7) */}
+      <SmartStorageSuggestionModal
+        isOpen={showStorageSuggestionModal}
+        onClose={() => setShowStorageSuggestionModal(false)}
+        trackingNumber={trackingId || 'AMZ-98234-IN'}
+        carrier={carrier}
+        recipientName={isCustomResident ? customResidentName : selectedResident?.name}
+        flat={isCustomResident ? customFlat : selectedResident?.flat}
+        onAssignComplete={(loc) => {
+          // Parse e.g. "Hub A - B3" or "Hub Alpha - A1"
+          if (loc.includes('Beta') || loc.includes('Hub B')) {
+            setHubName('Hub B');
+          } else {
+            setHubName('Hub A');
+          }
+          const parts = loc.split('-');
+          const slot = parts[parts.length - 1]?.trim() || 'S3';
+          setSelectedSlot(slot);
+        }}
+      />
     </div>
   );
 };

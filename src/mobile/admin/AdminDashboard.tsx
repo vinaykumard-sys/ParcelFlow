@@ -19,6 +19,9 @@ import {
   X,
   ExternalLink,
   Laptop,
+  MapPin,
+  ShieldAlert,
+  Zap,
 } from 'lucide-react';
 import { useMobileStore, SOCIETIES } from '../services/mobileState';
 import { adminService } from '../../services/adminService';
@@ -30,7 +33,10 @@ interface AdminDashboardProps {
   onOpenSubscriptions?: () => void;
   onOpenOnboarding?: () => void;
   onOpenPlatformOwner?: () => void;
-  onQuickAction?: (action: 'scan' | 'receive' | 'add_resident' | 'lockers' | 'subscriptions' | 'onboarding') => void;
+  onOpenAnalytics?: () => void;
+  onOpenHubMap?: () => void;
+  onOpenIncidents?: () => void;
+  onQuickAction?: (action: 'scan' | 'receive' | 'add_resident' | 'lockers' | 'subscriptions' | 'onboarding' | 'analytics' | 'hubmap' | 'incidents') => void;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -40,6 +46,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onOpenSubscriptions,
   onOpenOnboarding,
   onOpenPlatformOwner,
+  onOpenAnalytics,
+  onOpenHubMap,
+  onOpenIncidents,
   onQuickAction,
 }) => {
   const { selectedSociety, setSociety, parcels, residents, currentRole } = useMobileStore();
@@ -271,6 +280,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 >
                   <TrendingUp className="w-4 h-4 text-rose-600" />
                   <span>Analytics & Reports</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    if (onOpenAnalytics) onOpenAnalytics();
+                    else if (onQuickAction) onQuickAction('analytics');
+                  }}
+                  className="w-full p-2.5 bg-amber-50 hover:bg-amber-100/80 rounded-xl border border-amber-300 flex items-center gap-2.5 text-xs font-black text-left text-amber-950"
+                >
+                  <Zap className="w-4 h-4 text-amber-700" />
+                  <span>Predictive Insights (Screen 8) ✨</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    if (onOpenHubMap) onOpenHubMap();
+                    else if (onQuickAction) onQuickAction('hubmap');
+                  }}
+                  className="w-full p-2.5 bg-blue-50 hover:bg-blue-100/80 rounded-xl border border-blue-300 flex items-center gap-2.5 text-xs font-black text-left text-blue-950"
+                >
+                  <MapPin className="w-4 h-4 text-[#1E60F2]" />
+                  <span>Live Hub Storage Map (2D)</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setDrawerOpen(false);
+                    if (onOpenIncidents) onOpenIncidents();
+                    else if (onQuickAction) onQuickAction('incidents');
+                  }}
+                  className="w-full p-2.5 bg-rose-50 hover:bg-rose-100/80 rounded-xl border border-rose-300 flex items-center gap-2.5 text-xs font-black text-left text-rose-950"
+                >
+                  <ShieldAlert className="w-4 h-4 text-rose-600" />
+                  <span>Incident Resolution Board (Screen 10)</span>
                 </button>
                 <button
                   onClick={() => {
@@ -674,6 +716,93 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span className="text-[9px] text-emerald-700 font-bold block truncate">8 Stages Ready</span>
             </div>
           </button>
+        </div>
+
+        {/* 6. Next-Level AI & Operational Intelligence Hub */}
+        <div className="space-y-2.5 pt-1">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>Next-Level Operations</span>
+            </h2>
+            <span className="text-[10px] font-black text-amber-900 bg-amber-300 px-2 py-0.5 rounded-full border border-[#060D1E]">
+              AI & Telemetry
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            {/* 1. Predictive Analytics */}
+            <button
+              onClick={() => {
+                if (onOpenAnalytics) onOpenAnalytics();
+                else if (onQuickAction) onQuickAction('analytics');
+              }}
+              className="p-3.5 bg-gradient-to-br from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] text-left transition-all active:scale-[0.99] flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-400 border-2 border-[#060D1E] flex items-center justify-center text-amber-950 font-black shrink-0 shadow-[1px_1px_0px_#060D1E]">
+                  <Zap className="w-5 h-5 fill-amber-950" />
+                </div>
+                <div>
+                  <span className="text-xs font-black text-[#060D1E] block">
+                    Predictive Analytics (Screen 8)
+                  </span>
+                  <span className="text-[10px] text-amber-900 font-semibold block">
+                    Peak window 6-8 PM • Staffing alerts
+                  </span>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-amber-900 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            {/* 2. Live Hub Storage Map */}
+            <button
+              onClick={() => {
+                if (onOpenHubMap) onOpenHubMap();
+                else if (onQuickAction) onQuickAction('hubmap');
+              }}
+              className="p-3.5 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] text-left transition-all active:scale-[0.99] flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#1E60F2] border-2 border-[#060D1E] flex items-center justify-center text-white font-black shrink-0 shadow-[1px_1px_0px_#060D1E]">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-black text-[#060D1E] block">
+                    Live Hub Storage Map (Screen 3/9)
+                  </span>
+                  <span className="text-[10px] text-blue-900 font-semibold block">
+                    2D Racks A-D • Real-time occupancy
+                  </span>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-blue-900 group-hover:translate-x-1 transition-transform" />
+            </button>
+
+            {/* 3. Incident Management */}
+            <button
+              onClick={() => {
+                if (onOpenIncidents) onOpenIncidents();
+                else if (onQuickAction) onQuickAction('incidents');
+              }}
+              className="p-3.5 bg-gradient-to-br from-rose-50 to-red-50 hover:from-rose-100 hover:to-red-100 rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] text-left transition-all active:scale-[0.99] flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500 border-2 border-[#060D1E] flex items-center justify-center text-white font-black shrink-0 shadow-[1px_1px_0px_#060D1E]">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs font-black text-[#060D1E] block">
+                    Incident Board (Screen 10)
+                  </span>
+                  <span className="text-[10px] text-rose-900 font-semibold block">
+                    Damage photos • Investigation audit
+                  </span>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-rose-900 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -248,12 +248,13 @@ export async function validateOtp(
 
     // 4. Mark single-use token as USED atomically
     const verifiedAt = new Date(now).toISOString();
+    const validStaffUuid = staffId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(staffId) ? staffId : null;
     const { error: updateError } = await supabase
       .from('handover_tokens')
       .update({
         status: 'USED',
         verified_at: verifiedAt,
-        verified_by_staff_id: staffId || null,
+        verified_by_staff_id: validStaffUuid,
         updated_at: verifiedAt,
       })
       .eq('id', token.id)
@@ -337,16 +338,22 @@ export async function validateQrToken(
 
     // 3. Mark token as USED atomically
     const verifiedAt = new Date(now).toISOString();
-    await supabase
+    const validStaffUuid = staffId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(staffId) ? staffId : null;
+    const { error: updateError } = await supabase
       .from('handover_tokens')
       .update({
         status: 'USED',
         verified_at: verifiedAt,
-        verified_by_staff_id: staffId || null,
+        verified_by_staff_id: validStaffUuid,
         updated_at: verifiedAt,
       })
       .eq('id', token.id)
       .eq('status', 'ACTIVE');
+
+    if (updateError) {
+      console.warn('Supabase handover_tokens status update notice:', updateError.message);
+      return { success: false, error: updateError.message };
+    }
 
     // 4. Audit log
     await logAuditEvent({
