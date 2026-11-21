@@ -17,10 +17,10 @@ export interface AppVersionInfo {
 }
 
 export const CURRENT_APP_VERSION: AppVersionInfo = {
-  versionName: '1.2.0',
-  versionCode: 5,
+  versionName: '1.4.0',
+  versionCode: 7,
   packageId: 'in.parcelflow.app',
-  buildDate: '2026-11-20',
+  buildDate: '2026-11-21',
   channel: 'production',
 };
 

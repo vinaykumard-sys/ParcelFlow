@@ -35,24 +35,28 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const [iosSubmitted, setIosSubmitted] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
   const [versionInfo, setVersionInfo] = useState({
-    versionName: '1.3.0',
-    versionCode: 6,
-    apkSize: '9.5 MB',
+    versionName: '1.4.0',
+    versionCode: 7,
+    apkSize: '9.8 MB',
     releaseDate: 'November 21, 2026',
-    sha256: 'ccb6997a292ebd1fd1d2defe7f57b7f6689a17b3166e3db6d66acd36850c4f79',
+    sha256: 'pending-release',
+    apkUrl: '/downloads/android/ParcelFlow-v1.4.0-update.apk',
+    filename: 'ParcelFlow-v1.4.0-update.apk',
   });
 
   React.useEffect(() => {
     fetch('/api/app-update/android.json')
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
-        if (data && data.sha256) {
+        if (data) {
           setVersionInfo({
-            versionName: data.latestVersionName || '1.3.0',
-            versionCode: data.latestVersionCode || 6,
-            apkSize: data.apkSizeBytes ? `${(data.apkSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '9.5 MB',
+            versionName: data.latestVersionName || '1.4.0',
+            versionCode: data.latestVersionCode || 7,
+            apkSize: data.apkSizeBytes ? `${(data.apkSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '9.8 MB',
             releaseDate: data.releaseDate || 'November 21, 2026',
-            sha256: data.sha256,
+            sha256: data.sha256 || 'pending-release',
+            apkUrl: data.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk',
+            filename: 'ParcelFlow-v1.4.0-update.apk',
           });
         }
       })
@@ -79,8 +83,8 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const triggerDownload = () => {
     setDownloadStarted(true);
     const link = document.createElement('a');
-    link.href = '/downloads/android/ParcelFlow.apk';
-    link.setAttribute('download', 'ParcelFlow.apk');
+    link.href = versionInfo.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk';
+    link.setAttribute('download', versionInfo.filename || 'ParcelFlow-v1.4.0-update.apk');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -251,12 +255,12 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
             {/* Direct Link Fallback */}
             <div className="mt-3 text-center sm:text-left">
               <a 
-                href="/downloads/android/ParcelFlow.apk" 
-                download="ParcelFlow.apk"
+                href={versionInfo.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk'} 
+                download={versionInfo.filename || 'ParcelFlow-v1.4.0-update.apk'}
                 className="text-xs font-bold text-blue-700 hover:text-blue-900 underline underline-offset-2 inline-flex items-center gap-1"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                <span>Direct Download Link: /downloads/android/ParcelFlow.apk</span>
+                <span>Direct Download Link: {versionInfo.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk'}</span>
               </a>
             </div>
 
@@ -292,7 +296,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
 
               <p className="text-xs text-slate-600 font-medium mb-3">
-                Point your mobile camera at this code to open direct download link to <strong>/downloads/android/ParcelFlow.apk</strong> on your device.
+                Point your mobile camera at this code to open direct download link to <strong>{versionInfo.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk'}</strong> on your device.
               </p>
               
               <div className="inline-block bg-white p-3.5 rounded-2xl border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] my-1">
@@ -410,7 +414,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
               <h4 className="text-base font-black text-[#0A1128] mb-1.5">Download the APK</h4>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                Tap <strong>Download APK</strong> above or direct link <code>/downloads/android/ParcelFlow.apk</code>. If your browser prompts confirmation, tap <em>Keep</em>.
+                Tap <strong>Download APK</strong> above or direct link <code>/downloads/android/ParcelFlow-v1.4.0-update.apk</code>. If your browser prompts confirmation, tap <em>Keep</em>.
               </p>
             </div>
 

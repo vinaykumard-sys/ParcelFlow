@@ -1,10 +1,10 @@
 {
-  "latestVersionName": "1.3.0",
-  "latestVersionCode": 6,
+  "latestVersionName": "1.4.0",
+  "latestVersionCode": 7,
   "minimumSupportedVersionCode": 4,
-  "apkUrl": "/downloads/android/ParcelFlow.apk",
-  "apkSizeBytes": 9982981,
-  "sha256": "ccb6997a292ebd1fd1d2defe7f57b7f6689a17b3166e3db6d66acd36850c4f79",
+  "apkUrl": "/downloads/android/ParcelFlow-v1.4.0-update.apk",
+  "apkSizeBytes": 29979823,
+  "sha256": "5b49384f193f139dd794fcee6d3dd1fcc677ea4181c92e5cb0e8a773b6c43f38",
   "releaseNotes": [
     "ParcelFlow AI assistant powered by Google Gemini",
     "Interactive 2D Live Hub & Storage Map with occupancy view",
