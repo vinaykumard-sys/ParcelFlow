@@ -241,6 +241,8 @@ export async function verifyApkSha256(
 
 /**
  * Trigger Android Package Installer to install the verified update
+ * NOTE: Never redirect to Chrome, external browsers, or the ParcelFlow website.
+ * The entire flow remains inside the ParcelFlow Android application.
  */
 export function triggerAndroidApkInstall(
   apkBuffer: ArrayBuffer,
@@ -254,16 +256,17 @@ export function triggerAndroidApkInstall(
       if (versionCode) {
         localStorage.setItem('parcelflow_installed_version_code', String(versionCode));
       }
+      localStorage.setItem('parcelflow_pending_update_complete', versionName);
     }
     const fileName = `ParcelFlow-v${versionName}.apk`;
     const blob = new Blob([apkBuffer], { type: 'application/vnd.android.package-archive' });
     const blobUrl = URL.createObjectURL(blob);
 
-    // 1. Create a hidden anchor element to trigger download/intent
+    // Create a local anchor element to invoke Android Package Installer / file handler
+    // strictly within the application (NO target="_blank" which triggers external browser tabs)
     const a = document.createElement('a');
     a.href = blobUrl;
     a.download = fileName;
-    a.setAttribute('target', '_blank');
     document.body.appendChild(a);
     a.click();
 
@@ -276,22 +279,9 @@ export function triggerAndroidApkInstall(
       }
     }, 60000);
 
-    // 2. In Android WebView, also trigger onDownloadStart with APK MIME type if anchor is intercepted
-    if (
-      typeof window !== 'undefined' &&
-      (window.location.protocol === 'file:' || (window as any).__PARCELFLOW_NATIVE_APP__ === true)
-    ) {
-      const resolvedFallback = resolveEndpointUrl(fallbackUrl);
-      setTimeout(() => {
-        window.location.href = resolvedFallback;
-      }, 500);
-      return { success: true, method: 'native_webview_download_listener' };
-    }
-
-    return { success: true, method: 'blob_object_url' };
+    return { success: true, method: 'blob_package_installer' };
   } catch (err) {
-    console.warn('Install trigger error, falling back to direct location:', err);
-    window.location.href = resolveEndpointUrl(fallbackUrl);
-    return { success: true, method: 'direct_location_fallback' };
+    console.warn('Install trigger error:', err);
+    return { success: false, method: 'error' };
   }
 }

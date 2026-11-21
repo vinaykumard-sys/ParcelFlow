@@ -31,11 +31,119 @@ if (fs.existsSync('test_dex_fix/classes_fixed.dex')) {
   throw new Error('classes.dex not found in apk_build!');
 }
 
-console.log('--- Step 3: Configure AndroidManifest.xml for MainActivity ---');
-// In AndroidManifest.xml, ensure String 53 is "com.heatshield.ai.MainActivity"
-const manifestPath = 'apk_build/AndroidManifest.xml';
-const manifestBuf = fs.readFileSync(manifestPath);
+console.log('--- Step 3: Configure AndroidManifest.xml (versionCode 5, versionName 1.2.0, REQUEST_INSTALL_PACKAGES) ---');
+import { parseAxml, patchManifestAxml } from '@iyexin/mio-android-tools';
 
+const manifestPath = 'apk_build/AndroidManifest.xml';
+let manifestBuf = fs.readFileSync(manifestPath);
+
+// Patch versionCode to 5 and versionName to '1.2.0'
+manifestBuf = patchManifestAxml(manifestBuf, {
+  packageName: 'in.parcelflow.app',
+  versionCode: 5,
+  versionName: '1.2.0',
+});
+
+// Rebuild AXML string pool with REQUEST_INSTALL_PACKAGES replacing VIBRATE
+function findAxmlStringPool(buffer) {
+  let offset = buffer.readUInt16LE(2);
+  while (offset + 8 <= buffer.length) {
+    const type = buffer.readUInt16LE(offset);
+    const size = buffer.readUInt32LE(offset + 4);
+    if (type === 0x0001) {
+      const headerSize = buffer.readUInt16LE(offset + 2);
+      const stringCount = buffer.readUInt32LE(offset + 8);
+      const styleCount = buffer.readUInt32LE(offset + 12);
+      const flags = buffer.readUInt32LE(offset + 16);
+      const stringsStart = buffer.readUInt32LE(offset + 20);
+      const stylesStart = buffer.readUInt32LE(offset + 24);
+      return { offset, headerSize, size, stringCount, styleCount, flags, stringsStart, stylesStart };
+    }
+    if (size < 8) break;
+    offset += size;
+  }
+  throw new Error('AXML string pool not found');
+}
+
+function encodeUtf8Length(length) {
+  if (length > 0x7f) {
+    return Buffer.from([((length >> 8) & 0x7f) | 0x80, length & 0xff]);
+  }
+  return Buffer.from([length]);
+}
+
+function encodeAxmlString(value, utf8) {
+  if (utf8) {
+    const bytes = Buffer.from(value, 'utf8');
+    const length = value.length;
+    const lengthBytes = encodeUtf8Length(length);
+    const byteLengthBytes = encodeUtf8Length(bytes.length);
+    return Buffer.concat([lengthBytes, byteLengthBytes, bytes, Buffer.from([0])]);
+  }
+  const bytes = Buffer.from(value, 'utf16le');
+  const length = value.length;
+  const lengthBytes = Buffer.alloc(length > 0x7fff ? 4 : 2);
+  if (length > 0x7fff) {
+    lengthBytes.writeUInt16LE(((length >> 16) & 0x7fff) | 0x8000, 0);
+    lengthBytes.writeUInt16LE(length & 0xffff, 2);
+  } else {
+    lengthBytes.writeUInt16LE(length, 0);
+  }
+  return Buffer.concat([lengthBytes, bytes, Buffer.from([0, 0])]);
+}
+
+function rebuildAxmlStringPool(original, newStrings) {
+  const pool = findAxmlStringPool(original);
+  const utf8 = (pool.flags & 0x100) !== 0;
+  const encoded = [];
+  const offsets = [];
+  let dataLength = 0;
+  for (const value of newStrings) {
+    offsets.push(dataLength);
+    const item = encodeAxmlString(value, utf8);
+    encoded.push(item);
+    dataLength += item.length;
+    const padding = (4 - (dataLength % 4)) % 4;
+    if (padding > 0) {
+      encoded.push(Buffer.alloc(padding));
+      dataLength += padding;
+    }
+  }
+  const tableLength = newStrings.length * 4;
+  const chunkSize = 28 + tableLength + dataLength;
+  const chunk = Buffer.alloc(chunkSize);
+  chunk.writeUInt16LE(0x0001, 0);
+  chunk.writeUInt16LE(28, 2);
+  chunk.writeUInt32LE(chunkSize, 4);
+  chunk.writeUInt32LE(newStrings.length, 8);
+  chunk.writeUInt32LE(0, 12);
+  chunk.writeUInt32LE(pool.flags, 16);
+  chunk.writeUInt32LE(28 + tableLength, 20);
+  chunk.writeUInt32LE(0, 24);
+  for (let index = 0; index < offsets.length; index += 1) {
+    chunk.writeUInt32LE(offsets[index] ?? 0, 28 + index * 4);
+  }
+  let cursor = 28 + tableLength;
+  for (const item of encoded) {
+    item.copy(chunk, cursor);
+    cursor += item.length;
+  }
+  const before = original.subarray(0, pool.offset);
+  const after = original.subarray(pool.offset + pool.size);
+  const result = Buffer.concat([before, chunk, after]);
+  result.writeUInt32LE(result.length, 4);
+  return result;
+}
+
+const doc = parseAxml(manifestBuf);
+const vIdx = doc.strings.indexOf('android.permission.VIBRATE');
+if (vIdx !== -1) {
+  doc.strings[vIdx] = 'android.permission.REQUEST_INSTALL_PACKAGES';
+  manifestBuf = rebuildAxmlStringPool(manifestBuf, doc.strings);
+  console.log('Injected android.permission.REQUEST_INSTALL_PACKAGES into AndroidManifest.xml');
+}
+
+// In AndroidManifest.xml, ensure activity name is "com.heatshield.ai.MainActivity"
 const searchStr = 'in.parcelflow.app.MainActivity';
 const replaceStr = 'com.heatshield.ai.MainActivity';
 const sBuf = Buffer.from(searchStr, 'utf16le');
@@ -45,10 +153,10 @@ let mIdx = manifestBuf.indexOf(sBuf);
 if (mIdx !== -1) {
   rBuf.copy(manifestBuf, mIdx);
   console.log(`Replaced activity name to "${replaceStr}" in AndroidManifest.xml at 0x${mIdx.toString(16)}`);
-  fs.writeFileSync(manifestPath, manifestBuf);
 } else {
   console.log('Activity name already set in AndroidManifest.xml');
 }
+fs.writeFileSync(manifestPath, manifestBuf);
 
 console.log('--- Step 4: Ensure assets/www contains fresh ParcelFlow web build with /assets/ paths ---');
 // Copy dist files to assets/www

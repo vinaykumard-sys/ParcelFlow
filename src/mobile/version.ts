@@ -49,5 +49,14 @@ export function getEffectiveAppVersion(): AppVersionInfo {
     // ignore
   }
 
+  // Check if native Android runtime exposed version info via WebView bridge
+  if (typeof (window as any).__PARCELFLOW_NATIVE_VERSION_CODE__ === 'number') {
+    return {
+      ...CURRENT_APP_VERSION,
+      versionCode: (window as any).__PARCELFLOW_NATIVE_VERSION_CODE__,
+      versionName: (window as any).__PARCELFLOW_NATIVE_VERSION__ || CURRENT_APP_VERSION.versionName,
+    };
+  }
+
   return CURRENT_APP_VERSION;
 }

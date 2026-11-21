@@ -34,6 +34,7 @@ export const MobileApp: React.FC = () => {
   const [updateMetadata, setUpdateMetadata] = useState<RemoteAppUpdateMetadata | null>(null);
   const [isMandatoryUpdate, setIsMandatoryUpdate] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isUpdateComplete, setIsUpdateComplete] = useState(false);
 
   const isPathAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
   // Derive display persona from AUTHENTICATED role in store, or unauthenticated /admin route visit
@@ -129,6 +130,7 @@ export const MobileApp: React.FC = () => {
         if (check.hasUpdate && check.updateMetadata) {
           setUpdateMetadata(check.updateMetadata);
           setIsMandatoryUpdate(check.isMandatory);
+          setIsUpdateComplete(false);
 
           // If mandatory: always show. If optional: check if dismissed for this version code
           const dismissedCode =
@@ -140,6 +142,18 @@ export const MobileApp: React.FC = () => {
             !dismissedCode ||
             parseInt(dismissedCode, 10) < check.updateMetadata.latestVersionCode
           ) {
+            setIsUpdateModalOpen(true);
+          }
+        } else if (!check.hasUpdate && check.updateMetadata) {
+          // Check if an update was completed and the app just relaunched
+          const pendingComplete =
+            typeof localStorage !== 'undefined'
+              ? localStorage.getItem('parcelflow_pending_update_complete')
+              : null;
+          if (pendingComplete) {
+            localStorage.removeItem('parcelflow_pending_update_complete');
+            setUpdateMetadata(check.updateMetadata);
+            setIsUpdateComplete(true);
             setIsUpdateModalOpen(true);
           }
         }
@@ -294,8 +308,10 @@ export const MobileApp: React.FC = () => {
             isOpen={isUpdateModalOpen}
             metadata={updateMetadata}
             isMandatory={isMandatoryUpdate}
+            isUpdateComplete={isUpdateComplete}
             onClose={() => {
               setIsUpdateModalOpen(false);
+              setIsUpdateComplete(false);
               if (!isMandatoryUpdate && updateMetadata && typeof localStorage !== 'undefined') {
                 localStorage.setItem(
                   'parcelflow_update_dismissed_code',

@@ -26,12 +26,14 @@ export type UpdateModalStep =
   | 'DOWNLOADING'
   | 'VERIFYING'
   | 'READY_TO_INSTALL'
+  | 'UPDATE_COMPLETE'
   | 'FAILED';
 
 interface AppUpdateModalProps {
   isOpen: boolean;
   metadata: RemoteAppUpdateMetadata;
   isMandatory: boolean;
+  isUpdateComplete?: boolean;
   onClose: () => void;
 }
 
@@ -39,9 +41,12 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
   isOpen,
   metadata,
   isMandatory,
+  isUpdateComplete = false,
   onClose,
 }) => {
-  const [step, setStep] = useState<UpdateModalStep>('AVAILABLE');
+  const [step, setStep] = useState<UpdateModalStep>(
+    isUpdateComplete ? 'UPDATE_COMPLETE' : 'AVAILABLE'
+  );
   const [progress, setProgress] = useState<DownloadProgress>({
     loadedBytes: 0,
     totalBytes: metadata.apkSizeBytes || 9950048,
@@ -93,6 +98,13 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
       // 3. Ready to Install
       setDownloadedBuffer(buffer);
       setStep('READY_TO_INSTALL');
+      // Immediately launch Android Package Installer using the verified local APK
+      triggerAndroidApkInstall(
+        buffer,
+        metadata.latestVersionName,
+        metadata.apkUrl,
+        metadata.latestVersionCode
+      );
     } catch (err: any) {
       if (err?.message?.includes('cancelled')) {
         setStep('AVAILABLE');
@@ -158,7 +170,7 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
                 <div className="w-12 h-12 rounded-full bg-[#1E60F2] flex items-center justify-center shadow-inner">
                   {step === 'DOWNLOADING' || step === 'VERIFYING' ? (
                     <RefreshCw className="w-6 h-6 text-white animate-spin" />
-                  ) : step === 'READY_TO_INSTALL' ? (
+                  ) : step === 'READY_TO_INSTALL' || step === 'UPDATE_COMPLETE' ? (
                     <CheckCircle2 className="w-6 h-6 text-white" />
                   ) : (
                     <Download className="w-6 h-6 text-white" />
@@ -181,13 +193,21 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
             {/* Version Badge */}
             <div className="mt-2 text-center">
               <h2 className="text-base font-black text-[#060D1E] tracking-tight">
-                {isMandatory ? 'Update Required' : 'New Update Available'}
+                {step === 'UPDATE_COMPLETE'
+                  ? 'Update Complete'
+                  : isMandatory
+                  ? 'Update Required'
+                  : 'New Update Available'}
               </h2>
               <p className="text-xs font-black text-[#1E60F2] mt-0.5">
-                Version {metadata.latestVersionName}{' '}
-                <span className="text-[10px] text-slate-500 font-bold">
-                  (Current: v{CURRENT_APP_VERSION.versionName})
-                </span>
+                {step === 'UPDATE_COMPLETE'
+                  ? `Running Version ${metadata.latestVersionName}`
+                  : `Version ${metadata.latestVersionName}`}
+                {step !== 'UPDATE_COMPLETE' && (
+                  <span className="text-[10px] text-slate-500 font-bold ml-1">
+                    (Current: v{CURRENT_APP_VERSION.versionName})
+                  </span>
+                )}
               </p>
             </div>
           </div>
@@ -235,6 +255,19 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
                 <p>Update Verified & Ready</p>
                 <p className="text-[10px] font-bold text-emerald-800">
                   Tap below to launch Android Package Installer
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Update Complete State */}
+          {step === 'UPDATE_COMPLETE' && (
+            <div className="bg-emerald-50 rounded-2xl border-2 border-emerald-600 p-3.5 text-xs font-black text-emerald-950 flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <div>
+                <p>Update Complete</p>
+                <p className="text-[10px] font-bold text-emerald-800">
+                  ParcelFlow v{metadata.latestVersionName} is installed and running smoothly.
                 </p>
               </div>
             </div>
@@ -307,6 +340,17 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
             >
               <CheckCircle2 className="w-4 h-4 text-white stroke-[2.5]" />
               <span>Install Update</span>
+            </button>
+          )}
+
+          {step === 'UPDATE_COMPLETE' && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full py-3 bg-[#1E60F2] hover:bg-blue-600 text-white rounded-2xl text-xs font-black border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+              <CheckCircle2 className="w-4 h-4 text-white stroke-[2.5]" />
+              <span>Continue to ParcelFlow</span>
             </button>
           )}
 

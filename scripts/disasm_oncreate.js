@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const buf = fs.readFileSync('classes.dex');
+const buf = fs.readFileSync('apk_inspect/classes.dex');
 
 // String pool
 const stringIdsSize = buf.readUInt32LE(0x38);
@@ -105,41 +105,58 @@ for (let i = 0; i < virtualMethodsSize; i++) {
 console.log('MainActivity methods:');
 allMethods.forEach(m => console.log(`  ${m.name} (idx: ${m.idx}, codeOff: 0x${m.codeOff.toString(16)})`));
 
-// Disassemble onCreate
-const onCreate = allMethods.find(m => m.name === 'onCreate');
-if (onCreate && onCreate.codeOff > 0) {
-  console.log('\n--- Disassembling onCreate ---');
-  let cp = onCreate.codeOff;
-  const registersSize = buf.readUInt16LE(cp);
-  const insnsSize = buf.readUInt32LE(cp + 12);
-  console.log(`registers: ${registersSize}, insnsSize: ${insnsSize}`);
+// Disassemble MainActivity$2 (class 2)
+const c2Off = classDefsOff + 2 * 32;
+const c2DataOff = buf.readUInt32LE(c2Off + 24);
+let p2 = c2DataOff;
+let sf2, inf2, dm2, vm2;
+[sf2, p2] = readUleb128(buf, p2);
+[inf2, p2] = readUleb128(buf, p2);
+[dm2, p2] = readUleb128(buf, p2);
+[vm2, p2] = readUleb128(buf, p2);
+let tmp;
+for (let i = 0; i < sf2; i++) { [tmp, p2] = readUleb128(buf, p2); [tmp, p2] = readUleb128(buf, p2); }
+for (let i = 0; i < inf2; i++) { [tmp, p2] = readUleb128(buf, p2); [tmp, p2] = readUleb128(buf, p2); }
+let mIdx2 = 0;
+const wvcMethods = [];
+for (let i = 0; i < dm2; i++) {
+  let diff, flags, codeOff;
+  [diff, p2] = readUleb128(buf, p2); [flags, p2] = readUleb128(buf, p2); [codeOff, p2] = readUleb128(buf, p2);
+  mIdx2 += diff;
+  wvcMethods.push({ idx: mIdx2, name: methods[mIdx2]?.name || 'unknown', codeOff });
+}
+mIdx2 = 0;
+for (let i = 0; i < vm2; i++) {
+  let diff, flags, codeOff;
+  [diff, p2] = readUleb128(buf, p2); [flags, p2] = readUleb128(buf, p2); [codeOff, p2] = readUleb128(buf, p2);
+  mIdx2 += diff;
+  wvcMethods.push({ idx: mIdx2, name: methods[mIdx2]?.name || 'unknown', codeOff });
+}
+console.log('MainActivity$2 (WebViewClient) methods:');
+wvcMethods.forEach(m => console.log(`  ${m.name} (codeOff: 0x${m.codeOff.toString(16)})`));
 
-  let insP = cp + 16;
-  const endP = insP + insnsSize * 2;
-  while (insP < endP) {
-    const pc = (insP - (cp + 16)) / 2;
-    const op = buf.readUInt8(insP);
-    const b1 = buf.readUInt8(insP + 1);
-
-    if (op === 0x6e || op === 0x74 || op === 0x70 || op === 0x71 || op === 0x72) {
-      const methIdx = buf.readUInt16LE(insP + 2);
-      const m = methods[methIdx];
-      console.log(`  [pc ${pc}] invoke opcode 0x${op.toString(16)}: ${m?.class}->${m?.name}`);
-      insP += 6;
-    } else if (op === 0x1a) {
-      const strIdx = buf.readUInt16LE(insP + 2);
-      console.log(`  [pc ${pc}] const-string v${b1}: "${strings[strIdx]}"`);
-      insP += 4;
-    } else if (op === 0x54 || op === 0x55 || op === 0x56) {
-      const fIdx = buf.readUInt16LE(insP + 2);
-      console.log(`  [pc ${pc}] i-field: ${fields[fIdx]?.name}`);
-      insP += 4;
-    } else if (op === 0x62 || op === 0x63) {
-      const fIdx = buf.readUInt16LE(insP + 2);
-      console.log(`  [pc ${pc}] s-field: ${fields[fIdx]?.name}`);
-      insP += 4;
-    } else {
-      insP += 2;
+for (const target of wvcMethods) {
+  if (target && target.codeOff > 0) {
+    console.log(`\n--- Disassembling WebViewClient::${target.name} ---`);
+    let cp = target.codeOff;
+    const insnsSize = buf.readUInt32LE(cp + 12);
+    let insP = cp + 16;
+    const endP = insP + insnsSize * 2;
+    while (insP < endP) {
+      const pc = (insP - (cp + 16)) / 2;
+      const op = buf.readUInt8(insP);
+      if (op === 0x6e || op === 0x74 || op === 0x70 || op === 0x71 || op === 0x72) {
+        const methIdx = buf.readUInt16LE(insP + 2);
+        const m = methods[methIdx];
+        console.log(`  [pc ${pc}] invoke: ${m?.class}->${m?.name}`);
+        insP += 6;
+      } else if (op === 0x1a) {
+        const strIdx = buf.readUInt16LE(insP + 2);
+        console.log(`  [pc ${pc}] const-string: "${strings[strIdx]}"`);
+        insP += 4;
+      } else {
+        insP += 2;
+      }
     }
   }
 }
