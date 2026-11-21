@@ -36,9 +36,7 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
 }) => {
   const { selectedSociety, currentUser, currentRole, logout } = useMobileStore();
 
-  const isPlatformOwner =
-    currentRole === 'SUPER_ADMIN' ||
-    (currentUser?.email && currentUser.email.toLowerCase() === 'vinaykumard45678@gmail.com');
+  const isPlatformOwner = currentRole === 'SUPER_ADMIN';
 
   const handleLogout = () => {
     logout();

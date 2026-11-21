@@ -8,7 +8,7 @@ import { AppUpdateModal } from './components/AppUpdateModal';
 import { checkForAppUpdate, type RemoteAppUpdateMetadata } from '../services/appUpdateService';
 import { initializePushNotifications } from '../services/fcmClient';
 import { supabase } from '../services/supabaseClient';
-import { fetchVerifiedProfile, FIXED_ADMIN_EMAIL } from '../services/authService';
+import { fetchVerifiedProfile, normalizeRole } from '../services/authService';
 import {
   Smartphone,
   Monitor,
@@ -35,9 +35,10 @@ export const MobileApp: React.FC = () => {
   const [isMandatoryUpdate, setIsMandatoryUpdate] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
-  // Derive display persona from AUTHENTICATED role in store — never from URL or buttons
+  const isPathAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+  // Derive display persona from AUTHENTICATED role in store, or unauthenticated /admin route visit
   const activePersona: 'RESIDENT' | 'SECURITY' | 'ADMIN' =
-    currentRole === 'ADMIN' || currentRole === 'SOCIETY_ADMIN' || currentRole === 'SUPER_ADMIN'
+    currentRole === 'ADMIN' || currentRole === 'SOCIETY_ADMIN' || currentRole === 'SUPER_ADMIN' || (!currentUser && isPathAdmin)
       ? 'ADMIN'
       : currentRole === 'SECURITY' || currentRole === 'STAFF'
       ? 'SECURITY'
@@ -73,8 +74,7 @@ export const MobileApp: React.FC = () => {
         const session = sessionData?.session;
         if (session?.user) {
           const profile = await fetchVerifiedProfile(session.user.id);
-          const isVinay = session.user.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
-          const role = isVinay ? 'SUPER_ADMIN' : profile?.role || 'RESIDENT';
+          const role = profile?.role ? normalizeRole(profile.role) : 'RESIDENT';
 
           login({
             id: session.user.id,
@@ -101,8 +101,7 @@ export const MobileApp: React.FC = () => {
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         if (session?.user) {
           const profile = await fetchVerifiedProfile(session.user.id);
-          const isVinay = session.user.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
-          const role = isVinay ? 'SUPER_ADMIN' : profile?.role || 'RESIDENT';
+          const role = profile?.role ? normalizeRole(profile.role) : 'RESIDENT';
 
           login({
             id: session.user.id,

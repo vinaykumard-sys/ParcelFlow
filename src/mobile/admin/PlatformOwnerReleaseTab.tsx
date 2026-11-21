@@ -33,9 +33,7 @@ interface PlatformOwnerReleaseTabProps {
 export const PlatformOwnerReleaseTab: React.FC<PlatformOwnerReleaseTabProps> = ({ onBack }) => {
   const { currentUser, currentRole } = useMobileStore();
 
-  const isPlatformOwner =
-    currentRole === 'SUPER_ADMIN' ||
-    (currentUser?.email && currentUser.email.toLowerCase() === 'vinaykumard45678@gmail.com');
+  const isPlatformOwner = currentRole === 'SUPER_ADMIN';
 
   const [metadata, setMetadata] = useState<RemoteAppUpdateMetadata | null>(null);
   const [deviceStats, setDeviceStats] = useState<{ totalActive: number; androidCount: number }>({

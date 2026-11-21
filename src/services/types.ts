@@ -86,6 +86,7 @@ export interface AuthSessionResponse {
   profile: Profile | null;
   isAdmin: boolean;
   error?: string | null;
+  message?: string | null;
 }
 
 export interface Society {

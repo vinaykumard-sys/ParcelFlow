@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Boxes,
@@ -49,6 +49,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(isAuthenticated && isAdminRole);
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [manageSubtab, setManageSubtab] = useState<'residents' | 'staff' | 'slots'>('residents');
+
+  // Reactively sync login state with store auth and role changes
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated && isAdminRole);
+  }, [isAuthenticated, isAdminRole]);
 
   // Strict route protection: If authenticated user is NOT an admin, display 403 Forbidden!
   if (isAuthenticated && !isAdminRole) {

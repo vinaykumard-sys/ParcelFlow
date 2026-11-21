@@ -27,22 +27,35 @@ function AdminRouteGuard() {
   const { currentRole } = useMobileStore();
   const [checking, setChecking] = useState(true);
   const [dbVerifiedAdmin, setDbVerifiedAdmin] = useState(false);
+  const [isUnauthenticated, setIsUnauthenticated] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     async function verify() {
       try {
-        // Step 1: Get server-verified authenticated user (not from cache alone)
+        // Step 1: Check server-verified authenticated user
         const { data: { user }, error } = await supabase.auth.getUser();
         if (error || !user) {
-          if (!cancelled) { setDbVerifiedAdmin(false); setChecking(false); }
+          if (!cancelled) {
+            setIsUnauthenticated(true);
+            setDbVerifiedAdmin(false);
+            setChecking(false);
+          }
           return;
         }
         // Step 2: Query public.profiles for SUPER_ADMIN or SOCIETY_ADMIN role
         const isAdmin = await verifyAdminStatus(user.id);
-        if (!cancelled) { setDbVerifiedAdmin(isAdmin); setChecking(false); }
+        if (!cancelled) {
+          setIsUnauthenticated(false);
+          setDbVerifiedAdmin(isAdmin);
+          setChecking(false);
+        }
       } catch {
-        if (!cancelled) { setDbVerifiedAdmin(false); setChecking(false); }
+        if (!cancelled) {
+          setIsUnauthenticated(true);
+          setDbVerifiedAdmin(false);
+          setChecking(false);
+        }
       }
     }
     verify();
@@ -50,7 +63,7 @@ function AdminRouteGuard() {
   }, []);
 
   if (checking) {
-    // Brief loading state while DB check runs — show nothing (or spinner)
+    // Brief loading state while DB check runs — show spinner
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F7F2EB]">
         <div className="text-sm text-slate-500 font-semibold animate-pulse">Verifying access…</div>
@@ -58,6 +71,12 @@ function AdminRouteGuard() {
     );
   }
 
+  // If the user is not authenticated (!user), render MobileApp so they can see AdminLogin
+  if (isUnauthenticated) {
+    return <MobileApp />;
+  }
+
+  // If authenticated but not admin in database, display 403 Forbidden
   if (!dbVerifiedAdmin) {
     return (
       <Forbidden403Page

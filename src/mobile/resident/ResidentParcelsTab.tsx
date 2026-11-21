@@ -162,8 +162,15 @@ export const ResidentParcelsTab: React.FC<ResidentParcelsTabProps> = ({
               icon={filter === 'SCHEDULED' ? 'calendar' : filter === 'COLLECTED' ? 'history' : 'package'}
               title={getEmptyMessage().title}
               description={getEmptyMessage().description}
-              actionLabel={filter === 'ALL' || filter === 'WAITING' ? '+ Add Expected Order' : undefined}
-              onAction={() => setIsAddOrderOpen(true)}
+              actionLabel={search || filter !== 'ALL' ? 'Reset Search Filters' : '+ Add Expected Order'}
+              onAction={() => {
+                if (search || filter !== 'ALL') {
+                  setSearch('');
+                  setFilter('ALL');
+                } else {
+                  setIsAddOrderOpen(true);
+                }
+              }}
             />
           ) : (
             filtered.map((parcel) => (

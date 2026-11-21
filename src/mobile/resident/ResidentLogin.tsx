@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Mail, Phone, Lock, ArrowRight, Building, Sparkles, User, KeyRound } from 'lucide-react';
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { SOCIETIES, useMobileStore } from '../services/mobileState';
-import { signInWithEmail, signUpWithEmail, signInWithGoogle } from '../../services/authService';
+import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPasswordForEmail, normalizeRole } from '../../services/authService';
 import { supabase } from '../../services/supabaseClient';
 
 interface ResidentLoginProps {
@@ -12,7 +12,7 @@ interface ResidentLoginProps {
 
 export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, onBack }) => {
   const { selectedSociety, setSociety, login } = useMobileStore();
-  const [mode, setMode] = useState<'LOGIN' | 'SIGNUP'>('LOGIN');
+  const [mode, setMode] = useState<'LOGIN' | 'SIGNUP' | 'FORGOT'>('LOGIN');
   const [tab, setTab] = useState<'email' | 'phone' | 'google'>('email');
 
   const [fullName, setFullName] = useState('');
@@ -23,12 +23,14 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (loading) return;
     setLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
 
     const cleanEmail = email.trim().toLowerCase();
 
@@ -51,7 +53,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         }
         if (!password || password.length < 6) {
           setLoading(false);
-          setErrorMessage('Password must be at least 6 characters.');
+          setErrorMessage('Password must be at least 6 characters long.');
           return;
         }
 
@@ -64,7 +66,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
 
         if (!res.session && res.user) {
           setLoading(false);
-          setErrorMessage('Account created! Please check your email to confirm, or switch to the Google tab for instant 1-tap sign in.');
+          setSuccessMessage(res.message || 'Account created! Please check your email to confirm your account before signing in.');
           setMode('LOGIN');
           return;
         }
@@ -97,17 +99,12 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         const res = await signInWithEmail(cleanEmail, password);
         if (res.error) {
           setLoading(false);
-          if (res.error.toLowerCase().includes('not confirmed')) {
-            setErrorMessage('Email not confirmed. Please check your verification email, or use the Google tab for instant login.');
-          } else {
-            setErrorMessage(res.error);
-          }
+          setErrorMessage(res.error);
           return;
         }
 
         const profile = res.profile;
-        const isVinay = cleanEmail === 'vinaykumard45678@gmail.com';
-        const role = isVinay ? 'SUPER_ADMIN' : profile?.role || 'RESIDENT';
+        const role = profile?.role ? normalizeRole(profile.role) : 'RESIDENT';
 
         login({
           id: res.user?.id || profile?.id || 'res-' + Date.now(),
@@ -128,12 +125,40 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
     }
   };
 
+  const handleForgotPassword = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return;
+    setLoading(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      setLoading(false);
+      setErrorMessage('Please enter your registered email address.');
+      return;
+    }
+
+    try {
+      const res = await resetPasswordForEmail(cleanEmail);
+      setLoading(false);
+      if (!res.success) {
+        setErrorMessage(res.error || 'Failed to send password reset email.');
+      } else {
+        setSuccessMessage(res.message || 'Password reset link sent! Please check your email inbox.');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMessage(err?.message || 'Failed to send password reset email.');
+    }
+  };
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
       const res = await signInWithGoogle();
-      if (res.error) {
+      if (!res.success && res.error) {
         setErrorMessage(res.error);
         setLoading(false);
       }
@@ -164,12 +189,14 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         {/* Greeting Banner */}
         <div className="mb-5">
           <h1 className="text-2xl font-black text-[#060D1E] tracking-tight">
-            {mode === 'LOGIN' ? 'Welcome to ParcelFlow 👋' : 'Create Resident Account'}
+            {mode === 'LOGIN' ? 'Welcome to ParcelFlow 👋' : mode === 'SIGNUP' ? 'Create Resident Account' : 'Reset Password'}
           </h1>
           <p className="text-xs font-semibold text-slate-600 mt-1">
             {mode === 'LOGIN'
               ? 'Your parcels. Your time. Your control.'
-              : 'Connect your apartment and manage incoming deliveries securely.'}
+              : mode === 'SIGNUP'
+              ? 'Connect your apartment and manage incoming deliveries securely.'
+              : 'Enter your registered email address to receive password reset instructions.'}
           </p>
 
           {errorMessage && (
@@ -179,6 +206,19 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
                 type="button"
                 onClick={() => setErrorMessage(null)}
                 className="text-[10px] font-black underline hover:text-rose-900 ml-2"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mt-3 p-3 bg-emerald-50 border-2 border-emerald-500 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-bold">
+              <span>{successMessage}</span>
+              <button
+                type="button"
+                onClick={() => setSuccessMessage(null)}
+                className="text-[10px] font-black underline hover:text-emerald-950 ml-2"
               >
                 Dismiss
               </button>
@@ -207,36 +247,76 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           </select>
         </div>
 
-        {/* Auth Method Tabs */}
-        <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-200/80 rounded-2xl border border-slate-300 mb-4 text-xs font-black">
-          <button
-            type="button"
-            onClick={() => setTab('email')}
-            className={`py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'email'
-                ? 'bg-white text-[#060D1E] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]'
-                : 'text-slate-600 hover:text-black'
-            }`}
-          >
-            <Mail className="w-3.5 h-3.5" />
-            <span>Email</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('google')}
-            className={`py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-              tab === 'google'
-                ? 'bg-white text-[#060D1E] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]'
-                : 'text-slate-600 hover:text-black'
-            }`}
-          >
-            <span className="font-extrabold text-[#1E60F2]">G</span>
-            <span>Google</span>
-          </button>
-        </div>
+        {mode !== 'FORGOT' && (
+          /* Auth Method Tabs */
+          <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-200/80 rounded-2xl border border-slate-300 mb-4 text-xs font-black">
+            <button
+              type="button"
+              onClick={() => setTab('email')}
+              className={`py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                tab === 'email'
+                  ? 'bg-white text-[#060D1E] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]'
+                  : 'text-slate-600 hover:text-black'
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>Email</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab('google')}
+              className={`py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                tab === 'google'
+                  ? 'bg-white text-[#060D1E] border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E]'
+                  : 'text-slate-600 hover:text-black'
+              }`}
+            >
+              <span className="font-extrabold text-[#1E60F2]">G</span>
+              <span>Google</span>
+            </button>
+          </div>
+        )}
+
+        {/* FORGOT PASSWORD FORM */}
+        {mode === 'FORGOT' && (
+          <form onSubmit={handleForgotPassword} className="space-y-3">
+            <div>
+              <label className="text-[11px] font-bold text-slate-700 block mb-1">Registered Email Address</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full bg-white text-xs font-bold text-[#060D1E] py-2.5 px-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-3 py-3 px-4 bg-[#1E60F2] hover:bg-blue-600 text-white font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 active:scale-[0.98] transition-all"
+            >
+              <span>{loading ? 'Sending Link...' : 'Send Password Reset Link'}</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode('LOGIN');
+                setErrorMessage(null);
+                setSuccessMessage(null);
+              }}
+              className="w-full py-2 text-xs font-black text-slate-600 hover:text-black transition-colors"
+            >
+              ← Back to Sign In
+            </button>
+          </form>
+        )}
 
         {/* Form Inputs */}
-        {tab === 'email' && (
+        {mode !== 'FORGOT' && tab === 'email' && (
           <form onSubmit={handleSubmit} className="space-y-3">
             {mode === 'SIGNUP' && (
               <>
@@ -291,7 +371,22 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
             </div>
 
             <div>
-              <label className="text-[11px] font-bold text-slate-700 block mb-1">Password</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold text-slate-700">Password</label>
+                {mode === 'LOGIN' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('FORGOT');
+                      setErrorMessage(null);
+                      setSuccessMessage(null);
+                    }}
+                    className="text-[10px] font-black text-[#1E60F2] hover:underline"
+                  >
+                    Forgot Password?
+                  </button>
+                )}
+              </div>
               <input
                 type="password"
                 required
@@ -313,7 +408,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           </form>
         )}
 
-        {tab === 'google' && (
+        {mode !== 'FORGOT' && tab === 'google' && (
           <div className="space-y-3 pt-2">
             <button
               type="button"
@@ -333,21 +428,24 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         )}
 
         {/* Switch mode */}
-        <div className="mt-5 text-center">
-          <p className="text-xs text-slate-600 font-semibold">
-            {mode === 'LOGIN' ? "Don't have an account? " : 'Already have an account? '}
-            <button
-              type="button"
-              onClick={() => {
-                setMode(mode === 'LOGIN' ? 'SIGNUP' : 'LOGIN');
-                setErrorMessage(null);
-              }}
-              className="text-[#1E60F2] font-black hover:underline"
-            >
-              {mode === 'LOGIN' ? 'Create Account' : 'Log In'}
-            </button>
-          </p>
-        </div>
+        {mode !== 'FORGOT' && (
+          <div className="mt-5 text-center">
+            <p className="text-xs text-slate-600 font-semibold">
+              {mode === 'LOGIN' ? "Don't have an account? " : 'Already have an account? '}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode(mode === 'LOGIN' ? 'SIGNUP' : 'LOGIN');
+                  setErrorMessage(null);
+                  setSuccessMessage(null);
+                }}
+                className="text-[#1E60F2] font-black hover:underline"
+              >
+                {mode === 'LOGIN' ? 'Create Account' : 'Log In'}
+              </button>
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -103,11 +103,30 @@ export async function signUpWithEmail(
     });
 
     if (error) {
+      console.error('[authService.signUpWithEmail] Error:', error);
+      const msg = error.message?.toLowerCase() || '';
+      if (msg.includes('user already registered') || msg.includes('already registered')) {
+        return { user: null, session: null, profile: null, isAdmin: false, error: 'This email is already registered. Please sign in instead.' };
+      }
+      if (msg.includes('rate limit')) {
+        return { user: null, session: null, profile: null, isAdmin: false, error: 'Email rate limit exceeded. Please wait a few minutes before trying again.' };
+      }
       return { user: null, session: null, profile: null, isAdmin: false, error: error.message };
     }
 
     if (!data.user) {
       return { user: null, session: null, profile: null, isAdmin: false, error: 'Sign up failed to create user.' };
+    }
+
+    // If session is null, Supabase requires email verification (mailer_autoconfirm is false)
+    if (!data.session) {
+      return {
+        user: data.user,
+        session: null,
+        profile: null,
+        isAdmin: false,
+        message: 'Account created! Please check your email to confirm your account before signing in.',
+      };
     }
 
     // Retrieve verified permanent profile created by database trigger
@@ -121,6 +140,7 @@ export async function signUpWithEmail(
       isAdmin,
     };
   } catch (err: any) {
+    console.error('[authService.signUpWithEmail] Caught exception:', err);
     return { user: null, session: null, profile: null, isAdmin: false, error: err?.message || 'Authentication error' };
   }
 }
@@ -135,6 +155,10 @@ export async function signInWithEmail(email: string, password: string): Promise<
       return { user: null, session: null, profile: null, isAdmin: false, error: 'Email address is required.' };
     }
     const cleanEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return { user: null, session: null, profile: null, isAdmin: false, error: 'Please enter a valid email address.' };
+    }
     if (!password || !password.trim()) {
       return { user: null, session: null, profile: null, isAdmin: false, error: 'Password is required.' };
     }
@@ -145,6 +169,26 @@ export async function signInWithEmail(email: string, password: string): Promise<
     });
 
     if (error) {
+      console.error('[authService.signInWithEmail] Technical error:', error);
+      const msg = error.message?.toLowerCase() || '';
+      if (msg.includes('email not confirmed')) {
+        return {
+          user: null,
+          session: null,
+          profile: null,
+          isAdmin: false,
+          error: 'Your email address has not been confirmed yet. Please verify your email inbox.',
+        };
+      }
+      if (msg.includes('invalid login credentials') || msg.includes('invalid credentials')) {
+        return {
+          user: null,
+          session: null,
+          profile: null,
+          isAdmin: false,
+          error: 'Email or password is incorrect.',
+        };
+      }
       return { user: null, session: null, profile: null, isAdmin: false, error: error.message };
     }
 
@@ -162,6 +206,7 @@ export async function signInWithEmail(email: string, password: string): Promise<
       isAdmin,
     };
   } catch (err: any) {
+    console.error('[authService.signInWithEmail] Caught exception:', err);
     return { user: null, session: null, profile: null, isAdmin: false, error: err?.message || 'Sign in error' };
   }
 }
@@ -193,17 +238,97 @@ export async function signInWithGoogle(redirectTo?: string) {
     });
 
     if (error) {
+      console.error('[authService.signInWithGoogle] Technical OAuth error:', error);
+      const msg = error.message?.toLowerCase() || '';
+      if (msg.includes('unsupported provider') || msg.includes('provider is not enabled')) {
+        return {
+          success: false,
+          error:
+            'Google sign-in is not yet enabled in the Supabase Dashboard. Please enable the Google provider under Authentication -> Providers, or use email and password to log in.',
+        };
+      }
       return { success: false, error: error.message };
     }
 
-    // Immediately navigate browser to Google OAuth authorization endpoint
-    if (data?.url && typeof window !== 'undefined') {
-      window.location.href = data.url;
+    // Verify whether the provider is enabled in Supabase before navigating away
+    if (data?.url) {
+      try {
+        const probe = await fetch(data.url, { method: 'GET', redirect: 'manual' });
+        if (probe.status >= 400) {
+          const bodyText = await probe.text();
+          console.error('[authService.signInWithGoogle] Provider pre-check response:', probe.status, bodyText);
+          if (bodyText.includes('Unsupported provider') || bodyText.includes('provider is not enabled')) {
+            return {
+              success: false,
+              error:
+                'Google sign-in is not yet enabled in the Supabase Dashboard. Please enable the Google provider under Authentication -> Providers, or use email and password to log in.',
+            };
+          }
+          return {
+            success: false,
+            error: `Google sign-in is currently unavailable (${probe.status}). Please log in with email and password.`,
+          };
+        }
+      } catch (probeErr) {
+        console.warn('[authService.signInWithGoogle] Provider pre-flight note:', probeErr);
+      }
+
+      // Immediately navigate browser to Google OAuth authorization endpoint
+      if (typeof window !== 'undefined') {
+        window.location.href = data.url;
+      }
     }
 
     return { success: true, data };
   } catch (err: any) {
+    console.error('[authService.signInWithGoogle] Caught exception:', err);
     return { success: false, error: err?.message || 'Google OAuth failed' };
+  }
+}
+
+/**
+ * Send password reset email to user
+ */
+export async function resetPasswordForEmail(
+  email: string,
+  redirectTo?: string
+): Promise<{ success: boolean; error?: string; message?: string }> {
+  try {
+    if (!email || !email.trim()) {
+      return { success: false, error: 'Email address is required.' };
+    }
+    const cleanEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return { success: false, error: 'Please enter a valid email address.' };
+    }
+
+    let targetRedirect = redirectTo;
+    if (!targetRedirect && typeof window !== 'undefined') {
+      const isFileProtocol = window.location.protocol === 'file:';
+      if (isFileProtocol) {
+        targetRedirect = 'https://parcelflow-blush.vercel.app/app';
+      } else {
+        targetRedirect = `${window.location.origin}/app`;
+      }
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+      redirectTo: targetRedirect,
+    });
+
+    if (error) {
+      console.error('[authService.resetPasswordForEmail] Technical error:', error);
+      return { success: false, error: error.message };
+    }
+
+    return {
+      success: true,
+      message: 'Password reset link sent! Please check your email inbox to reset your password.',
+    };
+  } catch (err: any) {
+    console.error('[authService.resetPasswordForEmail] Caught exception:', err);
+    return { success: false, error: err?.message || 'Failed to send password reset email.' };
   }
 }
 
@@ -305,70 +430,51 @@ export async function fetchVerifiedProfile(userId: string): Promise<Profile | nu
       .eq('id', userId)
       .maybeSingle();
 
-    if (error || !data) {
-      // Invariant: Fixed Admin account check
-      if (userId === FIXED_ADMIN_UID) {
-        return {
-          id: FIXED_ADMIN_UID,
-          full_name: 'Vinay Kumar (System Administrator)',
-          email: FIXED_ADMIN_EMAIL,
-          phone: '+91 99999 88888',
-          role: 'SUPER_ADMIN',
-          society_id: null,
-          created_at: new Date().toISOString(),
-        };
-      }
-
-      // Check if user is authenticated in Supabase auth and auto-provision profile
-      try {
-        const { data: authUserData } = await supabase.auth.getUser();
-        if (authUserData?.user && authUserData.user.id === userId) {
-          const u = authUserData.user;
-          const isFixedAdmin =
-            u.id === FIXED_ADMIN_UID || u.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
-          const newProfile: Profile = {
-            id: u.id,
-            full_name:
-              u.user_metadata?.full_name ||
-              u.user_metadata?.name ||
-              u.email?.split('@')[0] ||
-              'Resident',
-            email: u.email || null,
-            phone: u.phone || null,
-            role: isFixedAdmin ? 'SUPER_ADMIN' : 'RESIDENT',
-            society_id: u.user_metadata?.society_id || null,
-            created_at: new Date().toISOString(),
-          };
-
-          await supabase.from('profiles').upsert(newProfile, { onConflict: 'id' });
-          return newProfile;
-        }
-      } catch {
-        // ignore
-      }
-
-      return null;
+    if (error) {
+      console.warn('[authService.fetchVerifiedProfile] Error fetching profile:', error);
     }
 
-    const role = normalizeRole(data.role);
+    if (data) {
+      return {
+        id: data.id,
+        full_name: data.full_name,
+        email: data.email,
+        phone: data.phone,
+        role: normalizeRole(data.role),
+        society_id: data.society_id,
+        avatar_url: data.avatar_url,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+      };
+    }
 
-    // If user is the designated admin, enforce SUPER_ADMIN
-    const finalRole: ProfileRole =
-      userId === FIXED_ADMIN_UID || data.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL
-        ? 'SUPER_ADMIN'
-        : role;
+    // Check if user is authenticated in Supabase auth and auto-provision profile
+    try {
+      const { data: authUserData } = await supabase.auth.getUser();
+      if (authUserData?.user && authUserData.user.id === userId) {
+        const u = authUserData.user;
+        const newProfile: Profile = {
+          id: u.id,
+          full_name:
+            u.user_metadata?.full_name ||
+            u.user_metadata?.name ||
+            u.email?.split('@')[0] ||
+            'Resident',
+          email: u.email || null,
+          phone: u.phone || null,
+          role: normalizeRole(u.user_metadata?.role || 'RESIDENT'),
+          society_id: u.user_metadata?.society_id || null,
+          created_at: new Date().toISOString(),
+        };
 
-    return {
-      id: data.id,
-      full_name: data.full_name,
-      email: data.email,
-      phone: data.phone,
-      role: finalRole,
-      society_id: data.society_id,
-      avatar_url: data.avatar_url,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
-    };
+        await supabase.from('profiles').upsert(newProfile, { onConflict: 'id' });
+        return newProfile;
+      }
+    } catch {
+      // ignore
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -393,14 +499,12 @@ export async function getCurrentUserProfile(): Promise<AuthSessionResponse> {
 
     // If profile row not yet created in public.profiles, provide unverified default RESIDENT profile
     if (!profile) {
-      const isFixedAdmin =
-        user.id === FIXED_ADMIN_UID || user.email?.toLowerCase().trim() === FIXED_ADMIN_EMAIL;
       profile = {
         id: user.id,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Resident',
         email: user.email || null,
         phone: user.phone || null,
-        role: isFixedAdmin ? 'SUPER_ADMIN' : 'RESIDENT',
+        role: normalizeRole(user.user_metadata?.role || 'RESIDENT'),
         society_id: user.user_metadata?.society_id || null,
         created_at: new Date().toISOString(),
       };
@@ -424,7 +528,6 @@ export async function getCurrentUserProfile(): Promise<AuthSessionResponse> {
  */
 export async function verifySuperAdminStatus(userId: string): Promise<boolean> {
   if (!userId) return false;
-  if (userId === FIXED_ADMIN_UID) return true;
   try {
     const profile = await fetchVerifiedProfile(userId);
     return isSuperAdminRole(profile?.role);
@@ -438,7 +541,6 @@ export async function verifySuperAdminStatus(userId: string): Promise<boolean> {
  */
 export async function verifyAdminStatus(userId: string): Promise<boolean> {
   if (!userId) return false;
-  if (userId === FIXED_ADMIN_UID) return true;
   try {
     const profile = await fetchVerifiedProfile(userId);
     return isSuperAdminRole(profile?.role) || isSocietyAdminRole(profile?.role);
@@ -474,6 +576,7 @@ export const authService = {
   signInWithGoogle,
   signInWithPhoneOtp,
   verifyPhoneOtp,
+  resetPasswordForEmail,
   signOut,
   purgeAuthState,
   fetchVerifiedProfile,

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Crown, Mail, Lock, ArrowRight, Building, Sparkles, UserCheck, ShieldAlert } from 'lucide-react';
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { SOCIETIES, useMobileStore } from '../services/mobileState';
-import { authService, FIXED_ADMIN_EMAIL, FIXED_ADMIN_UID } from '../../services/authService';
+import { authService, resetPasswordForEmail, normalizeRole } from '../../services/authService';
+import { isSuperAdminRole, isSocietyAdminRole } from '../../services/types';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -10,23 +11,53 @@ interface AdminLoginProps {
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
   const { selectedSociety, setSociety, login } = useMobileStore();
-  const [email, setEmail] = useState('vinaykumard45678@gmail.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
 
   const handleGoogleLogin = async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
       const res = await authService.signInWithGoogle();
-      if (res.error) {
+      if (!res.success && res.error) {
         setErrorMessage(res.error);
         setLoading(false);
       }
     } catch (err: any) {
       setErrorMessage(err?.message || 'Google authentication failed.');
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (loading) return;
+    setLoading(true);
+    setErrorMessage(null);
+    setForgotSuccess(null);
+
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail) {
+      setLoading(false);
+      setErrorMessage('Please enter your admin email address.');
+      return;
+    }
+
+    try {
+      const res = await resetPasswordForEmail(cleanEmail);
+      setLoading(false);
+      if (!res.success) {
+        setErrorMessage(res.error || 'Failed to send password reset email.');
+      } else {
+        setForgotSuccess(res.message || 'Password reset link sent! Please check your email inbox.');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      setErrorMessage(err?.message || 'Failed to send password reset email.');
     }
   };
 
@@ -37,14 +68,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     setErrorMessage(null);
 
     const cleanEmail = email.trim().toLowerCase();
-    const isAuthorizedAdmin = cleanEmail === FIXED_ADMIN_EMAIL;
-
-    // Strict email check: Only the designated admin email is allowed
-    if (!isAuthorizedAdmin) {
+    if (!cleanEmail) {
       setLoading(false);
-      setErrorMessage(
-        `Access Denied: Only authorized administrator accounts (${FIXED_ADMIN_EMAIL}) are permitted. You do not have administrator privileges.`
-      );
+      setErrorMessage('Please enter your administrator email address.');
       return;
     }
 
@@ -55,51 +81,43 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
     }
 
     try {
-      // 1. Attempt live Supabase authentication
+      // Live Supabase authentication
       const { user, profile, error } = await authService.signInWithEmail(cleanEmail, password);
-      if (!error && user) {
-        const isSuperAdmin = user.id === FIXED_ADMIN_UID || profile?.role === 'SUPER_ADMIN';
-        const isSocietyAdmin = profile?.role === 'SOCIETY_ADMIN';
-        if (!isSuperAdmin && !isSocietyAdmin) {
-          setLoading(false);
-          setErrorMessage('Access Denied: Your authenticated account does not have administrator privileges in the database.');
-          return;
-        }
-
-        login({
-          id: user.id,
-          email: user.email || cleanEmail,
-          name: profile?.full_name || 'Vinay Kumar',
-          role: isSuperAdmin ? 'SUPER_ADMIN' : 'SOCIETY_ADMIN',
-          societyId: selectedSociety.id,
-        });
-
-        setTimeout(() => {
-          setLoading(false);
-          onLoginSuccess();
-        }, 300);
+      if (error) {
+        setLoading(false);
+        setErrorMessage(error);
         return;
       }
 
-      // 2. If password matches admin credential
-      if (password === '6Tha3see@123' || password === '6tha3see@123') {
-        login({
-          id: FIXED_ADMIN_UID,
-          email: FIXED_ADMIN_EMAIL,
-          name: 'Vinay Kumar (System Administrator)',
-          role: 'SUPER_ADMIN',
-          societyId: selectedSociety.id,
-        });
-
-        setTimeout(() => {
-          setLoading(false);
-          onLoginSuccess();
-        }, 300);
+      if (!user) {
+        setLoading(false);
+        setErrorMessage('Sign in failed. Please try again.');
         return;
       }
 
-      setLoading(false);
-      setErrorMessage(error || 'Invalid administrator password.');
+      // Check verified role from public.profiles
+      const role = profile?.role ? normalizeRole(profile.role) : 'RESIDENT';
+      const isSuperAdmin = isSuperAdminRole(role);
+      const isSocietyAdmin = isSocietyAdminRole(role);
+
+      if (!isSuperAdmin && !isSocietyAdmin) {
+        setLoading(false);
+        setErrorMessage('Access Denied: Your authenticated account does not have administrator privileges in the database.');
+        return;
+      }
+
+      login({
+        id: user.id,
+        email: user.email || cleanEmail,
+        name: profile?.full_name || 'Admin',
+        role: isSuperAdmin ? 'SUPER_ADMIN' : 'SOCIETY_ADMIN',
+        societyId: profile?.society_id || selectedSociety.id,
+      });
+
+      setTimeout(() => {
+        setLoading(false);
+        onLoginSuccess();
+      }, 300);
     } catch (err: any) {
       setLoading(false);
       setErrorMessage(err?.message || 'Admin authentication failed.');
@@ -130,10 +148,12 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
               <Crown className="w-8 h-8 stroke-[2.5]" />
             </div>
             <h1 className="text-2xl font-black text-[#060D1E] tracking-tight">
-              Society Admin Login
+              {isForgotPassword ? 'Reset Admin Password' : 'Society Admin Login'}
             </h1>
             <p className="text-xs font-bold text-slate-600 mt-1">
-              Management portal for society committee members & administrators.
+              {isForgotPassword
+                ? 'Enter your administrator email to receive a password reset link.'
+                : 'Management portal for society committee members & administrators.'}
             </p>
           </div>
 
@@ -171,60 +191,126 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess }) => {
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-3.5">
-            <div>
-              <label className="text-[11px] font-bold text-slate-700 block mb-1">
-                Admin Email ID
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="vinaykumard45678@gmail.com"
-                className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 px-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
-              />
+          {forgotSuccess && (
+            <div className="mb-4 p-3 bg-emerald-50 border-2 border-emerald-500 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-bold">
+              <span>{forgotSuccess}</span>
+              <button
+                type="button"
+                onClick={() => setForgotSuccess(null)}
+                className="text-[10px] font-black underline hover:text-emerald-950 ml-2"
+              >
+                Dismiss
+              </button>
             </div>
+          )}
 
-            <div>
-              <label className="text-[11px] font-bold text-slate-700 block mb-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 px-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full mt-2 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 disabled:opacity-50 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <span>{loading ? 'Verifying Admin...' : 'Sign In with Password'}</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-            </button>
-
-            <div className="relative my-3 flex items-center justify-center">
-              <div className="border-t border-slate-300 w-full" />
-              <span className="bg-[#FEF9F3] px-2 text-[10px] font-black uppercase text-slate-500 tracking-wider">
-                or
-              </span>
-            </div>
-
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handleGoogleLogin}
-              className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] cursor-pointer"
-            >
-              <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center font-black text-[#1E60F2]">
-                G
+          {/* FORGOT PASSWORD FORM */}
+          {isForgotPassword ? (
+            <form onSubmit={handleForgotPassword} className="space-y-3.5">
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Admin Email ID
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@society.com"
+                  className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 px-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
+                />
               </div>
-              <span>Sign In with Google (Admin)</span>
-            </button>
-          </form>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-2 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 disabled:opacity-50 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <span>{loading ? 'Sending Link...' : 'Send Password Reset Link'}</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIsForgotPassword(false);
+                  setErrorMessage(null);
+                  setForgotSuccess(null);
+                }}
+                className="w-full py-2 text-xs font-black text-slate-600 hover:text-black transition-colors"
+              >
+                ← Back to Admin Login
+              </button>
+            </form>
+          ) : (
+            /* LOGIN FORM */
+            <form onSubmit={handleLogin} className="space-y-3.5">
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Admin Email ID
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@society.com"
+                  className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 px-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-bold text-slate-700">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setErrorMessage(null);
+                      setForgotSuccess(null);
+                    }}
+                    className="text-[10px] font-black text-amber-900 hover:underline"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter password"
+                  className="w-full bg-white text-xs font-bold text-[#060D1E] py-3 px-3.5 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-2 py-3.5 px-4 bg-amber-400 hover:bg-amber-500 active:scale-95 disabled:opacity-50 text-[#060D1E] font-black text-sm rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <span>{loading ? 'Verifying Admin...' : 'Sign In with Password'}</span>
+                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              </button>
+
+              <div className="relative my-3 flex items-center justify-center">
+                <div className="border-t border-slate-300 w-full" />
+                <span className="bg-[#FEF9F3] px-2 text-[10px] font-black uppercase text-slate-500 tracking-wider">
+                  or
+                </span>
+              </div>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleGoogleLogin}
+                className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[2.5px_2.5px_0px_#060D1E] flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center font-black text-[#1E60F2]">
+                  G
+                </div>
+                <span>Sign In with Google (Admin)</span>
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

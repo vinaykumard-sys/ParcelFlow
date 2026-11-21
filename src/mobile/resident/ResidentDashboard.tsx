@@ -177,7 +177,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
             <div className="space-y-3">
               <EmptyState
                 icon="package"
-                title="No parcels waiting at hub"
+                title="No incoming parcels awaiting pickup"
                 description="When Amazon, Flipkart, or any courier drops off a package at your society gate, it will be checked in and appear here immediately."
                 actionLabel="+ Add Expected Order"
                 onAction={() => setIsAddOrderOpen(true)}
