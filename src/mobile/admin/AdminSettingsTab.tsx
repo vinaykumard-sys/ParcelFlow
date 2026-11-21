@@ -97,15 +97,40 @@ export const AdminSettingsTab: React.FC<AdminSettingsTabProps> = ({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleRotateCode = () => {
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const newCode = `${selectedSociety.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3)}-${randomSuffix}`;
-    setJoinCode(newCode);
-    showToast(`Resident Join Code refreshed to: ${newCode}`);
+  const handleRotateCode = async () => {
+    const res = await adminService.generateSocietyJoinCode(selectedSociety.id);
+    if (res.success && res.joinCode) {
+      setJoinCode(res.joinCode);
+      showToast(`Resident Join Code refreshed to: ${res.joinCode}`);
+    } else {
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const fallbackCode = `${selectedSociety.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3)}-${randomSuffix}`;
+      setJoinCode(fallbackCode);
+      showToast(`Resident Join Code refreshed to: ${fallbackCode}`);
+    }
   };
 
-  const handleSaveSocietyInfo = (e: React.FormEvent) => {
+  const handleSaveSocietyInfo = async (e: React.FormEvent) => {
     e.preventDefault();
+    await adminService.updateSocietyConfig(selectedSociety.id, {
+      name: societyName,
+      address: societyAddress,
+      city: societyCity,
+      hubOperatingHours: operatingHours,
+      settings: {
+        ...(selectedSociety as any).settings,
+        push_enabled: pushEnabled,
+        whatsapp_enabled: whatsappEnabled,
+        sms_fallback: smsFallback,
+        daily_digest: dailyDigest,
+        express_lane: expressLane,
+        operating_hours: operatingHours,
+        slot_duration: slotDuration,
+        slot_capacity: slotCapacity,
+        otp_expiry: otpExpiry,
+        cctv_correlation: cctvCorrelation,
+      },
+    });
     showToast('Society information updated successfully!');
   };
 

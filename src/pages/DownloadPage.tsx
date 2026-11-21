@@ -34,8 +34,32 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const [iosEmail, setIosEmail] = useState('');
   const [iosSubmitted, setIosSubmitted] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
+  const [versionInfo, setVersionInfo] = useState({
+    versionName: '1.2.0',
+    versionCode: 5,
+    apkSize: '9.5 MB',
+    releaseDate: 'November 21, 2026',
+    sha256: 'ccb6997a292ebd1fd1d2defe7f57b7f6689a17b3166e3db6d66acd36850c4f79',
+  });
 
-  const sha256Checksum = "9d7069714dddac3177c8e3b504c45fc9d17bb1ac9809c99303a7a7b53283829a";
+  React.useEffect(() => {
+    fetch('/api/app-update/android.json')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.sha256) {
+          setVersionInfo({
+            versionName: data.latestVersionName || '1.2.0',
+            versionCode: data.latestVersionCode || 5,
+            apkSize: data.apkSizeBytes ? `${(data.apkSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '9.5 MB',
+            releaseDate: data.releaseDate || 'November 21, 2026',
+            sha256: data.sha256,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const sha256Checksum = versionInfo.sha256;
 
   const handleCopyHash = () => {
     navigator.clipboard.writeText(sha256Checksum);
@@ -118,9 +142,9 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
                   <h3 className="text-2xl font-black text-[#0A1128]">One Unified Android APK</h3>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className="text-xs font-mono font-black text-[#0A1128] bg-amber-300 px-2 py-0.5 rounded-lg border-[1.5px] border-[#0A1128] shadow-[1px_1px_0px_#0A1128]">
-                      Version 0.1.0
+                      Version {versionInfo.versionName}
                     </span>
-                    <span className="text-xs font-bold text-slate-500">Updated: November 16, 2026</span>
+                    <span className="text-xs font-bold text-slate-500">Updated: {versionInfo.releaseDate}</span>
                   </div>
                 </div>
               </div>
@@ -138,7 +162,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
               <div className="p-3 rounded-xl bg-amber-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">APK Size</div>
-                <div className="text-sm font-black text-[#0A1128] mt-0.5">2.0 MB</div>
+                <div className="text-sm font-black text-[#0A1128] mt-0.5">{versionInfo.apkSize}</div>
               </div>
               <div className="p-3 rounded-xl bg-emerald-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">Architecture</div>
@@ -146,7 +170,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
               </div>
               <div className="p-3 rounded-xl bg-purple-50 border-[2px] border-[#0A1128] shadow-[2px_2px_0px_#0A1128]">
                 <div className="text-[11px] font-bold text-slate-500 uppercase">Release Date</div>
-                <div className="text-sm font-black text-[#0A1128] mt-0.5">Nov 16, 2026</div>
+                <div className="text-sm font-black text-[#0A1128] mt-0.5">{versionInfo.releaseDate}</div>
               </div>
             </div>
 
@@ -209,7 +233,7 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
                 className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-base border-[2.5px] border-[#0A1128] shadow-[4px_4px_0px_#0A1128] hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer"
               >
                 <Download className="w-5 h-5 stroke-[2.5]" />
-                <span>{downloadStarted ? 'Downloading ParcelFlow.apk...' : 'Download APK (Version 0.1.0)'}</span>
+                <span>{downloadStarted ? 'Downloading ParcelFlow.apk...' : `Download APK (Version ${versionInfo.versionName})`}</span>
               </button>
 
               {onOpenPilotModal && (

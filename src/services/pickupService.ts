@@ -8,6 +8,7 @@ import { supabase } from './supabaseClient.ts';
 import type { PickupSlot, PickupBooking } from './types.ts';
 import { updateParcelStatus } from './parcelService.ts';
 import { logAuditEvent } from './auditService.ts';
+import { broadcastParcelEvent } from './realtimeService.ts';
 
 export interface PickupWindowDefinition {
   startTime: string; // '17:00'
@@ -206,6 +207,21 @@ export async function bookPickupSlot(params: {
     const now = new Date().toISOString();
     const effectiveSocietyId = societyId || slot?.society_id || 'a1111111-1111-1111-1111-111111111111';
 
+    // Resolve resident and user IDs to satisfy foreign keys
+    let effectiveResidentId = residentId;
+    let effectiveUserId = residentId;
+
+    const { data: resRecord } = await supabase
+      .from('residents')
+      .select('id, user_id')
+      .or(`id.eq.${residentId},user_id.eq.${residentId}`)
+      .maybeSingle();
+
+    if (resRecord) {
+      effectiveResidentId = resRecord.id;
+      effectiveUserId = resRecord.user_id;
+    }
+
     const { data: booking, error: bookingError } = await supabase
       .from('pickup_bookings')
       .insert([
@@ -213,7 +229,7 @@ export async function bookPickupSlot(params: {
           society_id: effectiveSocietyId,
           parcel_id: parcelId,
           pickup_slot_id: slotId,
-          resident_id: residentId,
+          resident_id: effectiveResidentId,
           booking_status: 'CONFIRMED',
           scheduled_time_window: timeWindow,
           notes: notes || null,
@@ -255,7 +271,7 @@ export async function bookPickupSlot(params: {
     try {
       await supabase.from('notifications').insert([
         {
-          user_id: residentId,
+          user_id: effectiveUserId,
           society_id: effectiveSocietyId,
           parcel_id: parcelId,
           type: 'SLOT_SCHEDULED',
@@ -280,6 +296,17 @@ export async function bookPickupSlot(params: {
       entityId: booking?.id || parcelId,
       payload: { parcel_id: parcelId, slot_id: slotId, time_window: timeWindow },
     });
+
+    // Realtime broadcast to security hub & resident devices (Feature 19 & 53)
+    broadcastParcelEvent(effectiveSocietyId, 'SLOT_SCHEDULED', {
+      parcelId,
+      trackingNumber: `PARCEL-${parcelId.slice(0, 8)}`,
+      carrier: 'Courier',
+      status: 'SCHEDULED',
+      societyId: effectiveSocietyId,
+      slotWindow: timeWindow,
+      timestamp: now,
+    }).catch(() => {});
 
     return {
       success: true,

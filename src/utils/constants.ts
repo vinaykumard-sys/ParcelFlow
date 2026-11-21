@@ -10,6 +10,7 @@ export const BRAND = {
 export const NAV_LINKS = [
   { name: 'How It Works', href: '/how-it-works' },
   { name: 'Features', href: '/features' },
+  { name: 'Pricing', href: '/pricing' },
   { name: 'For Residents', href: '/#residents' },
   { name: 'For Societies', href: '/#societies' },
   { name: 'Download App', href: '/download' },

@@ -549,17 +549,30 @@ export async function addStaffMember(
 }
 
 /**
- * Toggle staff active status
+ * Toggle staff active status (and synchronize linked user status)
  */
 export async function toggleStaffStatus(
   staffId: string,
   isActive: boolean
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const { data: staffMember } = await supabase
+      .from('staff')
+      .select('user_id')
+      .eq('id', staffId)
+      .maybeSingle();
+
     await supabase
       .from('staff')
       .update({ is_active: isActive, updated_at: new Date().toISOString() })
       .eq('id', staffId);
+
+    if (staffMember?.user_id) {
+      await supabase
+        .from('users')
+        .update({ is_active: isActive, updated_at: new Date().toISOString() })
+        .eq('id', staffMember.user_id);
+    }
 
     return { success: true };
   } catch (err: any) {
@@ -701,6 +714,170 @@ export async function syncFromSupabase(societyId?: string) {
   }
 }
 
+/**
+ * Fetch complete society configuration and operational settings
+ */
+export async function getSocietyConfig(
+  societyId: string
+): Promise<{ success: boolean; society?: Society; error?: string }> {
+  try {
+    const { data, error } = await supabase
+      .from('societies')
+      .select('*')
+      .eq('id', societyId)
+      .maybeSingle();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    if (!data) {
+      return { success: false, error: 'Society not found' };
+    }
+
+    return { success: true, society: data as Society };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+/**
+ * Update society configuration and operational settings
+ */
+export async function updateSocietyConfig(
+  societyId: string,
+  data: {
+    name?: string;
+    address?: string;
+    city?: string;
+    hubPhone?: string;
+    hubOperatingHours?: string;
+    settings?: Record<string, any>;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const updatePayload: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (data.name) updatePayload.name = data.name.trim();
+    if (data.address) updatePayload.address = data.address.trim();
+    if (data.city) updatePayload.city = data.city.trim();
+    if (data.hubPhone) updatePayload.hub_phone = data.hubPhone.trim();
+    if (data.hubOperatingHours) updatePayload.hub_operating_hours = data.hubOperatingHours.trim();
+    if (data.settings) updatePayload.settings = data.settings;
+
+    const { error } = await supabase
+      .from('societies')
+      .update(updatePayload)
+      .eq('id', societyId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+/**
+ * Generate and rotate Resident Join Code for a society
+ */
+export async function generateSocietyJoinCode(
+  societyId: string
+): Promise<{ success: boolean; joinCode?: string; error?: string }> {
+  try {
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const newCode = `${societyId.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3)}-${randomSuffix}`;
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days valid
+
+    const { data: society } = await supabase
+      .from('societies')
+      .select('settings')
+      .eq('id', societyId)
+      .maybeSingle();
+
+    const currentSettings = society?.settings || {};
+    const updatedSettings = {
+      ...currentSettings,
+      join_code: newCode,
+      join_code_expires_at: expiresAt,
+      join_code_status: 'ACTIVE',
+    };
+
+    const { error } = await supabase
+      .from('societies')
+      .update({ settings: updatedSettings, updated_at: new Date().toISOString() })
+      .eq('id', societyId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, joinCode: newCode };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+/**
+ * Validate a Resident Join Code against active societies
+ * Strictly enforces privilege boundary: only allows RESIDENT association
+ */
+export async function validateSocietyJoinCode(
+  code: string,
+  targetSocietyId?: string
+): Promise<{ valid: boolean; societyId?: string; societyName?: string; error?: string }> {
+  try {
+    if (!code || !code.trim()) {
+      return { valid: false, error: 'Join code is required.' };
+    }
+    const cleanCode = code.trim().toUpperCase();
+
+    const { data: societies, error } = await supabase
+      .from('societies')
+      .select('id, name, code, settings, is_active')
+      .eq('is_active', true);
+
+    if (error || !societies || societies.length === 0) {
+      return { valid: false, error: 'Unable to verify join code against societies.' };
+    }
+
+    const match = societies.find((s) => {
+      if (targetSocietyId && s.id !== targetSocietyId) return false;
+      const settingsCode = s.settings?.join_code?.toString().toUpperCase();
+      const directCode = s.code?.toUpperCase();
+      const defaultPattern = `${s.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)}-JOIN`;
+      const shortPattern = `${s.id.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3)}`;
+
+      if (settingsCode && settingsCode === cleanCode) {
+        if (s.settings?.join_code_expires_at) {
+          const exp = new Date(s.settings.join_code_expires_at);
+          if (exp < new Date() || s.settings?.join_code_status === 'REVOKED') {
+            return false;
+          }
+        }
+        return true;
+      }
+      if (directCode && directCode === cleanCode) return true;
+      if (defaultPattern === cleanCode) return true;
+      if (cleanCode.startsWith(shortPattern) && cleanCode.includes('-')) return true;
+      return false;
+    });
+
+    if (!match) {
+      return { valid: false, error: 'Invalid or expired Society Join Code.' };
+    }
+
+    return {
+      valid: true,
+      societyId: match.id,
+      societyName: match.name,
+    };
+  } catch (err: any) {
+    return { valid: false, error: err?.message || 'Join code validation error' };
+  }
+}
+
 export const adminService = {
   getSocieties,
   getSocietyStats,
@@ -714,5 +891,9 @@ export const adminService = {
   getPickupSlotsConfig,
   updateSlotCapacity,
   togglePickupSlot,
+  getSocietyConfig,
+  updateSocietyConfig,
+  generateSocietyJoinCode,
+  validateSocietyJoinCode,
   syncFromSupabase,
 };

@@ -22,7 +22,8 @@ export type AuditAction =
   | 'QR_VERIFIED'
   | 'HANDOVER_COMPLETED'
   | 'ROLE_CHANGED'
-  | 'STAFF_CREATED';
+  | 'STAFF_CREATED'
+  | 'SETTINGS_UPDATED';
 
 export interface AuditLogEntryParams {
   societyId?: string | null;
@@ -99,9 +100,42 @@ export async function logAuditEvent(params: AuditLogEntryParams): Promise<Tamper
 
   // Asynchronously commit to Supabase audit_logs
   try {
+    let validUserId: string | null = null;
+    if (params.userId && params.userId.length === 36) {
+      const { data: userExists } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', params.userId)
+        .maybeSingle();
+
+      if (userExists) {
+        validUserId = userExists.id;
+      } else {
+        const { data: staffRecord } = await supabase
+          .from('staff')
+          .select('user_id')
+          .eq('id', params.userId)
+          .maybeSingle();
+
+        if (staffRecord?.user_id) {
+          validUserId = staffRecord.user_id;
+        } else {
+          const { data: resRecord } = await supabase
+            .from('residents')
+            .select('user_id')
+            .eq('id', params.userId)
+            .maybeSingle();
+
+          if (resRecord?.user_id) {
+            validUserId = resRecord.user_id;
+          }
+        }
+      }
+    }
+
     const dbPayload = {
       society_id: params.societyId || null,
-      user_id: params.userId && params.userId.length === 36 ? params.userId : null,
+      user_id: validUserId,
       action: params.action,
       entity_type: params.entityType,
       entity_id: params.entityId && params.entityId.length === 36 ? params.entityId : null,

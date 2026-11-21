@@ -7,6 +7,7 @@ import { HowItWorksPage } from './pages/HowItWorksPage';
 import { FeaturesPage } from './pages/FeaturesPage';
 import { DownloadPage } from './pages/DownloadPage';
 import { FAQPage } from './pages/FAQPage';
+import { PricingPage } from './pages/PricingPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
 import { MobileApp } from './mobile/MobileApp';
@@ -126,6 +127,7 @@ export function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/how-it-works" element={<HowItWorksPage />} />
                   <Route path="/features" element={<FeaturesPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
                   <Route path="/download" element={<DownloadPage />} />
                   <Route path="/faq" element={<FAQPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />

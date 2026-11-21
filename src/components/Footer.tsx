@@ -210,6 +210,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenModal }) => {
             © {new Date().getFullYear()} ParcelFlow Technologies Pvt. Ltd. Made with <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> for India's gated communities.
           </p>
           <div className="flex items-center gap-6">
+            <a href="/pricing" className="hover:text-blue-600 transition-colors">Pricing</a>
             <a href="/privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
             <a href="/terms" className="hover:text-blue-600 transition-colors">Terms of Service</a>
             <a href="/faq" className="hover:text-blue-600 transition-colors">Help Center</a>

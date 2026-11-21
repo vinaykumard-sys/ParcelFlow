@@ -10,6 +10,7 @@ import type { StorageLocation, EnrichedParcel, ParcelStatus } from './types.ts';
 import { updateParcelStatus, addParcelTimelineEvent, getParcelById } from './parcelService.ts';
 import { validateOtp, validateQrToken } from './otpQrService.ts';
 import { logAuditEvent } from './auditService.ts';
+import { broadcastParcelEvent } from './realtimeService.ts';
 
 export interface StorageSlotInfo {
   rack: string;
@@ -237,6 +238,22 @@ export async function intakeParcel(
       return { success: false, error: 'Society and apartment are required.' };
     }
 
+    // 0. Verify staff authorization & active status
+    if (staffId) {
+      const { data: staffMember } = await supabase
+        .from('staff')
+        .select('id, is_active')
+        .eq('id', staffId)
+        .maybeSingle();
+
+      if (staffMember && !staffMember.is_active) {
+        return {
+          success: false,
+          error: 'Unauthorized: Staff member is deactivated and cannot intake parcels.',
+        };
+      }
+    }
+
     // 1. Resolve tracking number and detect carrier
     const trackingNumber =
       params.trackingNumber?.trim().toUpperCase() ||
@@ -247,7 +264,7 @@ export async function intakeParcel(
     // 2. Check for duplicate active tracking
     const { data: existingParcel } = await supabase
       .from('parcels')
-      .select('id, tracking_number, status, storage_location_id, storage_locations(*)')
+      .select('id, tracking_number, status, storage_location_id')
       .eq('tracking_number', trackingNumber)
       .maybeSingle();
 
@@ -288,6 +305,34 @@ export async function intakeParcel(
       };
     }
 
+    // 3.5. Resolve resident and user IDs to satisfy foreign keys
+    let effectiveResidentId: string | null = null;
+    let effectiveUserId: string | null = null;
+
+    if (residentId) {
+      const { data: resRecord } = await supabase
+        .from('residents')
+        .select('id, user_id')
+        .or(`id.eq.${residentId},user_id.eq.${residentId}`)
+        .maybeSingle();
+
+      if (resRecord) {
+        effectiveResidentId = resRecord.id;
+        effectiveUserId = resRecord.user_id;
+      } else {
+        const { data: aptResident } = await supabase
+          .from('residents')
+          .select('id, user_id')
+          .eq('apartment_id', apartmentId)
+          .maybeSingle();
+
+        if (aptResident) {
+          effectiveResidentId = aptResident.id;
+          effectiveUserId = aptResident.user_id;
+        }
+      }
+    }
+
     // 4. Insert parcel
     const now = new Date().toISOString();
     const { data: insertedParcel, error: insertError } = await supabase
@@ -301,7 +346,7 @@ export async function intakeParcel(
           courier_rider_name: courierRiderName || null,
           society_id: societyId,
           apartment_id: apartmentId,
-          resident_id: residentId || null,
+          resident_id: effectiveResidentId,
           storage_location_id: storageLocation.id,
           status: 'STORED',
           description: description || null,
@@ -339,11 +384,11 @@ export async function intakeParcel(
       .eq('is_occupied', false); // Atomic check
 
     // 6. Real resident notification: create database notification record upon intake
-    if (residentId) {
+    if (effectiveUserId) {
       try {
         await supabase.from('notifications').insert([
           {
-            user_id: residentId,
+            user_id: effectiveUserId,
             society_id: societyId,
             parcel_id: insertedParcel.id,
             type: 'PARCEL_RECEIVED',
@@ -411,6 +456,17 @@ export async function intakeParcel(
       payload: { parcel_id: insertedParcel.id, rack: storageLocation.rack, shelf: storageLocation.shelf },
     });
 
+    // Realtime broadcast to resident & admin devices (Feature 19 & 53)
+    broadcastParcelEvent(societyId, 'PARCEL_RECEIVED', {
+      parcelId: insertedParcel.id,
+      trackingNumber,
+      carrier: carrierName,
+      status: 'STORED',
+      societyId,
+      storageSlot: `${storageLocation.rack} - ${storageLocation.shelf}`,
+      timestamp: now,
+    }).catch(() => {});
+
     return {
       success: true,
       parcel: insertedParcel as EnrichedParcel,
@@ -461,6 +517,22 @@ export async function verifyHandover(
         success: false,
         error: 'Provide either QR scan payload or both Parcel ID and 6-digit OTP code.',
       };
+    }
+
+    // 0. Verify staff authorization & active status
+    if (staffId) {
+      const { data: staffMember } = await supabase
+        .from('staff')
+        .select('id, is_active')
+        .eq('id', staffId)
+        .maybeSingle();
+
+      if (staffMember && !staffMember.is_active) {
+        return {
+          success: false,
+          error: 'Unauthorized: Staff member is deactivated and cannot verify handovers.',
+        };
+      }
     }
 
     let verificationResult;
@@ -523,9 +595,20 @@ export async function verifyHandover(
     // 5. Create real resident notification record upon handover completion
     if (currentParcel.resident_id) {
       try {
+        let notifUserId = currentParcel.resident_id;
+        const { data: resUser } = await supabase
+          .from('residents')
+          .select('user_id')
+          .eq('id', currentParcel.resident_id)
+          .maybeSingle();
+
+        if (resUser?.user_id) {
+          notifUserId = resUser.user_id;
+        }
+
         await supabase.from('notifications').insert([
           {
-            user_id: currentParcel.resident_id,
+            user_id: notifUserId,
             society_id: currentParcel.society_id,
             parcel_id: targetParcelId,
             type: 'HANDOVER_COMPLETED',
@@ -571,6 +654,16 @@ export async function verifyHandover(
       },
     });
 
+    // Realtime broadcast to resident & admin devices (Feature 19 & 53)
+    broadcastParcelEvent(currentParcel.society_id, 'HANDOVER_COMPLETED', {
+      parcelId: targetParcelId,
+      trackingNumber: currentParcel.tracking_number,
+      carrier: currentParcel.carrier_name,
+      status: 'COMPLETED',
+      societyId: currentParcel.society_id,
+      timestamp: now,
+    }).catch(() => {});
+
     return {
       success: true,
       parcel: (updatedParcel as EnrichedParcel) || currentParcel,
@@ -578,6 +671,57 @@ export async function verifyHandover(
     };
   } catch (err: any) {
     return { success: false, error: err?.message || 'Handover verification failed' };
+  }
+}
+
+/**
+ * Update staff profile permitted information with strict privilege boundaries.
+ * Security personnel can update contact information.
+ * Any attempt to modify permissions, roles, or society settings is strictly rejected.
+ */
+export async function updateStaffProfile(
+  staffId: string,
+  updates: {
+    phone?: string;
+    shift?: string;
+    [key: string]: any;
+  }
+): Promise<{ success: boolean; staff?: any; error?: string }> {
+  try {
+    if (!staffId) {
+      return { success: false, error: 'Staff ID is required' };
+    }
+
+    // Boundary check: Disallow modification of sensitive roles or society id
+    const staffUpdates: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+    if (typeof updates.shift === 'string') {
+      staffUpdates.shift = updates.shift.trim();
+    }
+
+    const { data: staffData, error: staffError } = await supabase
+      .from('staff')
+      .update(staffUpdates)
+      .eq('id', staffId)
+      .select('*, users(*)')
+      .maybeSingle();
+
+    if (staffError) {
+      return { success: false, error: staffError.message };
+    }
+
+    // Update phone on users table if provided
+    if (typeof updates.phone === 'string' && staffData?.user_id) {
+      await supabase
+        .from('users')
+        .update({ phone: updates.phone.trim(), updated_at: new Date().toISOString() })
+        .eq('id', staffData.user_id);
+    }
+
+    return { success: true, staff: staffData };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to update staff profile' };
   }
 }
 
@@ -589,4 +733,5 @@ export const staffService = {
   releaseStorageSlot,
   verifyHandover,
   parseStorageSlotString,
+  updateStaffProfile,
 };

@@ -41,6 +41,18 @@ export async function getResidentParcels(residentId: string): Promise<EnrichedPa
   try {
     if (!residentId) return [];
 
+    let targetResidentId = residentId;
+    // If a user_id was passed, resolve to resident.id
+    const { data: resRecord } = await supabase
+      .from('residents')
+      .select('id')
+      .eq('user_id', residentId)
+      .maybeSingle();
+
+    if (resRecord?.id) {
+      targetResidentId = resRecord.id;
+    }
+
     const { data, error } = await supabase
       .from('parcels')
       .select(`
@@ -50,7 +62,7 @@ export async function getResidentParcels(residentId: string): Promise<EnrichedPa
         handover_tokens (*),
         pickup_bookings (*)
       `)
-      .eq('resident_id', residentId)
+      .or(`resident_id.eq.${targetResidentId},resident_id.eq.${residentId}`)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -402,6 +414,29 @@ export async function addParcelTimelineEvent(
   }
 ): Promise<{ success: boolean; event?: ParcelEvent; error?: string }> {
   try {
+    let validActorId = event.actorId || null;
+    if (validActorId && validActorId.length === 36) {
+      const { data: userExists } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', validActorId)
+        .maybeSingle();
+
+      if (!userExists) {
+        const { data: staffRecord } = await supabase
+          .from('staff')
+          .select('user_id')
+          .eq('id', validActorId)
+          .maybeSingle();
+
+        if (staffRecord?.user_id) {
+          validActorId = staffRecord.user_id;
+        } else {
+          validActorId = null;
+        }
+      }
+    }
+
     const { data, error } = await supabase
       .from('parcel_events')
       .insert([
@@ -410,7 +445,7 @@ export async function addParcelTimelineEvent(
           from_status: event.fromStatus || null,
           to_status: event.toStatus,
           description: event.description,
-          actor_id: event.actorId || null,
+          actor_id: validActorId,
           actor_name: event.actorName || null,
           actor_role: event.actorRole || 'SYSTEM',
           metadata: event.metadata || {},
@@ -483,6 +518,7 @@ function formatEnrichedParcel(data: any): EnrichedParcel {
     created_at: data.created_at,
     updated_at: data.updated_at,
     storage_location: data.storage_locations || undefined,
+    storage_locations: data.storage_locations || undefined,
     apartment: data.apartments || undefined,
     active_token: activeToken || undefined,
     pickup_booking: pickupBooking || undefined,

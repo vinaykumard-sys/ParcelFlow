@@ -3,6 +3,7 @@ import { Mail, Phone, Lock, ArrowRight, Building, Sparkles, User, KeyRound } fro
 import { MobileStatusBar } from '../components/MobileStatusBar';
 import { SOCIETIES, useMobileStore } from '../services/mobileState';
 import { signInWithEmail, signUpWithEmail, signInWithGoogle, resetPasswordForEmail, normalizeRole } from '../../services/authService';
+import { validateSocietyJoinCode } from '../../services/adminService';
 import { supabase } from '../../services/supabaseClient';
 
 interface ResidentLoginProps {
@@ -17,6 +18,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
 
   const [fullName, setFullName] = useState('');
   const [flatNumber, setFlatNumber] = useState('');
+  const [joinCode, setJoinCode] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -57,7 +59,20 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           return;
         }
 
-        const res = await signUpWithEmail(cleanEmail, password, fullName.trim(), phone.trim(), selectedSociety.id);
+        let targetSocietyId = selectedSociety.id;
+        if (joinCode.trim()) {
+          const joinRes = await validateSocietyJoinCode(joinCode.trim(), selectedSociety.id);
+          if (!joinRes.valid) {
+            setLoading(false);
+            setErrorMessage(joinRes.error || 'Invalid or expired Society Join Code.');
+            return;
+          }
+          if (joinRes.societyId) {
+            targetSocietyId = joinRes.societyId;
+          }
+        }
+
+        const res = await signUpWithEmail(cleanEmail, password, fullName.trim(), phone.trim(), targetSocietyId);
         if (res.error) {
           setLoading(false);
           setErrorMessage(res.error);
@@ -354,6 +369,23 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
                       className="w-full bg-white text-xs font-bold text-[#060D1E] py-2.5 px-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[11px] font-bold text-slate-700 flex items-center gap-1">
+                      <KeyRound className="w-3 h-3 text-[#1E60F2]" />
+                      <span>Society Join Code</span>
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-semibold">Optional</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. LVR-JOIN"
+                    className="w-full bg-white text-xs font-mono font-bold text-[#060D1E] py-2.5 px-3 rounded-2xl border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] focus:outline-none uppercase tracking-wider placeholder:normal-case placeholder:font-sans"
+                  />
                 </div>
               </>
             )}

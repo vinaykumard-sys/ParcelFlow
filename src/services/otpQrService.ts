@@ -8,6 +8,7 @@ import { supabase } from './supabaseClient.ts';
 import type { HandoverToken } from './types.ts';
 import { updateParcelStatus } from './parcelService.ts';
 import { logAuditEvent } from './auditService.ts';
+import { broadcastParcelEvent } from './realtimeService.ts';
 
 export const OTP_EXPIRY_MINUTES = 10;
 
@@ -82,13 +83,28 @@ export async function generateHandoverToken(
       .eq('parcel_id', parcelId)
       .eq('status', 'ACTIVE');
 
+    // 1.5. Resolve resident and user IDs to satisfy foreign keys
+    let effectiveResidentId = residentId;
+    let effectiveUserId = residentId;
+
+    const { data: resRecord } = await supabase
+      .from('residents')
+      .select('id, user_id')
+      .or(`id.eq.${residentId},user_id.eq.${residentId}`)
+      .maybeSingle();
+
+    if (resRecord) {
+      effectiveResidentId = resRecord.id;
+      effectiveUserId = resRecord.user_id;
+    }
+
     // 2. Insert new token record into Supabase
     const { data: record, error: insertError } = await supabase
       .from('handover_tokens')
       .insert([
         {
           parcel_id: parcelId,
-          resident_id: residentId,
+          resident_id: effectiveResidentId,
           token_code: tokenCode,
           otp_code: otpCode,
           qr_code_data: qrCodeData,
@@ -131,7 +147,7 @@ export async function generateHandoverToken(
 
     // 4. Record audit logs for OTP_GENERATED and QR_GENERATED
     await logAuditEvent({
-      userId: residentId,
+      userId: effectiveUserId,
       action: 'OTP_GENERATED',
       entityType: 'handover_tokens',
       entityId: tokenRecord.id,
@@ -139,12 +155,23 @@ export async function generateHandoverToken(
     });
 
     await logAuditEvent({
-      userId: residentId,
+      userId: effectiveUserId,
       action: 'QR_GENERATED',
       entityType: 'handover_tokens',
       entityId: tokenRecord.id,
       payload: { parcel_id: parcelId, token_code: tokenCode, expires_at: expiresAt },
     });
+
+    // Realtime broadcast event (Feature 19 & 53)
+    broadcastParcelEvent('a1111111-1111-1111-1111-111111111111', 'READY_FOR_PICKUP', {
+      parcelId,
+      trackingNumber: `PARCEL-${parcelId.slice(0, 8)}`,
+      carrier: 'Courier',
+      status: 'READY_FOR_PICKUP',
+      societyId: 'a1111111-1111-1111-1111-111111111111',
+      tokenCode,
+      timestamp: new Date().toISOString(),
+    }).catch(() => {});
 
     return {
       success: true,

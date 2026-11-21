@@ -171,8 +171,8 @@ export function parseQrPayload(qrText: string): ParsedQrResult {
     }
   }
 
-  // Check if prefixed, e.g. PARCELFLOW:OTP:742916 or PF-VERIFY:742916
-  const prefixMatch = raw.match(/^(?:PARCELFLOW|PF-VERIFY|OTP)[:\-_]([A-Za-z0-9\-_]+)$/i);
+  // Check if prefixed, e.g. PARCELFLOW:OTP:742916 or PF-VERIFY:742916 or OTP:742916
+  const prefixMatch = raw.match(/^(?:PARCELFLOW|PF-VERIFY|OTP)(?:[:\-_]OTP)?[:\-_]([A-Za-z0-9\-_]+)$/i);
   if (prefixMatch) {
     const code = prefixMatch[1].trim();
     if (/^\d{4,8}$/.test(code)) {
@@ -219,7 +219,7 @@ export async function checkDuplicateParcel(
         carrier_name,
         status,
         created_at,
-        storage_locations (
+        storage_locations!storage_location_id (
           zone,
           rack,
           shelf
@@ -227,10 +227,6 @@ export async function checkDuplicateParcel(
         apartments (
           tower,
           unit_number
-        ),
-        residents:resident_id (
-          full_name,
-          phone
         )
       `)
       .or(`tracking_number.ilike.${cleanTracking},courier_tracking_id.ilike.${cleanTracking}`);
@@ -243,12 +239,11 @@ export async function checkDuplicateParcel(
 
     if (!error && data) {
       const storageLoc = data.storage_locations
-        ? `${data.storage_locations.rack || 'Rack'}, ${data.storage_locations.shelf || 'Shelf'} (${data.storage_locations.zone || 'Hub'})`
+        ? `${(data.storage_locations as any).rack || 'Rack'}, ${(data.storage_locations as any).shelf || 'Shelf'} (${(data.storage_locations as any).zone || 'Hub'})`
         : 'Hub Intake Staging';
 
-      const residentInfo = data.residents ? (data.residents as any).full_name : undefined;
       const aptInfo = data.apartments
-        ? `${data.apartments.tower || ''} - ${data.apartments.unit_number || ''}`.trim()
+        ? `${(data.apartments as any).tower || ''} - ${(data.apartments as any).unit_number || ''}`.trim()
         : undefined;
 
       return {
@@ -259,7 +254,6 @@ export async function checkDuplicateParcel(
           carrierName: data.carrier_name || 'Courier',
           status: data.status || 'RECEIVED',
           storageLocation: storageLoc,
-          recipientName: residentInfo,
           apartment: aptInfo,
           receivedAt: data.created_at,
         },

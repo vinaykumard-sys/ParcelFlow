@@ -570,6 +570,162 @@ export function onAuthStateChange(callback: (response: AuthSessionResponse) => v
   });
 }
 
+/**
+ * Update authenticated user's profile with strict privilege boundary enforcement.
+ * Residents and staff can edit allowed info (full_name, phone, avatar_url).
+ * Any attempt to alter role or society_id is strictly ignored and rejected.
+ */
+export async function updateUserProfile(
+  userId: string,
+  updates: {
+    full_name?: string;
+    phone?: string;
+    avatar_url?: string;
+    [key: string]: any;
+  }
+): Promise<{ success: boolean; profile?: Profile; error?: string }> {
+  try {
+    if (!userId) {
+      return { success: false, error: 'User ID is required' };
+    }
+
+    // Strict boundary enforcement: Discard any privilege escalation attempts
+    const sanitizedUpdates: Record<string, any> = {
+      updated_at: new Date().toISOString(),
+    };
+
+    if (typeof updates.full_name === 'string') {
+      sanitizedUpdates.full_name = updates.full_name.trim();
+    }
+    if (typeof updates.phone === 'string') {
+      sanitizedUpdates.phone = updates.phone.trim();
+    }
+    if (typeof updates.avatar_url === 'string') {
+      sanitizedUpdates.avatar_url = updates.avatar_url.trim();
+    }
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(sanitizedUpdates)
+      .eq('id', userId)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    const updatedProfile = data as Profile;
+    return { success: true, profile: updatedProfile };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to update profile' };
+  }
+}
+
+/**
+ * Fetch in-app notifications for the user
+ */
+export async function getUserNotifications(
+  userId: string,
+  limit: number = 20
+): Promise<{ success: boolean; notifications: any[]; error?: string }> {
+  try {
+    if (!userId) {
+      return { success: false, notifications: [], error: 'User ID is required' };
+    }
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      return { success: false, notifications: [], error: error.message };
+    }
+
+    return { success: true, notifications: data || [] };
+  } catch (err: any) {
+    return { success: false, notifications: [], error: err?.message };
+  }
+}
+
+/**
+ * Mark a notification as read
+ */
+export async function markNotificationAsRead(
+  notificationId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!notificationId) {
+      return { success: false, error: 'Notification ID is required' };
+    }
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({
+        status: 'READ',
+        read_at: new Date().toISOString(),
+      })
+      .eq('id', notificationId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
+/**
+ * Create an in-app notification record
+ */
+export async function createInAppNotification(payload: {
+  userId: string;
+  societyId?: string;
+  parcelId?: string;
+  type: string;
+  title: string;
+  body: string;
+  channel?: 'IN_APP' | 'PUSH' | 'SMS' | 'WHATSAPP';
+  metadata?: Record<string, any>;
+}): Promise<{ success: boolean; notification?: any; error?: string }> {
+  try {
+    const { userId, societyId, parcelId, type, title, body, channel = 'IN_APP', metadata = {} } = payload;
+    const now = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert([
+        {
+          user_id: userId,
+          society_id: societyId,
+          parcel_id: parcelId,
+          type,
+          title,
+          body,
+          channel,
+          status: 'SENT',
+          metadata,
+          created_at: now,
+        },
+      ])
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, notification: data };
+  } catch (err: any) {
+    return { success: false, error: err?.message };
+  }
+}
+
 export const authService = {
   signUpWithEmail,
   signInWithEmail,
@@ -585,4 +741,8 @@ export const authService = {
   verifyAdminStatus,
   onAuthStateChange,
   normalizeRole,
+  updateUserProfile,
+  getUserNotifications,
+  markNotificationAsRead,
+  createInAppNotification,
 };
