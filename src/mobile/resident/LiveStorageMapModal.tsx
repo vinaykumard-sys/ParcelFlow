@@ -236,73 +236,75 @@ export const LiveStorageMapModal: React.FC<LiveStorageMapModalProps> = ({
               Loading 2D Storage Layout...
             </div>
           ) : viewMode === 'map' ? (
-            /* 2D Interactive Grid (Screen 3 Spec) */
-            <div className="space-y-3">
-              {/* Rack Column Headers */}
-              <div className="grid grid-cols-4 gap-2 text-center">
+            /* 2D Interactive Grid (Screen 3 Spec - Perfectly Aligned 5x5 Matrix) */
+            <div className="bg-white rounded-3xl border-2 border-[#0B1E3F] p-3.5 shadow-[3px_3px_0px_#0B1E3F] space-y-2.5">
+              {/* Header: Column Racks */}
+              <div className="grid grid-cols-5 gap-1.5 text-center items-center">
+                <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  Level
+                </div>
                 {racks.map((r) => (
                   <div
                     key={r}
-                    className="py-1 px-2 rounded-xl bg-slate-200/80 border border-slate-300 text-xs font-black text-slate-700"
+                    className="py-1 rounded-xl bg-slate-100 border border-slate-300 text-xs font-black text-slate-800"
                   >
                     Rack {r}
                   </div>
                 ))}
               </div>
 
-              {/* 5 Shelves from top to bottom (5 down to 1) */}
-              <div className="space-y-2">
+              {/* 5 Shelf Rows (5 down to 1) */}
+              <div className="space-y-1.5">
                 {shelves.map((shelf) => (
-                  <div key={shelf} className="space-y-1">
-                    <div className="flex items-center justify-between text-[10px] font-black text-slate-600 px-1">
-                      <span>Shelf {shelf}</span>
-                      <span className="uppercase text-slate-500">
-                        {shelf === '3' ? 'Medium' : parseInt(shelf) <= 2 ? 'Large' : 'Small'}
+                  <div key={shelf} className="grid grid-cols-5 gap-1.5 items-center">
+                    {/* Shelf Label on the Left */}
+                    <div className="h-12 rounded-xl bg-slate-100 border border-slate-300 flex flex-col items-center justify-center text-center p-0.5">
+                      <span className="text-[11px] font-black text-slate-800">S{shelf}</span>
+                      <span className="text-[8px] font-bold text-slate-500 uppercase leading-none">
+                        {shelf === '3' ? 'Med' : parseInt(shelf) <= 2 ? 'Lrg' : 'Sml'}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-4 gap-2">
-                      {racks.map((rack) => {
-                        const slot = getSlot(rack, shelf);
-                        const isMyParcel = slot.is_resident_parcel;
-                        const isOccupied = slot.is_occupied;
-                        const isSelected = selectedSlot?.id === slot.id;
+                    {/* 4 Rack Cells */}
+                    {racks.map((rack) => {
+                      const slot = getSlot(rack, shelf);
+                      const isMyParcel = slot.is_resident_parcel;
+                      const isOccupied = slot.is_occupied;
+                      const isSelected = selectedSlot?.id === slot.id;
 
-                        return (
-                          <button
-                            key={rack}
-                            onClick={() => setSelectedSlot(slot)}
-                            className={`h-14 rounded-2xl border-2 p-1.5 flex flex-col justify-between items-center transition-all relative ${
-                              isSelected
-                                ? 'border-[#1E60F2] ring-2 ring-blue-300 scale-105 z-10'
-                                : 'border-[#0B1E3F]'
-                            } ${
-                              isMyParcel
-                                ? 'bg-[#FFC72C] text-[#0B1E3F] shadow-[3px_3px_0px_#0B1E3F]'
-                                : isOccupied
-                                ? 'bg-slate-100 text-slate-500 shadow-[2px_2px_0px_#0B1E3F]'
-                                : 'bg-emerald-50 text-emerald-800 border-emerald-700 shadow-[2px_2px_0px_#0B1E3F]'
-                            }`}
-                          >
-                            <span className="text-[11px] font-black">
-                              {rack}
-                              {shelf}
+                      return (
+                        <button
+                          key={rack}
+                          type="button"
+                          onClick={() => setSelectedSlot(slot)}
+                          className={`h-12 rounded-xl border-2 flex flex-col items-center justify-center p-1 transition-colors relative ${
+                            isSelected
+                              ? 'border-[#1E60F2] ring-2 ring-[#1E60F2] bg-blue-50'
+                              : 'border-[#0B1E3F]'
+                          } ${
+                            isMyParcel
+                              ? 'bg-[#FFC72C] text-[#0B1E3F]'
+                              : isOccupied
+                              ? 'bg-slate-100 text-slate-500'
+                              : 'bg-emerald-50 text-emerald-800 border-emerald-700'
+                          }`}
+                        >
+                          <span className="text-[10px] font-black leading-tight">
+                            {rack}{shelf}
+                          </span>
+
+                          {isMyParcel ? (
+                            <span className="text-[7px] font-black bg-[#0B1E3F] text-amber-300 px-1 py-0.2 rounded-full mt-0.5">
+                              Mine
                             </span>
-
-                            {isMyParcel ? (
-                              <div className="flex items-center gap-0.5 px-1 py-0.5 rounded-full bg-[#0B1E3F] text-amber-300 text-[8px] font-black">
-                                <Package className="w-2.5 h-2.5" />
-                                <span>Mine</span>
-                              </div>
-                            ) : isOccupied ? (
-                              <span className="text-[9px] font-bold text-slate-600">Busy</span>
-                            ) : (
-                              <span className="text-[9px] font-bold text-emerald-700">Open</span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                          ) : isOccupied ? (
+                            <span className="text-[8px] font-bold text-slate-500 mt-0.5">Busy</span>
+                          ) : (
+                            <span className="text-[8px] font-bold text-emerald-700 mt-0.5">Open</span>
+                          )}
+                        </button>
+                      );
+                    })}
                   </div>
                 ))}
               </div>

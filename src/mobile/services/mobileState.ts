@@ -75,7 +75,7 @@ class MobileStateStore {
       if (typeof localStorage !== 'undefined') {
         localStorage.removeItem('parcelflow_mobile_state_v1');
       }
-      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('parcelflow_mobile_state_v3') : null;
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('parcelflow_mobile_state_v4') : null;
       if (saved) {
         const parsed = JSON.parse(saved);
         // De-duplicate all arrays on load to fix any stale duplicates persisted in localStorage
@@ -147,7 +147,7 @@ class MobileStateStore {
           connectedAccounts: this.dedup(this.state.connectedAccounts, (a) => a.provider),
         };
         this.state = cleanState;
-        localStorage.setItem('parcelflow_mobile_state_v3', JSON.stringify(cleanState));
+        localStorage.setItem('parcelflow_mobile_state_v4', JSON.stringify(cleanState));
       }
     } catch {
       // ignore
@@ -158,7 +158,7 @@ class MobileStateStore {
   logout() {
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('parcelflow_mobile_state_v3');
+        localStorage.removeItem('parcelflow_mobile_state_v4');
         localStorage.removeItem('parcelflow_mobile_state_v2');
         localStorage.removeItem('parcelflow_mobile_state_v1');
         localStorage.removeItem('parcelflow_auth_user');

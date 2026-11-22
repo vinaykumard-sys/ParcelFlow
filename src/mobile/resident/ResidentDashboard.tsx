@@ -156,12 +156,12 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
     ? currentUser.name.split(' ')[0]
     : 'Resident';
   const residentTower =
-    currentUser?.flatNumber
+    currentUser?.flatNumber && currentUser.flatNumber.trim()
       ? `Tower ${currentUser.flatNumber.charAt(0)}`
-      : 'Tower A';
-  const residentFlat = currentUser?.flatNumber
+      : '';
+  const residentFlat = currentUser?.flatNumber && currentUser.flatNumber.trim()
     ? `Flat ${currentUser.flatNumber}`
-    : 'Flat 402';
+    : 'Resident Unit Pending';
 
   return (
     <div className="flex flex-col h-full bg-[#FEF9F3] text-[#0B1E3F] select-none">
@@ -184,7 +184,7 @@ export const ResidentDashboard: React.FC<ResidentDashboardProps> = ({
               {getGreeting()}, {residentName} 👋
             </h1>
             <p className="text-xs font-bold text-slate-500">
-              {residentTower} • {residentFlat}
+              {residentTower ? `${residentTower} • ` : ''}{residentFlat}
             </p>
             <div className="pt-1 flex items-center gap-1.5 text-[11px] font-black text-[#2563EB]">
               <span>{selectedSociety.name}</span>

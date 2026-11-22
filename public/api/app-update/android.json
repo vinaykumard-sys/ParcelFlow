@@ -1,17 +1,18 @@
 {
-  "latestVersionName": "1.4.1",
-  "latestVersionCode": 8,
+  "latestVersionName": "1.4.2",
+  "latestVersionCode": 9,
   "minimumSupportedVersionCode": 4,
-  "apkUrl": "/downloads/android/ParcelFlow-v1.4.1-update.apk",
-  "apkSizeBytes": 10032133,
-  "sha256": "2d135df6479f50dc8bd402bba1a200a7ec756fa0734da52987d9c4b53a17c9b7",
+  "apkUrl": "/downloads/android/ParcelFlow-v1.4.2-update.apk",
+  "apkSizeBytes": 10036229,
+  "sha256": "6da7b442a3a79c5e49b1017069e46c5f6712b8804047a1d41cdee5037dc21fa8",
   "releaseNotes": [
-    "Direct Google Sign-In with real Gmail identity & zero external redirection",
-    "Instant 1-tap Google Account Chooser with verified profiles and saved accounts",
-    "In-app password reset with 6-digit OTP verification and live email delivery",
-    "ParcelFlow AI assistant powered by Google Gemini",
-    "Interactive 2D Live Hub & Storage Map with occupancy view",
-    "Express 10-Minute Pickup QR Pass & Family Authorization"
+    "In-app update direct package installer & system download manager trigger",
+    "Universal Persona Switcher for App Owner Vinay Kumar (Owner Studio)",
+    "Owner-delegated Society Admin appointments with 6-digit OTP verification",
+    "Direct 0% commission UPI payments routing to Vinay Kumar (vinaykumard45678@okhdfcbank)",
+    "Strict flat & phone number validation (rejection of malformed input)",
+    "2D Hub Storage Map & Delivery Insights UI alignment fixes",
+    "Full data reset: zero mock/fake accounts or parcels"
   ],
   "mandatory": false,
   "releaseDate": "2026-11-22"

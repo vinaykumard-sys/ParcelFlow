@@ -10,6 +10,7 @@ import { CURRENT_APP_VERSION } from './version';
 import { initializePushNotifications } from '../services/fcmClient';
 import { supabase } from '../services/supabaseClient';
 import { fetchVerifiedProfile, normalizeRole } from '../services/authService';
+import { isAppOwner } from '../services/ownerService';
 import {
   Smartphone,
   Monitor,
@@ -19,6 +20,7 @@ import {
   X,
   KeyRound,
   Check,
+  Crown,
 } from 'lucide-react';
 
 // ============================================================================
@@ -47,10 +49,15 @@ export const MobileApp: React.FC = () => {
   const [recoverySuccess, setRecoverySuccess] = useState(false);
   const [recoveryError, setRecoveryError] = useState<string | null>(null);
 
+  const isOwner = isAppOwner(currentUser?.email);
+  const [ownerTestPersona, setOwnerTestPersona] = useState<'ADMIN' | 'SECURITY' | 'RESIDENT'>('ADMIN');
+
   const isPathAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
-  // Derive display persona from AUTHENTICATED role in store, or unauthenticated /admin route visit
+  // Universal Persona Switcher for App Owner Vinay Kumar; strictly role-bound for all other users
   const activePersona: 'RESIDENT' | 'SECURITY' | 'ADMIN' =
-    currentRole === 'ADMIN' || currentRole === 'SOCIETY_ADMIN' || currentRole === 'SUPER_ADMIN' || (!currentUser && isPathAdmin)
+    isOwner
+      ? ownerTestPersona
+      : currentRole === 'ADMIN' || currentRole === 'SOCIETY_ADMIN' || currentRole === 'SUPER_ADMIN' || (!currentUser && isPathAdmin)
       ? 'ADMIN'
       : currentRole === 'SECURITY' || currentRole === 'STAFF'
       ? 'SECURITY'
@@ -305,6 +312,47 @@ export const MobileApp: React.FC = () => {
 
         {/* Active Application Shell Container */}
         <div className="flex-1 overflow-hidden relative flex flex-col">
+          {/* Universal Persona Switcher for App Owner Vinay Kumar */}
+          {isOwner && (
+            <div className="bg-[#060D1E] text-white px-3.5 py-2 border-b-2 border-amber-400 flex items-center justify-between shrink-0 z-40">
+              <div className="flex items-center gap-1.5">
+                <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <span className="text-[10px] font-black uppercase text-amber-400 tracking-wider">
+                  Owner Studio
+                </span>
+                <span className="text-[9px] text-slate-400 font-bold hidden xs:inline">({currentUser?.email})</span>
+              </div>
+              <div className="flex items-center gap-1 bg-slate-800 p-0.5 rounded-xl border border-slate-700">
+                <button
+                  type="button"
+                  onClick={() => setOwnerTestPersona('ADMIN')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition-all ${
+                    ownerTestPersona === 'ADMIN' ? 'bg-amber-400 text-[#060D1E]' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOwnerTestPersona('SECURITY')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition-all ${
+                    ownerTestPersona === 'SECURITY' ? 'bg-amber-400 text-[#060D1E]' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Security
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOwnerTestPersona('RESIDENT')}
+                  className={`px-2 py-0.5 rounded-lg text-[10px] font-black transition-all ${
+                    ownerTestPersona === 'RESIDENT' ? 'bg-amber-400 text-[#060D1E]' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  Resident
+                </button>
+              </div>
+            </div>
+          )}
           {/* Persistent In-App Update Notice Banner (if update available and modal dismissed) */}
           {updateMetadata && updateMetadata.latestVersionCode > CURRENT_APP_VERSION.versionCode && !isUpdateModalOpen && !isUpdateComplete && (
             <div

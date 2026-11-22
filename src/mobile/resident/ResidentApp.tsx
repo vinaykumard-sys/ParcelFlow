@@ -16,6 +16,7 @@ import { ExpressPickupModal } from './ExpressPickupModal';
 import { AuthorizedPickupModal } from './AuthorizedPickupModal';
 import { LiveStorageMapModal } from './LiveStorageMapModal';
 import { SmartSearchModal } from './SmartSearchModal';
+import { NotificationCenterModal } from './NotificationCenterModal';
 import { useMobileStore } from '../services/mobileState';
 import type { MobileParcel } from '../types';
 
@@ -47,6 +48,7 @@ export const ResidentApp: React.FC<ResidentAppProps> = ({ onLogoutSession }) => 
   const [isAuthorizedPickupOpen, setIsAuthorizedPickupOpen] = useState(false);
   const [isStorageMapOpen, setIsStorageMapOpen] = useState(false);
   const [isSmartSearchOpen, setIsSmartSearchOpen] = useState(false);
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
 
   const handleSelectParcel = (p: MobileParcel) => {
     setSelectedParcel(p);
@@ -116,7 +118,7 @@ export const ResidentApp: React.FC<ResidentAppProps> = ({ onLogoutSession }) => 
                 onSelectParcel={handleSelectParcel}
                 onScheduleSlot={handleScheduleSlot}
                 onShowPickupCode={handleShowPickupCode}
-                onOpenNotifications={() => setActiveTab('parcels')}
+                onOpenNotifications={() => setIsNotificationCenterOpen(true)}
                 onOpenAIChat={() => setActiveTab('ai')}
                 onOpenExpressPickup={() => setIsExpressPickupOpen(true)}
                 onOpenAuthorizedPickup={() => setIsAuthorizedPickupOpen(true)}
@@ -310,6 +312,12 @@ export const ResidentApp: React.FC<ResidentAppProps> = ({ onLogoutSession }) => 
         isOpen={isSmartSearchOpen}
         onClose={() => setIsSmartSearchOpen(false)}
         onSelectParcel={handleSelectParcel}
+      />
+
+      <NotificationCenterModal
+        isOpen={isNotificationCenterOpen}
+        onClose={() => setIsNotificationCenterOpen(false)}
+        onNavigateToParcels={() => setActiveTab('parcels')}
       />
     </div>
   );

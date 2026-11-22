@@ -28,6 +28,12 @@ import {
 } from '../../services/authService';
 import { validateSocietyJoinCode } from '../../services/adminService';
 import { supabase } from '../../services/supabaseClient';
+import {
+  verifyAndActivateAdminCode,
+  isValidPhoneNumber,
+  isValidFlatNumber,
+  isAppOwner,
+} from '../../services/ownerService';
 
 interface ResidentLoginProps {
   onLoginSuccess: () => void;
@@ -60,15 +66,18 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Google Dialog Modal state & saved accounts
+  const [adminActivationCode, setAdminActivationCode] = useState('');
+  const [showAdminActivationModal, setShowAdminActivationModal] = useState(false);
+
+  // Google Dialog Modal state & saved accounts (Real accounts only — zero mock accounts)
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [customGoogleEmail, setCustomGoogleEmail] = useState('');
-  const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false);
+  const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(true);
   const [googleAccounts, setGoogleAccounts] = useState<
     Array<{ email: string; name: string; role: string; tag: string }>
   >(() => {
     try {
-      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('parcelflow_google_accounts') : null;
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('parcelflow_google_accounts_v2') : null;
       if (saved) return JSON.parse(saved);
     } catch {}
     return [
@@ -76,13 +85,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         email: FIXED_ADMIN_EMAIL,
         name: 'Vinay Kumar',
         role: 'SUPER_ADMIN',
-        tag: 'Administrator · Vinay',
-      },
-      {
-        email: 'parcelflow.user.1795196192549@gmail.com',
-        name: 'ParcelFlow Resident',
-        role: 'RESIDENT',
-        tag: 'Tower A · Flat 402',
+        tag: 'App Owner & Admin',
       },
     ];
   });
@@ -134,14 +137,20 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
 
     try {
       if (mode === 'SIGNUP') {
-        if (!fullName.trim()) {
+        const cleanName = fullName.trim();
+        if (!cleanName || cleanName.length < 3 || !/^[A-Za-z\s]{3,50}$/.test(cleanName)) {
           setLoading(false);
-          setErrorMessage('Please enter your full name.');
+          setErrorMessage('Please enter a valid full name (letters only, min 3 characters).');
           return;
         }
-        if (!flatNumber.trim()) {
+        if (phone.trim() && !isValidPhoneNumber(phone.trim())) {
           setLoading(false);
-          setErrorMessage('Please enter your flat / unit number (e.g. B-402).');
+          setErrorMessage('Please enter a valid 10-digit Indian phone number starting with 6, 7, 8, or 9.');
+          return;
+        }
+        if (!flatNumber.trim() || !isValidFlatNumber(flatNumber.trim())) {
+          setLoading(false);
+          setErrorMessage('Please enter a valid flat number (e.g. A-402, B-101, or Tower A · Flat 402).');
           return;
         }
         if (!cleanEmail) {
@@ -392,9 +401,10 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
       let sessionUserId = FIXED_ADMIN_UID;
       let userRole = role || 'RESIDENT';
       let userName = displayName || cleanEmail.split('@')[0];
-      let userFlat = 'A-402';
+      let userFlat = '';
+      let userSocietyId = selectedSociety?.id || '';
 
-      // 1. If Vinay Kumar, establish live authenticated Supabase session
+      // 1. If Vinay Kumar, establish live authenticated Supabase session as App Owner
       if (cleanEmail === FIXED_ADMIN_EMAIL.toLowerCase()) {
         const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
           email: FIXED_ADMIN_EMAIL,
@@ -417,10 +427,18 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           if (existingProfile) {
             sessionUserId = existingProfile.id;
             userName = existingProfile.full_name || userName;
-            userRole = existingProfile.role ? normalizeRole(existingProfile.role) : userRole;
+            userRole = existingProfile.role ? normalizeRole(existingProfile.role) : 'RESIDENT';
+            userFlat = existingProfile.flat_number || '';
+            userSocietyId = existingProfile.society_id || userSocietyId;
+          } else {
+            // Default value is strictly RESIDENT without any pre-assigned flat/building
+            userRole = 'RESIDENT';
+            userFlat = '';
           }
         } catch (dbErr) {
           console.warn('Profile lookup note:', dbErr);
+          userRole = 'RESIDENT';
+          userFlat = '';
         }
       }
 
@@ -430,7 +448,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           email: cleanEmail,
           name: userName,
           role: userRole,
-          tag: userRole === 'SUPER_ADMIN' ? 'Administrator · Vinay' : 'Tower A · Flat 402',
+          tag: userRole === 'SUPER_ADMIN' ? 'App Owner & Admin' : 'Resident',
         };
         const updated = [
           newEntry,
@@ -438,7 +456,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         ];
         setGoogleAccounts(updated);
         if (typeof localStorage !== 'undefined') {
-          localStorage.setItem('parcelflow_google_accounts', JSON.stringify(updated));
+          localStorage.setItem('parcelflow_google_accounts_v2', JSON.stringify(updated));
         }
       } catch {}
 
@@ -448,7 +466,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         email: cleanEmail,
         name: userName,
         role: userRole as any,
-        societyId: selectedSociety.id,
+        societyId: userSocietyId,
         flatNumber: userFlat,
       });
 
@@ -461,9 +479,9 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         id: cleanEmail === FIXED_ADMIN_EMAIL ? FIXED_ADMIN_UID : 'google-user-' + Date.now(),
         email: cleanEmail,
         name: displayName || cleanEmail.split('@')[0],
-        role: (role as any) || 'RESIDENT',
-        societyId: selectedSociety.id,
-        flatNumber: 'A-402',
+        role: cleanEmail === FIXED_ADMIN_EMAIL ? 'SUPER_ADMIN' : 'RESIDENT',
+        societyId: selectedSociety?.id || '',
+        flatNumber: '',
       });
       setLoading(false);
       onLoginSuccess();
@@ -970,9 +988,9 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
           </div>
         )}
 
-        {/* Switch mode */}
+        {/* Switch mode & Admin Activation Link */}
         {(mode === 'LOGIN' || mode === 'SIGNUP') && (
-          <div className="mt-5 text-center">
+          <div className="mt-5 text-center space-y-2">
             <p className="text-xs text-slate-600 font-semibold">
               {mode === 'LOGIN' ? "Don't have an account? " : 'Already have an account? '}
               <button
@@ -987,9 +1005,118 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
                 {mode === 'LOGIN' ? 'Create Account' : 'Log In'}
               </button>
             </p>
+
+            {/* Admin Activation Code Entry Link */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowAdminActivationModal(true);
+                setErrorMessage(null);
+              }}
+              className="text-[11px] font-black text-amber-700 hover:text-amber-900 flex items-center justify-center gap-1 mx-auto pt-1"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>Have an Admin Activation Code? Tap here</span>
+            </button>
           </div>
         )}
       </div>
+
+      {/* ========================================================================= */}
+      {/* ADMIN ACTIVATION MODAL (6-Digit OTP from Owner Vinay Kumar)                */}
+      {/* ========================================================================= */}
+      {showAdminActivationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4 select-none animate-fadeIn">
+          <div className="w-full max-w-sm bg-[#FEF9F3] rounded-[32px] border-3 border-[#060D1E] shadow-[6px_6px_0px_#060D1E] p-5 space-y-3.5">
+            <div className="flex items-center justify-between border-b pb-2 border-slate-200">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-100 border-2 border-[#060D1E] flex items-center justify-center text-amber-900 font-black">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-[#060D1E]">Admin Activation</h3>
+                  <p className="text-[10px] font-bold text-slate-500">Issued by Owner Vinay Kumar</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAdminActivationModal(false)}
+                className="w-7 h-7 rounded-full border-2 border-[#060D1E] bg-white flex items-center justify-center text-slate-700"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <p className="text-xs font-bold text-slate-600">
+              Enter your registered email address and the 6-digit OTP code provided by Vinay Kumar to activate your Society Admin privileges.
+            </p>
+
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                const res = await verifyAndActivateAdminCode(email, adminActivationCode);
+                setLoading(false);
+                if (!res.success || !res.invite) {
+                  setErrorMessage(res.error || 'Invalid Admin Activation Code.');
+                  setShowAdminActivationModal(false);
+                  return;
+                }
+                setShowAdminActivationModal(false);
+                login({
+                  id: 'admin-' + Date.now(),
+                  email: res.invite.email,
+                  name: res.invite.fullName,
+                  phone: res.invite.phone,
+                  role: 'SOCIETY_ADMIN',
+                  societyId: res.invite.societyId,
+                  flatNumber: '',
+                });
+                onLoginSuccess();
+              }}
+              className="space-y-3"
+            >
+              <div>
+                <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">
+                  Your Registered Email Address:
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="name@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 text-xs font-bold rounded-xl border-2 border-slate-300 focus:border-[#1E60F2] outline-none bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-black uppercase text-slate-500 block mb-1">
+                  6-Digit Admin OTP Code:
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={6}
+                  placeholder="e.g. 549210"
+                  value={adminActivationCode}
+                  onChange={(e) => setAdminActivationCode(e.target.value.replace(/\D/g, ''))}
+                  className="w-full px-3 py-2 text-base font-mono font-bold tracking-widest text-center rounded-xl border-2 border-slate-300 focus:border-[#1E60F2] outline-none bg-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading || adminActivationCode.length < 6 || !email.includes('@')}
+                className="w-full py-3 bg-amber-400 hover:bg-amber-500 disabled:opacity-50 text-amber-950 rounded-2xl text-xs font-black border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+              >
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Verify Code & Elevate to Admin</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================================= */}
       {/* GOOGLE ACCOUNT CHOOSER MODAL DIALOG                                        */}

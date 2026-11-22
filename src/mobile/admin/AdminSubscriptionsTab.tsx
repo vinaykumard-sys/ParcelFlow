@@ -17,6 +17,7 @@ import {
   Building,
 } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
+import { UpiPaymentModal } from '../components/UpiPaymentModal';
 import {
   subscriptionService,
   SUBSCRIPTION_PLANS,
@@ -97,7 +98,7 @@ export const AdminSubscriptionsTab: React.FC = () => {
   };
 
   // Real or derived resident usage (e.g. 428 / 500 Residents)
-  const currentResidentsCount = residents.length > 0 ? residents.length : 428;
+  const currentResidentsCount = residents.length;
   const maxResidentsCapacity = activeTier === 'STARTER' ? 150 : activeTier === 'PROFESSIONAL' ? 500 : 2500;
   const usagePercentage = Math.min(100, Math.round((currentResidentsCount / maxResidentsCapacity) * 100));
 
@@ -272,6 +273,27 @@ export const AdminSubscriptionsTab: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Instant UPI Renewal Button */}
+        <button
+          onClick={() => setShowUpiModal(true)}
+          className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black border-2 border-[#060D1E] shadow-[2px_2px_0px_#060D1E] flex items-center justify-center gap-2 active:scale-95 transition-transform"
+        >
+          <CreditCard className="w-4 h-4 text-white" />
+          <span>Pay Subscription via Owner UPI (0% Gateway Fee)</span>
+        </button>
+
+        <UpiPaymentModal
+          isOpen={showUpiModal}
+          onClose={() => setShowUpiModal(false)}
+          title="ParcelFlow Pro Society Subscription"
+          amount={billingCycle === 'MONTHLY' ? 4999 : 49990}
+          description="Monthly Society Subscription Fee"
+          societyName={selectedSociety.name}
+          onPaymentSuccess={() => {
+            showToast('✅ Subscription payment confirmed to Owner Vinay Kumar!');
+          }}
+        />
 
         {/* Invoices & Payment Ledger Card */}
         <div className="bg-white rounded-3xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] p-4">

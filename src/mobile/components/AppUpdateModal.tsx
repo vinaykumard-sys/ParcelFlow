@@ -18,6 +18,7 @@ import {
   downloadApkWithProgress,
   verifyApkSha256,
   triggerAndroidApkInstall,
+  getDirectApkDownloadUrl,
 } from '../../services/appUpdateService';
 import { CURRENT_APP_VERSION } from '../version';
 
@@ -75,7 +76,15 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
     abortControllerRef.current = abortController;
 
     try {
-      // 1. In-App Download with Progress Tracking
+      // 1. Immediately invoke Android system download manager with the direct HTTPS URL
+      triggerAndroidApkInstall(
+        null,
+        metadata.latestVersionName,
+        metadata.apkUrl,
+        metadata.latestVersionCode
+      );
+
+      // 2. In-App Download with Progress Tracking
       const buffer = await downloadApkWithProgress(
         metadata.apkUrl,
         metadata.apkSizeBytes,
@@ -363,6 +372,18 @@ export const AppUpdateModal: React.FC<AppUpdateModalProps> = ({
               <RefreshCw className="w-4 h-4 text-white" />
               <span>Retry Download</span>
             </button>
+          )}
+
+          {/* Direct Download Fallback Link */}
+          {(step === 'AVAILABLE' || step === 'FAILED' || step === 'READY_TO_INSTALL') && (
+            <a
+              href={getDirectApkDownloadUrl(metadata.apkUrl)}
+              download={`ParcelFlow-v${metadata.latestVersionName}.apk`}
+              className="w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-[11px] font-bold border border-slate-300 flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5 text-slate-500" />
+              <span>Direct Download APK ({formatBytes(metadata.apkSizeBytes)})</span>
+            </a>
           )}
 
           {/* Optional "Maybe Later" Action (Hidden for mandatory updates) */}

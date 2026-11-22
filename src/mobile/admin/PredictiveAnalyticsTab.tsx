@@ -233,34 +233,34 @@ export const PredictiveAnalyticsTab: React.FC = () => {
         </div>
 
         {/* Bar Chart Container */}
-        <div className="pt-6 pb-2">
-          <div className="grid grid-cols-8 gap-2 items-end h-44 border-b-2 border-slate-200 px-1">
+        <div className="pt-2 pb-2">
+          <div className="grid grid-cols-8 gap-1.5 items-end h-40 border-b-2 border-slate-200 px-1">
             {hourlyList.map((item) => {
               const isPeakHour = item.hour === '18:00' || item.hour === '20:00';
               const isSelected = selectedBarHour === item.hour;
-              const intakeHeight = Math.max(8, Math.round((item.expected_intake / maxVolume) * 100));
-              const pickupHeight = Math.max(8, Math.round((item.expected_pickups / maxVolume) * 100));
+              const intakeHeight = Math.max(10, Math.round((item.expected_intake / maxVolume) * 100));
+              const pickupHeight = Math.max(10, Math.round((item.expected_pickups / maxVolume) * 100));
 
               return (
                 <div
                   key={item.hour}
                   onClick={() => setSelectedBarHour(item.hour)}
-                  className={`flex flex-col items-center justify-end h-full cursor-pointer group relative transition-all ${
-                    isSelected ? 'scale-105' : 'hover:opacity-90'
+                  className={`flex flex-col items-center justify-end h-full cursor-pointer relative py-1 rounded-xl transition-colors ${
+                    isSelected ? 'bg-blue-50/80 ring-2 ring-[#1E60F2]' : 'hover:bg-slate-50'
                   }`}
                 >
-                  {/* Peak Tag Badge */}
+                  {/* Neat Peak Tag Badge (contained inside chart bounds, no bouncing) */}
                   {isPeakHour && (
-                    <div className="absolute -top-6 px-1.5 py-0.5 rounded bg-amber-400 text-amber-950 font-black text-[8px] border border-[#060D1E] shadow-sm animate-bounce">
+                    <span className="mb-1 px-1 py-0.2 rounded bg-amber-400 text-amber-950 font-black text-[7px] border border-[#060D1E] leading-tight">
                       PEAK
-                    </div>
+                    </span>
                   )}
 
                   {/* Dual Bar (Intake Blue + Pickup Amber) */}
                   <div className="flex items-end gap-1 w-full justify-center">
                     {/* Intake Bar */}
                     <div
-                      className={`w-3 sm:w-3.5 rounded-t-md border border-[#060D1E] transition-all ${
+                      className={`w-2.5 sm:w-3.5 rounded-t-md border border-[#060D1E] transition-all ${
                         isPeakHour ? 'bg-blue-600' : 'bg-blue-400'
                       }`}
                       style={{ height: `${intakeHeight}%` }}
@@ -269,9 +269,9 @@ export const PredictiveAnalyticsTab: React.FC = () => {
 
                     {/* Pickup Bar */}
                     <div
-                      className={`w-3 sm:w-3.5 rounded-t-md border border-[#060D1E] transition-all ${
+                      className={`w-2.5 sm:w-3.5 rounded-t-md border border-[#060D1E] transition-all ${
                         isPeakHour
-                          ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]'
+                          ? 'bg-amber-400'
                           : 'bg-amber-300'
                       }`}
                       style={{ height: `${pickupHeight}%` }}
@@ -281,9 +281,9 @@ export const PredictiveAnalyticsTab: React.FC = () => {
 
                   {/* Hour Label */}
                   <span
-                    className={`text-[9px] mt-2 font-black transition-colors ${
+                    className={`text-[8px] sm:text-[9px] mt-1.5 font-black transition-colors ${
                       isSelected
-                        ? 'text-[#1E60F2] underline'
+                        ? 'text-[#1E60F2] font-black'
                         : isPeakHour
                         ? 'text-amber-900'
                         : 'text-slate-500'

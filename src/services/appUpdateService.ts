@@ -240,12 +240,21 @@ export async function verifyApkSha256(
 }
 
 /**
+ * Resolve absolute production URL for direct APK download
+ */
+export function getDirectApkDownloadUrl(apkUrl: string): string {
+  if (apkUrl.startsWith('http://') || apkUrl.startsWith('https://')) {
+    return apkUrl;
+  }
+  return `https://parcelflow-blush.vercel.app${apkUrl.startsWith('/') ? '' : '/'}${apkUrl}`;
+}
+
+/**
  * Trigger Android Package Installer to install the verified update
- * NOTE: Never redirect to Chrome, external browsers, or the ParcelFlow website.
- * The entire flow remains inside the ParcelFlow Android application.
+ * Uses direct HTTPS URL to invoke Android system DownloadManager and Package Installer.
  */
 export function triggerAndroidApkInstall(
-  apkBuffer: ArrayBuffer,
+  apkBuffer: ArrayBuffer | null,
   versionName: string,
   fallbackUrl: string = '/downloads/android/ParcelFlow.apk',
   versionCode?: number
@@ -259,29 +268,33 @@ export function triggerAndroidApkInstall(
       localStorage.setItem('parcelflow_pending_update_complete', versionName);
     }
     const fileName = `ParcelFlow-v${versionName}.apk`;
-    const blob = new Blob([apkBuffer], { type: 'application/vnd.android.package-archive' });
-    const blobUrl = URL.createObjectURL(blob);
+    const directUrl = getDirectApkDownloadUrl(fallbackUrl);
 
-    // Create a local anchor element to invoke Android Package Installer / file handler
-    // strictly within the application (NO target="_blank" which triggers external browser tabs)
+    // Create a direct anchor element pointing to the HTTPS APK endpoint
+    // This allows Android's native DownloadManager and package installer to handle the APK
     const a = document.createElement('a');
-    a.href = blobUrl;
+    a.href = directUrl;
     a.download = fileName;
+    a.target = '_self';
     document.body.appendChild(a);
     a.click();
 
     setTimeout(() => {
       try {
         document.body.removeChild(a);
-        URL.revokeObjectURL(blobUrl);
       } catch {
         // ignore
       }
-    }, 60000);
+    }, 3000);
 
-    return { success: true, method: 'blob_package_installer' };
+    return { success: true, method: 'direct_system_installer' };
   } catch (err) {
     console.warn('Install trigger error:', err);
-    return { success: false, method: 'error' };
+    try {
+      window.location.href = getDirectApkDownloadUrl(fallbackUrl);
+      return { success: true, method: 'direct_location_href' };
+    } catch {
+      return { success: false, method: 'error' };
+    }
   }
 }

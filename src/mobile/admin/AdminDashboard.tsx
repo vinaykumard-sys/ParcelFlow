@@ -25,6 +25,9 @@ import {
 } from 'lucide-react';
 import { useMobileStore, SOCIETIES } from '../services/mobileState';
 import { adminService } from '../../services/adminService';
+import { isAppOwner } from '../../services/ownerService';
+import { OwnerControlCenterModal } from './OwnerControlCenterModal';
+import { Crown } from 'lucide-react';
 
 interface AdminDashboardProps {
   onOpenManage: (tab?: 'residents' | 'staff' | 'slots') => void;
@@ -51,7 +54,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onOpenIncidents,
   onQuickAction,
 }) => {
-  const { selectedSociety, setSociety, parcels, residents, currentRole } = useMobileStore();
+  const { selectedSociety, setSociety, parcels, residents, currentRole, currentUser } = useMobileStore();
+  const [isOwnerCenterOpen, setIsOwnerCenterOpen] = useState(false);
   const [daysFilter, setDaysFilter] = useState<'7' | '14' | '30'>('7');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -71,14 +75,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   }, [selectedSociety.id]);
 
   // Derived real KPI counts connected to backend data & realistic defaults
-  const residentsCount = residents.length > 0 ? residents.length : 428;
-  const todayParcelsCount = parcels.length > 0 ? parcels.length : (realStats?.todayTotal || 36);
+  const residentsCount = residents.length > 0 ? residents.length : (realStats?.totalResidents || 0);
+  const todayParcelsCount = parcels.length > 0 ? parcels.length : (realStats?.todayTotal || 0);
   const pendingPickupCount = parcels.length > 0
     ? parcels.filter(p => ['WAITING', 'RECEIVED', 'STORED', 'NOTIFIED', 'CREATED'].includes(p.status)).length
-    : (realStats?.pendingCount || 12);
+    : (realStats?.pendingCount || 0);
   const collectedTodayCount = parcels.length > 0
     ? parcels.filter(p => ['COLLECTED', 'HANDED_OVER', 'COMPLETED'].includes(p.status)).length
-    : (realStats?.collectedCount || 24);
+    : (realStats?.collectedCount || 0);
 
   // Curved 7-Day SVG Activity Line Data (Points scaled for SVG viewBox 0 0 320 120)
   // Coordinates:
@@ -130,6 +134,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {/* Right: Platform Owner Switch (if admin) & Notification Bell */}
           <div className="flex items-center gap-2">
+            {isAppOwner(currentUser?.email) && (
+              <button
+                onClick={() => setIsOwnerCenterOpen(true)}
+                className="flex items-center gap-1 px-2.5 py-1 bg-amber-400 hover:bg-amber-500 text-amber-950 rounded-xl border-2 border-[#060D1E] shadow-[1.5px_1.5px_0px_#060D1E] text-[10px] font-black active:scale-95 transition-all"
+              >
+                <Crown className="w-3.5 h-3.5 fill-amber-950" />
+                <span>Owner Center</span>
+              </button>
+            )}
             {onOpenPlatformOwner && (
               <button
                 onClick={onOpenPlatformOwner}

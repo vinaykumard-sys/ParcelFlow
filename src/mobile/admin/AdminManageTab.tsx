@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Users, UserPlus, Shield, Plus, Clock, Check, X, Phone, Building } from 'lucide-react';
 import { useMobileStore } from '../services/mobileState';
+import { isValidPhoneNumber, isValidFlatNumber, formatPhoneNumber } from '../../services/ownerService';
+import { AlertCircle } from 'lucide-react';
 
 interface AdminManageTabProps {
   initialSubtab?: 'residents' | 'staff' | 'slots';
@@ -9,7 +11,8 @@ interface AdminManageTabProps {
 export const AdminManageTab: React.FC<AdminManageTabProps> = ({
   initialSubtab = 'residents',
 }) => {
-  const { residents, staff, slots, addResident, addStaff, toggleSlot } = useMobileStore();
+  const { residents, staff, slots, addResident, addStaff, toggleSlot, selectedSociety } = useMobileStore();
+  const [resError, setResError] = useState<string | null>(null);
   const [subtab, setSubtab] = useState<'residents' | 'staff' | 'slots'>(initialSubtab);
 
   // Add resident modal state
@@ -248,6 +251,12 @@ export const AdminManageTab: React.FC<AdminManageTabProps> = ({
             </div>
 
             <form onSubmit={handleAddResidentSubmit} className="space-y-3">
+              {resError && (
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs font-bold flex items-center gap-1.5">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{resError}</span>
+                </div>
+              )}
               <div>
                 <label className="text-[11px] font-bold text-slate-600 block mb-1">Full Name</label>
                 <input

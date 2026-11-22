@@ -4,8 +4,8 @@
 //
 // Matches the native AndroidManifest.xml package identity:
 // package: in.parcelflow.app
-// versionCode: 4
-// versionName: 1.1.0
+// versionCode: 9
+// versionName: 1.4.2
 // ============================================================================
 
 export interface AppVersionInfo {
@@ -17,8 +17,8 @@ export interface AppVersionInfo {
 }
 
 export const CURRENT_APP_VERSION: AppVersionInfo = {
-  versionName: '1.4.1',
-  versionCode: 8,
+  versionName: '1.4.2',
+  versionCode: 9,
   packageId: 'in.parcelflow.app',
   buildDate: '2026-11-22',
   channel: 'production',
@@ -49,13 +49,19 @@ export function getEffectiveAppVersion(): AppVersionInfo {
     // ignore
   }
 
-  // Check if native Android runtime exposed version info via WebView bridge
-  if (typeof (window as any).__PARCELFLOW_NATIVE_VERSION_CODE__ === 'number') {
-    return {
-      ...CURRENT_APP_VERSION,
-      versionCode: (window as any).__PARCELFLOW_NATIVE_VERSION_CODE__,
-      versionName: (window as any).__PARCELFLOW_NATIVE_VERSION__ || CURRENT_APP_VERSION.versionName,
-    };
+  // Check Android Native Interface if available
+  try {
+    const nativeVersionCode = (window as any).ParcelFlowNative?.getVersionCode?.();
+    const nativeVersionName = (window as any).ParcelFlowNative?.getVersionName?.();
+    if (nativeVersionCode && nativeVersionCode > CURRENT_APP_VERSION.versionCode) {
+      return {
+        ...CURRENT_APP_VERSION,
+        versionCode: nativeVersionCode,
+        versionName: nativeVersionName || CURRENT_APP_VERSION.versionName,
+      };
+    }
+  } catch {
+    // ignore
   }
 
   return CURRENT_APP_VERSION;
