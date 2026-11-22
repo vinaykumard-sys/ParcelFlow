@@ -35,13 +35,13 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const [iosSubmitted, setIosSubmitted] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
   const [versionInfo, setVersionInfo] = useState({
-    versionName: '1.4.0',
-    versionCode: 7,
-    apkSize: '9.8 MB',
-    releaseDate: 'November 21, 2026',
-    sha256: 'pending-release',
-    apkUrl: '/downloads/android/ParcelFlow-v1.4.0-update.apk',
-    filename: 'ParcelFlow-v1.4.0-update.apk',
+    versionName: '1.4.1',
+    versionCode: 8,
+    apkSize: '9.6 MB',
+    releaseDate: 'November 22, 2026',
+    sha256: '2d135df6479f50dc8bd402bba1a200a7ec756fa0734da52987d9c4b53a17c9b7',
+    apkUrl: '/downloads/android/ParcelFlow-v1.4.1-update.apk',
+    filename: 'ParcelFlow-v1.4.1-update.apk',
   });
 
   React.useEffect(() => {
@@ -50,13 +50,13 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
       .then((data) => {
         if (data) {
           setVersionInfo({
-            versionName: data.latestVersionName || '1.4.0',
-            versionCode: data.latestVersionCode || 7,
-            apkSize: data.apkSizeBytes ? `${(data.apkSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '9.8 MB',
-            releaseDate: data.releaseDate || 'November 21, 2026',
+            versionName: data.latestVersionName || '1.4.1',
+            versionCode: data.latestVersionCode || 8,
+            apkSize: data.apkSizeBytes ? `${(data.apkSizeBytes / (1024 * 1024)).toFixed(1)} MB` : '28.6 MB',
+            releaseDate: data.releaseDate || 'November 22, 2026',
             sha256: data.sha256 || 'pending-release',
-            apkUrl: data.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk',
-            filename: 'ParcelFlow-v1.4.0-update.apk',
+            apkUrl: data.apkUrl || '/downloads/android/ParcelFlow-v1.4.1-update.apk',
+            filename: 'ParcelFlow-v1.4.1-update.apk',
           });
         }
       })
@@ -83,8 +83,8 @@ export const DownloadPage: React.FC<DownloadPageProps> = ({ onOpenPilotModal }) 
   const triggerDownload = () => {
     setDownloadStarted(true);
     const link = document.createElement('a');
-    link.href = versionInfo.apkUrl || '/downloads/android/ParcelFlow-v1.4.0-update.apk';
-    link.setAttribute('download', versionInfo.filename || 'ParcelFlow-v1.4.0-update.apk');
+    link.href = versionInfo.apkUrl || '/downloads/android/ParcelFlow-v1.4.1-update.apk';
+    link.setAttribute('download', versionInfo.filename || 'ParcelFlow-v1.4.1-update.apk');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

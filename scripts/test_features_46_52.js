@@ -63,46 +63,46 @@ try {
     `latestVersionName=${metadata.latestVersionName}, latestVersionCode=${metadata.latestVersionCode}, minCode=${metadata.minimumSupportedVersionCode}, notesCount=${metadata.releaseNotes.length}`
   );
 
-  // 46.2 Already latest version (VersionCode 5 vs 5)
-  const currentIsLatest = 5;
+  // 46.2 Already latest version (VersionCode equals latestVersionCode)
+  const currentIsLatest = metadata.latestVersionCode;
   const updateAvailableWhenSame = metadata.latestVersionCode > currentIsLatest;
   recordTest(
     'FEATURE 46',
     'Already latest version detection',
     !updateAvailableWhenSame,
-    `Current versionCode 5 >= latest versionCode ${metadata.latestVersionCode} -> hasUpdate=false`
+    `Current versionCode ${currentIsLatest} >= latest versionCode ${metadata.latestVersionCode} -> hasUpdate=false`
   );
 
-  // 46.3 Older version detection (VersionCode 4 vs 5)
-  const olderVersion = 4;
+  // 46.3 Older version detection (VersionCode less than latestVersionCode)
+  const olderVersion = metadata.latestVersionCode - 1;
   const updateAvailableWhenOlder = metadata.latestVersionCode > olderVersion;
   recordTest(
     'FEATURE 46',
     'Older version update detection',
     updateAvailableWhenOlder,
-    `Current versionCode 4 < latest versionCode ${metadata.latestVersionCode} -> hasUpdate=true`
+    `Current versionCode ${olderVersion} < latest versionCode ${metadata.latestVersionCode} -> hasUpdate=true`
   );
 
   // 46.4 Mandatory update detection (VersionCode 3 < minimum 4)
-  const legacyVersion = 3;
+  const legacyVersion = metadata.minimumSupportedVersionCode - 1;
   const isMandatoryLegacy =
     metadata.mandatory || legacyVersion < metadata.minimumSupportedVersionCode;
   recordTest(
     'FEATURE 46',
     'Mandatory update enforcement (vCode < minimumSupportedVersionCode)',
     isMandatoryLegacy,
-    `VersionCode 3 < minSupported ${metadata.minimumSupportedVersionCode} -> mandatory=true (blocks skip/dismiss)`
+    `VersionCode ${legacyVersion} < minSupported ${metadata.minimumSupportedVersionCode} -> mandatory=true (blocks skip/dismiss)`
   );
 
-  // 46.5 Optional update handling (VersionCode 4 >= minimum 4 and mandatory=false)
-  const supportedOlderVersion = 4;
+  // 46.5 Optional update handling (VersionCode >= minimumSupportedVersionCode and mandatory=false)
+  const supportedOlderVersion = metadata.minimumSupportedVersionCode;
   const isMandatorySupported =
     metadata.mandatory || supportedOlderVersion < metadata.minimumSupportedVersionCode;
   recordTest(
     'FEATURE 46',
     'Optional update handling ("Maybe Later" permitted)',
     !isMandatorySupported,
-    `VersionCode 4 >= minSupported 4 & mandatory=false -> mandatory=false (allows dismiss/maybe later)`
+    `VersionCode ${supportedOlderVersion} >= minSupported ${metadata.minimumSupportedVersionCode} & mandatory=false -> mandatory=false (allows dismiss/maybe later)`
   );
 } catch (err) {
   recordTest('FEATURE 46', 'Update detection suite error', false, '', err.message);
@@ -198,8 +198,8 @@ try {
 // ----------------------------------------------------------------------------
 console.log('\n--- TESTING FEATURE 48: APK DOWNLOAD & VERIFICATION ---');
 try {
-  const apkPath = 'public/downloads/android/ParcelFlow.apk';
   const metadata = JSON.parse(fs.readFileSync('public/api/app-update/android.json', 'utf8'));
+  const apkPath = metadata.apkUrl.startsWith('/') ? `public${metadata.apkUrl}` : metadata.apkUrl;
 
   // 48.1 Direct APK download file existence and size
   const apkStats = fs.statSync(apkPath);
@@ -236,13 +236,13 @@ try {
 
   // 48.4 APK Application ID and Manifest verification via aapt2
   const aaptOut = execSync(
-    '& "node_modules\\aaptjs3\\bin\\x64\\win32\\aapt2.exe" dump badging public/downloads/android/ParcelFlow.apk',
+    `& "node_modules\\aaptjs3\\bin\\x64\\win32\\aapt2.exe" dump badging "${apkPath}"`,
     { shell: 'powershell' }
   ).toString();
 
   const isAppIdCorrect = aaptOut.includes("package: name='in.parcelflow.app'");
-  const isVersionCodeCorrect = aaptOut.includes("versionCode='5'");
-  const isVersionNameCorrect = aaptOut.includes("versionName='1.2.0'");
+  const isVersionCodeCorrect = aaptOut.includes(`versionCode='${metadata.latestVersionCode}'`);
+  const isVersionNameCorrect = aaptOut.includes(`versionName='${metadata.latestVersionName}'`);
   const hasInstallPermission = aaptOut.includes(
     "uses-permission: name='android.permission.REQUEST_INSTALL_PACKAGES'"
   );
@@ -251,7 +251,7 @@ try {
     'FEATURE 48',
     'APK Package ID, VersionCode, and VersionName integrity via aapt2',
     isAppIdCorrect && isVersionCodeCorrect && isVersionNameCorrect && hasInstallPermission,
-    `Package: in.parcelflow.app | versionCode=5 | versionName=1.2.0 | REQUEST_INSTALL_PACKAGES=present`
+    `Package: in.parcelflow.app | versionCode=${metadata.latestVersionCode} | versionName=${metadata.latestVersionName} | REQUEST_INSTALL_PACKAGES=present`
   );
 
   // 48.5 Signing Keystore parcelflow-release.jks verification
@@ -265,7 +265,7 @@ try {
 
   // Uber-apk-signer verification on APK binary
   const uberSignerOut = execSync(
-    'java -jar uber-apk-signer.jar --apks public/downloads/android/ParcelFlow.apk -y --verbose',
+    `java -jar uber-apk-signer.jar --apks "${apkPath}" -y --verbose`,
     { shell: 'powershell' }
   ).toString();
 

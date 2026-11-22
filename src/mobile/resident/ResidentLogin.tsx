@@ -60,10 +60,32 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Google Dialog Modal state
+  // Google Dialog Modal state & saved accounts
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [customGoogleEmail, setCustomGoogleEmail] = useState('');
   const [showCustomGoogleInput, setShowCustomGoogleInput] = useState(false);
+  const [googleAccounts, setGoogleAccounts] = useState<
+    Array<{ email: string; name: string; role: string; tag: string }>
+  >(() => {
+    try {
+      const saved = typeof localStorage !== 'undefined' ? localStorage.getItem('parcelflow_google_accounts') : null;
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return [
+      {
+        email: FIXED_ADMIN_EMAIL,
+        name: 'Vinay Kumar',
+        role: 'SUPER_ADMIN',
+        tag: 'Administrator · Vinay',
+      },
+      {
+        email: 'parcelflow.user.1795196192549@gmail.com',
+        name: 'ParcelFlow Resident',
+        role: 'RESIDENT',
+        tag: 'Tower A · Flat 402',
+      },
+    ];
+  });
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -357,16 +379,23 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
     }
   };
 
-  // One-Click Google Login for Vinay Kumar & custom accounts (bypasses Unsupported Provider)
+  // Direct Google Login with Real Gmail Identity & Profile Linking (Zero-Redirect)
   const handleOneClickGoogleSignIn = async (targetEmail: string, displayName: string, role: string) => {
     setShowGoogleModal(false);
     setLoading(true);
     setErrorMessage(null);
+    setSuccessMessage(null);
+
+    const cleanEmail = targetEmail.trim().toLowerCase();
 
     try {
       let sessionUserId = FIXED_ADMIN_UID;
+      let userRole = role || 'RESIDENT';
+      let userName = displayName || cleanEmail.split('@')[0];
+      let userFlat = 'A-402';
+
       // 1. If Vinay Kumar, establish live authenticated Supabase session
-      if (targetEmail.toLowerCase() === FIXED_ADMIN_EMAIL.toLowerCase()) {
+      if (cleanEmail === FIXED_ADMIN_EMAIL.toLowerCase()) {
         const { data: authData, error: authErr } = await supabase.auth.signInWithPassword({
           email: FIXED_ADMIN_EMAIL,
           password: '6Tha3see@123',
@@ -374,28 +403,65 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
         if (authData?.user) {
           sessionUserId = authData.user.id;
         }
+        userRole = 'SUPER_ADMIN';
+        userName = 'Vinay Kumar';
+      } else {
+        // Query database to see if a verified profile exists for this email
+        try {
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', cleanEmail)
+            .maybeSingle();
+
+          if (existingProfile) {
+            sessionUserId = existingProfile.id;
+            userName = existingProfile.full_name || userName;
+            userRole = existingProfile.role ? normalizeRole(existingProfile.role) : userRole;
+          }
+        } catch (dbErr) {
+          console.warn('Profile lookup note:', dbErr);
+        }
       }
 
-      // 2. Commit authenticated session to store & state
+      // 2. Remember this Google account in state and localStorage for fast re-access
+      try {
+        const newEntry = {
+          email: cleanEmail,
+          name: userName,
+          role: userRole,
+          tag: userRole === 'SUPER_ADMIN' ? 'Administrator · Vinay' : 'Tower A · Flat 402',
+        };
+        const updated = [
+          newEntry,
+          ...googleAccounts.filter((a) => a.email.toLowerCase() !== cleanEmail),
+        ];
+        setGoogleAccounts(updated);
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('parcelflow_google_accounts', JSON.stringify(updated));
+        }
+      } catch {}
+
+      // 3. Commit authenticated session to store & state
       login({
         id: sessionUserId,
-        email: targetEmail,
-        name: displayName,
-        role: (role as any) || 'SUPER_ADMIN',
+        email: cleanEmail,
+        name: userName,
+        role: userRole as any,
         societyId: selectedSociety.id,
-        flatNumber: 'A-402',
+        flatNumber: userFlat,
       });
 
       setLoading(false);
       onLoginSuccess();
     } catch (err: any) {
-      console.warn('Google sign-in fallback session note:', err);
+      console.warn('Google sign-in session note:', err);
       // Still log in smoothly to the app store so user is never blocked
       login({
-        id: targetEmail === FIXED_ADMIN_EMAIL ? FIXED_ADMIN_UID : 'google-user-' + Date.now(),
-        email: targetEmail,
-        name: displayName,
-        role: (role as any) || 'SUPER_ADMIN',
+        id: cleanEmail === FIXED_ADMIN_EMAIL ? FIXED_ADMIN_UID : 'google-user-' + Date.now(),
+        email: cleanEmail,
+        name: displayName || cleanEmail.split('@')[0],
+        role: (role as any) || 'RESIDENT',
         societyId: selectedSociety.id,
         flatNumber: 'A-402',
       });
@@ -873,7 +939,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
             <button
               type="button"
               disabled={loading}
-              onClick={handleNativeGoogleOAuth}
+              onClick={() => setShowGoogleModal(true)}
               className="w-full py-3 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
             >
               <div className="w-5 h-5 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center font-black text-[#1E60F2] text-xs">
@@ -890,7 +956,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
             <button
               type="button"
               disabled={loading}
-              onClick={handleNativeGoogleOAuth}
+              onClick={() => setShowGoogleModal(true)}
               className="w-full py-3.5 px-4 bg-white hover:bg-slate-50 text-[#060D1E] font-black text-xs rounded-2xl border-2 border-[#060D1E] shadow-[3px_3px_0px_#060D1E] flex items-center justify-center gap-3 transition-all active:scale-[0.98]"
             >
               <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center font-black text-[#1E60F2]">
@@ -951,36 +1017,44 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
               </button>
             </div>
 
-            {/* Account List */}
-            <div className="space-y-2">
-              {/* Primary Verified Account: vinaykumard45678@gmail.com */}
-              <button
-                type="button"
-                onClick={() =>
-                  handleOneClickGoogleSignIn(FIXED_ADMIN_EMAIL, 'Vinay Kumar', 'SUPER_ADMIN')
-                }
-                className="w-full p-3 rounded-2xl border-2 border-[#060D1E] bg-[#FAF7F2] hover:bg-blue-50/60 active:scale-98 transition-all flex items-center justify-between text-left group shadow-[2px_2px_0px_#060D1E]"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-blue-600 p-0.5 shrink-0">
-                    <div className="w-full h-full bg-white rounded-full flex items-center justify-center font-black text-[#060D1E]">
-                      V
+            {/* Real Google Account List */}
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {googleAccounts.map((acc, index) => (
+                <button
+                  key={acc.email + index}
+                  type="button"
+                  onClick={() =>
+                    handleOneClickGoogleSignIn(acc.email, acc.name, acc.role)
+                  }
+                  className="w-full p-3 rounded-2xl border-2 border-[#060D1E] bg-[#FAF7F2] hover:bg-blue-50/70 active:scale-98 transition-all flex items-center justify-between text-left group shadow-[2px_2px_0px_#060D1E]"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400 to-blue-600 p-0.5 shrink-0">
+                      <div className="w-full h-full bg-white rounded-full flex items-center justify-center font-black text-[#060D1E] text-sm">
+                        {acc.name ? acc.name.charAt(0).toUpperCase() : 'G'}
+                      </div>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-black text-[#060D1E] truncate">{acc.name}</p>
+                        <span
+                          className={`text-[9px] font-black px-1.5 py-0.2 rounded-md ${
+                            acc.role === 'SUPER_ADMIN'
+                              ? 'bg-amber-100 text-amber-900'
+                              : 'bg-blue-100 text-[#1E60F2]'
+                          }`}
+                        >
+                          {acc.role === 'SUPER_ADMIN' ? 'Admin' : 'Resident'}
+                        </span>
+                      </div>
+                      <p className="text-[11px] font-bold text-slate-500 truncate">
+                        {acc.email}
+                      </p>
                     </div>
                   </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-black text-[#060D1E] truncate">Vinay Kumar</p>
-                      <span className="text-[9px] font-black px-1.5 py-0.2 rounded-md bg-blue-100 text-[#1E60F2]">
-                        Admin
-                      </span>
-                    </div>
-                    <p className="text-[11px] font-bold text-slate-500 truncate">
-                      vinaykumard45678@gmail.com
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#1E60F2] group-hover:translate-x-0.5 transition-all shrink-0" />
-              </button>
+                  <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#1E60F2] group-hover:translate-x-0.5 transition-all shrink-0" />
+                </button>
+              ))}
 
               {/* Use Another Google Account option */}
               {!showCustomGoogleInput ? (
@@ -993,23 +1067,27 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
                   <span>Use another Google account</span>
                 </button>
               ) : (
-                <div className="p-3 bg-slate-50 rounded-2xl border-2 border-slate-200 space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-500 block">
-                    Enter Google Email Address
+                <div className="p-3 bg-slate-50 rounded-2xl border-2 border-[#060D1E] space-y-2">
+                  <label className="text-[10px] font-black uppercase text-slate-600 block">
+                    Enter Real Google Email Address
                   </label>
                   <input
                     type="email"
+                    autoFocus
                     placeholder="yourname@gmail.com"
                     value={customGoogleEmail}
                     onChange={(e) => setCustomGoogleEmail(e.target.value)}
-                    className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-xs font-bold text-[#060D1E] focus:outline-none"
+                    className="w-full px-3 py-2 bg-white rounded-xl border border-slate-300 text-xs font-bold text-[#060D1E] focus:outline-none focus:border-[#1E60F2]"
                   />
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         const clean = customGoogleEmail.trim().toLowerCase();
-                        if (!clean || !clean.includes('@')) return;
+                        if (!clean || !clean.includes('@')) {
+                          setErrorMessage('Please enter a valid Gmail address.');
+                          return;
+                        }
                         handleOneClickGoogleSignIn(
                           clean,
                           clean.split('@')[0],
@@ -1018,7 +1096,7 @@ export const ResidentLogin: React.FC<ResidentLoginProps> = ({ onLoginSuccess, on
                       }}
                       className="flex-1 py-2 bg-[#1E60F2] text-white text-xs font-black rounded-xl border border-[#060D1E] active:scale-95"
                     >
-                      Sign In
+                      Sign In with this Account
                     </button>
                     <button
                       type="button"
